@@ -10,7 +10,7 @@ file(GLOB PUBLIC_HEADERS "include/engine/*.hpp")
 add_library(OvenEngine SHARED ${PRIVATE_SOURCES} ${PUBLIC_HEADERS})
 
 # Définir ENGINE_BUILD_DLL UNIQUEMENT pour la librairie (pas pour le sandbox)
-target_compile_definitions(OvenEngine PRIVATE ENGINE_BUILD_DLL)
+target_compile_definitions(OvenEngine PRIVATE OVEN_BUILD_DLL)
 # --- 4. Inclure les headers publics ---
 target_include_directories(OvenEngine
     PUBLIC
