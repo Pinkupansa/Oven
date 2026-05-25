@@ -10,4 +10,8 @@
     #define OVEN_API __attribute__((visibility("default")))
 #endif
 
+#ifdef OVEN_DEBUG
+#define OVEN_ENABLE_ASSERT
+#endif
+
 #define BIT(x) (1 << x)
