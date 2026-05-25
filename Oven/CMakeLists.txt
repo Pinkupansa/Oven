@@ -8,8 +8,7 @@ file(GLOB_RECURSE ENGINE_SOURCES
 )
 
 file(GLOB_RECURSE ENGINE_HEADERS
-    "include/*.hpp"
-    "src/*.h"      # Inclus au cas où tu as des headers privés dans src/
+    "Oven/*.h"
 )
 
 # -----------------------------
@@ -23,11 +22,12 @@ target_precompile_headers(OvenEngine PRIVATE Oven/ovenpch.h)
 # -----------------------------
 # Dépendances internes & externes
 # -----------------------------
-# spdlog (interne au projet)
+
 add_subdirectory(vendor/spdlog)
+add_subdirectory(vendor/glfw)
 
 # Dépendances système (Assure-toi de les avoir installées via vcpkg ou ton système)
-find_package(glfw3 REQUIRED)
+
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 
