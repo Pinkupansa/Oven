@@ -43,5 +43,5 @@ endforeach()
 # -----------------------------
 # Sous-projets
 # -----------------------------
-add_subdirectory(engine)
+add_subdirectory(Oven)
 add_subdirectory(sandbox)

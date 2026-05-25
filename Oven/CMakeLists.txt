@@ -36,7 +36,6 @@ find_package(OpenGL REQUIRED)
 # -----------------------------
 target_include_directories(OvenEngine
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src

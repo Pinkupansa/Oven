@@ -18,7 +18,7 @@ add_executable(Sandbox
 # -----------------------------
 # Liaison avec le moteur
 # -----------------------------
-# Grâce à 'PUBLIC' dans le projet engine, Sandbox reçoit automatiquement 
+# Grâce à 'PUBLIC' dans le projet Oven, Sandbox reçoit automatiquement 
 # l'accès aux includes d'Oven et à spdlog !
 target_link_libraries(Sandbox
     PRIVATE

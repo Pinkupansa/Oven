@@ -1,9 +1,9 @@
 #pragma once 
 
-#include "Core.h"
+#include "Oven/Core.h"
 #include <string> 
 #include <functional> 
-
+#include <spdlog/fmt/fmt.h>
 namespace Oven{
     //Blocking events, meaning they must be dealt with immediately. Should switch to buffered events
 
@@ -70,8 +70,17 @@ class EventDispatcher{
     private:
         Event& m_Event; 
 };
+
+
 inline std::ostream& operator <<(std::ostream& os, Event& e){
     return os << e.ToString();
 }
 }
-
+template<typename T>
+struct fmt::formatter<T, std::enable_if_t<std::is_base_of_v<Oven::Event, T>, char>>
+    : fmt::formatter<std::string>
+{
+    auto format(const Oven::Event& e, fmt::format_context& ctx) const {
+        return fmt::formatter<std::string>::format(e.ToString(), ctx);
+    }
+};
