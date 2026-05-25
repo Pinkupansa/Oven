@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef _WIN32
+#ifdef OVEN_PLATFORM_WINDOWS
     #ifdef OVEN_BUILD_DLL
         #define OVEN_API __declspec(dllexport)
     #else
@@ -9,3 +9,5 @@
 #else
     #define OVEN_API __attribute__((visibility("default")))
 #endif
+
+#define BIT(x) (1 << x)
