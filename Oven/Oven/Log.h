@@ -4,7 +4,6 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 
-#include <memory>
 namespace Oven{
     class OVEN_API Log{
         public:
