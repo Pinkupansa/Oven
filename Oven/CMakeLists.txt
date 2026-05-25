@@ -19,7 +19,7 @@ add_library(OvenEngine SHARED
     ${ENGINE_SOURCES}
     ${ENGINE_HEADERS}
 )
-
+target_precompile_headers(OvenEngine PRIVATE Oven/ovenpch.h)
 # -----------------------------
 # Dépendances internes & externes
 # -----------------------------
