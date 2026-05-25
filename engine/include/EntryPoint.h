@@ -2,7 +2,11 @@
 extern Oven::Application* Oven::CreateApplication();
 
 int main(int argc, char** argv){
-    printf("Welcome to the Oven game engine ! \n");
+    Oven::Log::Init();
+
+    OVEN_CORE_WARN("Initialized Log !");
+    OVEN_CORE_INFO("Welcome to the Oven game Engine !");
+    OVEN_INFO("Hello !");
     auto app = Oven::CreateApplication();
     app->Run();
     delete app;

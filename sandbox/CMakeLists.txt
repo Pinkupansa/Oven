@@ -1,19 +1,38 @@
 project(Sandbox LANGUAGES CXX)
 
-# --- 1. Récupérer les sources du sandbox ---
-file(GLOB SOURCES "src/*.cpp")
-
-# --- 2. Créer l'exécutable ---
-add_executable(Sandbox ${SOURCES})
-
-# --- 3. Lier la librairie Engine et ses dépendances ---
-target_link_libraries(Sandbox
-    PRIVATE
-        OvenEngine  
+# -----------------------------
+# Sources
+# -----------------------------
+file(GLOB_RECURSE SANDBOX_SOURCES
+    "src/*.cpp"
+    "include/*.hpp"
 )
 
-# --- 4. Inclure les headers de Engine ---
-target_include_directories(Sandbox
+# -----------------------------
+# Executable
+# -----------------------------
+add_executable(Sandbox
+    ${SANDBOX_SOURCES}
+)
+
+# -----------------------------
+# Liaison avec le moteur
+# -----------------------------
+# Grâce à 'PUBLIC' dans le projet engine, Sandbox reçoit automatiquement 
+# l'accès aux includes d'Oven et à spdlog !
+target_link_libraries(Sandbox
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/engine
+        OvenEngine
+)
+
+# -----------------------------
+# Définitions de préprocesseur pour la Sandbox
+# -----------------------------
+target_compile_definitions(Sandbox
+    PUBLIC
+        $<$<PLATFORM_ID:Windows>:OVEN_PLATFORM_WINDOWS>
+    PRIVATE
+        $<$<CONFIG:Debug>:OVEN_DEBUG>
+        $<$<CONFIG:Release>:OVEN_RELEASE>
+        $<$<CONFIG:Dist>:OVEN_DIST>
 )

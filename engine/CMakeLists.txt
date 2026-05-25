@@ -1,43 +1,102 @@
-# --- 1. Nom de la librairie ---
 project(OvenEngine LANGUAGES CXX)
 
-# --- 2. Récupérer les sources ---
-file(GLOB PRIVATE_SOURCES "src/*.cpp")
-file(GLOB PUBLIC_HEADERS "include/engine/*.hpp")
-
-# --- 3. Créer la librairie (STATIC ou SHARED) ---
-# Dans engine/CMakeLists.txt
-add_library(OvenEngine SHARED ${PRIVATE_SOURCES} ${PUBLIC_HEADERS})
-
-# Définir ENGINE_BUILD_DLL UNIQUEMENT pour la librairie (pas pour le sandbox)
-target_compile_definitions(OvenEngine PRIVATE OVEN_BUILD_DLL)
-# --- 4. Inclure les headers publics ---
-target_include_directories(OvenEngine
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include  # Chemin pour les utilisateurs de la librairie
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src       # Chemin interne (non exposé)
+# -----------------------------
+# Sources
+# -----------------------------
+file(GLOB_RECURSE ENGINE_SOURCES
+    "src/*.cpp"
 )
 
-# --- 5. Lier les dépendances (GLFW, GLEW, OpenGL, etc.) ---
+file(GLOB_RECURSE ENGINE_HEADERS
+    "include/*.hpp"
+    "src/*.h"      # Inclus au cas où tu as des headers privés dans src/
+)
+
+# -----------------------------
+# Library (DLL)
+# -----------------------------
+add_library(OvenEngine SHARED
+    ${ENGINE_SOURCES}
+    ${ENGINE_HEADERS}
+)
+
+# -----------------------------
+# Dépendances internes & externes
+# -----------------------------
+# spdlog (interne au projet)
+add_subdirectory(vendor/spdlog)
+
+# Dépendances système (Assure-toi de les avoir installées via vcpkg ou ton système)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 
+# -----------------------------
+# Chemins d'inclusion (Include Dirs)
+# -----------------------------
+target_include_directories(OvenEngine
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+# -----------------------------
+# Définitions de préprocesseur (Le Coeur de ta question)
+# -----------------------------
+target_compile_definitions(OvenEngine
+    PUBLIC
+        # Détection automatique de Windows (Plus propre que de le hardcoder)
+        $<$<PLATFORM_ID:Windows>:OVEN_PLATFORM_WINDOWS>
+    
+    PRIVATE
+        # Spécifique à la création de la DLL d'Oven
+        OVEN_BUILD_DLL
+
+        # Configurations de Build (Gérées dynamiquement par CMake)
+        $<$<CONFIG:Debug>:OVEN_DEBUG>
+        $<$<CONFIG:Release>:OVEN_RELEASE>
+        $<$<CONFIG:Dist>:OVEN_DIST>
+)
+
+# -----------------------------
+# Links
+# -----------------------------
 target_link_libraries(OvenEngine
+    PUBLIC
+        spdlog
     PRIVATE
         glfw
         GLEW::GLEW
         OpenGL::GL
 )
 
-# --- 6. Définir les options de compilation ---
-target_compile_options(OvenEngine
-    PRIVATE
-        -Wall -Wextra -Wpedantic
-)
+# -----------------------------
+# Options du compilateur (Drapeaux /Flags)
+# -----------------------------
+if(MSVC)
+    target_compile_options(OvenEngine PRIVATE
+        /W4
+        $<$<CONFIG:Debug>:/MDd /Zi /Od>
+        $<$<CONFIG:Release>:/MD /O2>
+        $<$<CONFIG:Dist>:/MD /O2>
+    )
+else()
+    target_compile_options(OvenEngine PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        $<$<CONFIG:Debug>:-g -O0>
+        $<$<CONFIG:Release>:-O3>
+        $<$<CONFIG:Dist>:-O3>
+    )
+endif()
 
-# --- 7. Exporter les symboles (si librairie SHARED) ---
-# set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)  # Pour Windows (DLL)
-# set(CMAKE_VISIBILITY_PRESET hidden)         # Masquer les symboles par défaut
-# set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+# -----------------------------
+# Visibilité des symboles
+# -----------------------------
+set_target_properties(OvenEngine PROPERTIES
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN YES
+)

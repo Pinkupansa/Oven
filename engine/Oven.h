@@ -4,6 +4,7 @@
 
 #include "include/Application.h"
 #include "include/Core.h"
+#include "include/Log.h"
 
 
 #include "include/EntryPoint.h"

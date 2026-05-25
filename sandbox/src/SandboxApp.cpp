@@ -15,6 +15,6 @@ class Sandbox : public Oven::Application
 };
 
 Oven::Application* Oven::CreateApplication(){
-    printf("Launching Sandbox App...\n");
+    printf("Launching Sandbox App ...\n");
     return new Sandbox();
 }
