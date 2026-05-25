@@ -28,9 +28,7 @@ namespace Oven{
     };
     class OVEN_API KeyReleasedEvent : public KeyEvent{
         public: 
-            KeyReleasedEvent(int keycode, int repeatCount) : KeyEvent(keycode), m_RepeatCount(repeatCount) {}
-
-            inline int GetRepeatCount() const {return m_RepeatCount;}
+            KeyReleasedEvent(int keycode) : KeyEvent(keycode) {}
 
             std::string ToString() const override{
                 std::stringstream ss; 

@@ -1,7 +1,7 @@
 #pragma once 
 
 #include "Oven/Events/Event.h"
-
+#include <sstream>
 namespace Oven{
     class OVEN_API WindowResizeEvent : public Event{
         public:
