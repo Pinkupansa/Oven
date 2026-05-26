@@ -4,6 +4,3 @@
 [submodule "Oven/vendor/glfw"]
 	path = Oven/vendor/glfw
 	url = https://github.com/glfw/glfw.git
-[submodule "Oven/vendor/glad"]
-	path = Oven/vendor/glad
-	url = https://github.com/Dav1dde/glad.git

@@ -1,38 +1,58 @@
-project(OvenEngine LANGUAGES CXX)
+project(OvenEngine LANGUAGES C CXX)
 
 # -----------------------------
-# Sources
+# Sources communes (hors Platform)
 # -----------------------------
-file(GLOB_RECURSE ENGINE_SOURCES
-    "src/*.cpp"
-)
+file(GLOB_RECURSE ENGINE_SOURCES "src/*.cpp")
+file(GLOB_RECURSE ENGINE_HEADERS "Oven/*.h")
 
-file(GLOB_RECURSE ENGINE_HEADERS
-    "Oven/*.h"
-)
+list(FILTER ENGINE_SOURCES EXCLUDE REGEX ".*/Platform/.*")
+list(FILTER ENGINE_HEADERS EXCLUDE REGEX ".*/Platform/.*")
 
 # -----------------------------
-# Library (DLL)
+# Sources spécifiques à la plateforme
+# -----------------------------
+if(APPLE)
+    file(GLOB PLATFORM_SOURCES "src/Platform/Mac/*.cpp")
+    file(GLOB PLATFORM_HEADERS "Oven/Platform/Mac/*.h")
+elseif(WIN32)
+    file(GLOB PLATFORM_SOURCES "src/Platform/Windows/*.cpp")
+    file(GLOB PLATFORM_HEADERS "Oven/Platform/Windows/*.h")
+elseif(UNIX)
+    file(GLOB PLATFORM_SOURCES "src/Platform/Linux/*.cpp")
+    file(GLOB PLATFORM_HEADERS "Oven/Platform/Linux/*.h")
+else()
+    message(FATAL_ERROR "Plateforme non supportée !")
+endif()
+
+list(APPEND ENGINE_SOURCES ${PLATFORM_SOURCES})
+list(APPEND ENGINE_HEADERS ${PLATFORM_HEADERS})
+
+# -----------------------------
+# Library
 # -----------------------------
 add_library(OvenEngine SHARED
     ${ENGINE_SOURCES}
     ${ENGINE_HEADERS}
 )
-target_precompile_headers(OvenEngine PRIVATE Oven/ovenpch.h)
-# -----------------------------
-# Dépendances internes & externes
-# -----------------------------
 
+target_precompile_headers(OvenEngine PRIVATE Oven/ovenpch.h)
+
+# -----------------------------
+# Dépendances
+# -----------------------------
 add_subdirectory(vendor/spdlog)
 add_subdirectory(vendor/glfw)
 
-# Dépendances système (Assure-toi de les avoir installées via vcpkg ou ton système)
-
-find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 
+add_library(glad STATIC vendor/glad/src/glad.c)
+target_include_directories(glad PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/include
+)
+
 # -----------------------------
-# Chemins d'inclusion (Include Dirs)
+# Include dirs
 # -----------------------------
 target_include_directories(OvenEngine
     PUBLIC
@@ -42,18 +62,15 @@ target_include_directories(OvenEngine
 )
 
 # -----------------------------
-# Définitions de préprocesseur (Le Coeur de ta question)
+# Defines
 # -----------------------------
 target_compile_definitions(OvenEngine
     PUBLIC
-        # Détection automatique de Windows (Plus propre que de le hardcoder)
+        $<$<PLATFORM_ID:Darwin>:OVEN_PLATFORM_MAC>
         $<$<PLATFORM_ID:Windows>:OVEN_PLATFORM_WINDOWS>
-    
+        $<$<PLATFORM_ID:Linux>:OVEN_PLATFORM_LINUX>
     PRIVATE
-        # Spécifique à la création de la DLL d'Oven
         OVEN_BUILD_DLL
-
-        # Configurations de Build (Gérées dynamiquement par CMake)
         $<$<CONFIG:Debug>:OVEN_DEBUG>
         $<$<CONFIG:Release>:OVEN_RELEASE>
         $<$<CONFIG:Dist>:OVEN_DIST>
@@ -67,12 +84,12 @@ target_link_libraries(OvenEngine
         spdlog
     PRIVATE
         glfw
-        GLEW::GLEW
+        glad
         OpenGL::GL
 )
 
 # -----------------------------
-# Options du compilateur (Drapeaux /Flags)
+# Flags de compilation
 # -----------------------------
 if(MSVC)
     target_compile_options(OvenEngine PRIVATE
@@ -83,9 +100,7 @@ if(MSVC)
     )
 else()
     target_compile_options(OvenEngine PRIVATE
-        -Wall
-        -Wextra
-        -Wpedantic
+        -Wall -Wextra -Wpedantic
         $<$<CONFIG:Debug>:-g -O0>
         $<$<CONFIG:Release>:-O3>
         $<$<CONFIG:Dist>:-O3>
