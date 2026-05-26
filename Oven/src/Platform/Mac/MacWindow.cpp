@@ -1,3 +1,4 @@
+
 #include "Oven/Platform/Mac/MacWindow.h"
 #include "Oven/Log.h"
 #include "Oven/Events/KeyEvent.h"
@@ -43,9 +44,19 @@ namespace Oven{
             glfwSetErrorCallback(GLFWErrorCallback);
             s_GLFWInitialized = true;
         }
+        
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // obligatoire sur macOS
 
         m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
         glfwMakeContextCurrent(m_Window);
+        int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+        OVEN_CORE_ASSERT(status, "Failed to initialize GLAD!");
+
+        // Ajoute aussi la version OpenGL chargée :
+        OVEN_CORE_INFO("OpenGL Version: {0}", (const char*)glGetString(GL_VERSION));
         glfwSetWindowUserPointer(m_Window, &m_Data);
         SetVSync(true);
 

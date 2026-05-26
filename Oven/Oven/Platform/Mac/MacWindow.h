@@ -1,5 +1,4 @@
 #pragma once
-#include <GLFW/glfw3.h>
 #include "Oven/Window.h"
 
 namespace Oven{ 
