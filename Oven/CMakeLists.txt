@@ -43,6 +43,7 @@ target_precompile_headers(OvenEngine PRIVATE Oven/ovenpch.h)
 # -----------------------------
 add_subdirectory(vendor/spdlog)
 add_subdirectory(vendor/glfw)
+add_subdirectory(vendor/imgui)
 
 find_package(OpenGL REQUIRED)
 
@@ -85,6 +86,7 @@ target_link_libraries(OvenEngine
     PRIVATE
         glfw
         glad
+        imgui
         OpenGL::GL
 )
 

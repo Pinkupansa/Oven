@@ -4,3 +4,7 @@
 [submodule "Oven/vendor/glfw"]
 	path = Oven/vendor/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "Oven/vendor/imgui"]
+	path = Oven/vendor/imgui
+	url = https://github.com/ocornut/imgui.git
+	branch = docking
