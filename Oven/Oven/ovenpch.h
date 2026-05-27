@@ -14,8 +14,5 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #ifdef OVEN_PLATFORM_WINDOWS
-
 #include <Windows.h>
-
 #endif 
-

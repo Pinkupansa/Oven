@@ -19,6 +19,7 @@ class Sandbox : public Oven::Application
         Sandbox()
         {
             PushLayer(new ExampleLayer());
+            PushOverlay(new Oven::ImGuiLayer());
         }
         ~Sandbox()
         {
