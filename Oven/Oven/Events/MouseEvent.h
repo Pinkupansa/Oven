@@ -72,6 +72,6 @@ namespace Oven{
             ss << "MouseButtonReleasedEvent: " <<  GetMouseButton();
             return ss.str();
         }
-        EVENT_CLASS_TYPE(MouseButtonPressed)
+        EVENT_CLASS_TYPE(MouseButtonReleased)
     };
 }
