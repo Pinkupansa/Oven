@@ -3,6 +3,7 @@
 #include "Oven/Events/KeyEvent.h"
 #include "Oven/Events/MouseEvent.h"
 #include "Oven/Events/ApplicationEvent.h"
+#include "LinuxWindow.h"
 
 namespace Oven {
     static bool s_GLFWInitialized = false;
@@ -26,7 +27,8 @@ namespace Oven {
         glfwSwapBuffers(m_Window);
     }
 
-    void LinuxWindow::Shutdown() {
+    void LinuxWindow::Shutdown()
+    {
         glfwDestroyWindow(m_Window);
     }
 
@@ -80,6 +82,12 @@ namespace Oven {
                 case GLFW_RELEASE: { KeyReleasedEvent event(key);    data.EventCallback(event); break; }
                 case GLFW_REPEAT:  { KeyPressedEvent  event(key, 1); data.EventCallback(event); break; }
             }
+        });
+
+        glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode) {
+            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+            KeyTypedEvent event(keycode);
+            data.EventCallback(event);
         });
 
         glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) {

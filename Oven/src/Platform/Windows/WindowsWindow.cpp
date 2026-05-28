@@ -3,7 +3,7 @@
 #include "Oven/Events/KeyEvent.h"
 #include "Oven/Events/MouseEvent.h"
 #include "Oven/Events/ApplicationEvent.h"
-
+#include "WindowsWindow.h"
 namespace Oven {
     static bool s_GLFWInitialized = false;
 
@@ -81,7 +81,11 @@ namespace Oven {
                 case GLFW_REPEAT:  { KeyPressedEvent  event(key, 1); data.EventCallback(event); break; }
             }
         });
-
+        glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode) {
+            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+            KeyTypedEvent event(keycode);
+            data.EventCallback(event);
+        });
         glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) {
             WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
             switch (action) {

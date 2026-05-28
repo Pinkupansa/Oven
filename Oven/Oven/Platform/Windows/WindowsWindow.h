@@ -1,6 +1,6 @@
 #pragma once
 #include "Oven/Window.h"
-
+class GLFWwindow;
 namespace Oven {
     class WindowsWindow : public Window {
     public:
@@ -12,7 +12,7 @@ namespace Oven {
         inline unsigned int GetHeight() const override { return m_Data.Height; }
 
         inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
-
+        inline virtual void* GetNativeWindow() const override {return (void*)m_Window;}
         void SetVSync(bool enabled) override;
         bool IsVSync() const override;
 

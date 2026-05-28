@@ -1,4 +1,5 @@
 
+#include "Oven/ovenpch.h"
 #include "Oven/Platform/Mac/MacWindow.h"
 #include "Oven/Log.h"
 #include "Oven/Events/KeyEvent.h"
@@ -25,15 +26,15 @@ namespace Oven{
         glfwSwapBuffers(m_Window);
     }
 
-    void MacWindow::Shutdown(){
+    void MacWindow::Shutdown()
+    {
         glfwDestroyWindow(m_Window);
     }
-
 
     void MacWindow::Init(const WindowProps& props){
         m_Data.Title = props.Title; 
         m_Data.Width = props.Width;
-        m_Data.Height = props.Height; 
+        m_Data.Height = props.Height;
 
         OVEN_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
@@ -60,14 +61,29 @@ namespace Oven{
         glfwSetWindowUserPointer(m_Window, &m_Data);
         SetVSync(true);
 
+        //set content scale
+        int fbWidth, fbHeight;
+        glfwGetFramebufferSize(m_Window, &fbWidth, &fbHeight);
+        m_Data.ContentScaleX = (float)fbWidth / props.Width;
+        m_Data.ContentScaleY = (float)fbHeight / props.Height;
+
         //set GLFW callbacks
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
         {
             WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
             data.Width = width;
             data.Height = height;
-            
+
             WindowResizeEvent event(width, height);
+            data.EventCallback(event);
+        });
+
+        glfwSetWindowContentScaleCallback(m_Window, [](GLFWwindow* window, float xScale, float yScale)
+        {
+            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+            data.ContentScaleX = xScale;
+            data.ContentScaleY = yScale;
+            WindowContentScaleEvent event(xScale, yScale);
             data.EventCallback(event);
         });
 
@@ -98,6 +114,12 @@ namespace Oven{
                     break;
                 }
             }
+        });
+        glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode)
+        {
+            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+            KeyTypedEvent event(keycode);
+            data.EventCallback(event);
         });
 
         glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
@@ -143,4 +165,5 @@ namespace Oven{
     bool MacWindow::IsVSync() const{
         return m_Data.VSync;
     }
+
 }

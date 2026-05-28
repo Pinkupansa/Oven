@@ -1,6 +1,6 @@
 #pragma once
 #include "Oven/Window.h"
-
+class GLFWwindow;
 namespace Oven {
     class LinuxWindow : public Window {
     public:
@@ -13,6 +13,7 @@ namespace Oven {
 
         inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 
+        inline void* GetNativeWindow() const override {return (void*)m_Window;}
         void SetVSync(bool enabled) override;
         bool IsVSync() const override;
 
