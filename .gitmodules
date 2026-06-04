@@ -8,3 +8,6 @@
 	path = Oven/vendor/imgui
 	url = https://github.com/ocornut/imgui.git
 	branch = docking
+[submodule "Oven/vendor/glm"]
+	path = Oven/vendor/glm
+	url = https://github.com/icaven/glm.git

@@ -1,7 +1,14 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(Oven LANGUAGES CXX)
-
+if(MSVC)
+    # Pour Windows / Visual Studio
+    add_compile_options(/Zi /Od)
+    add_link_options(/DEBUG)
+else()
+    # Pour GCC et Clang (Linux / macOS)
+    add_compile_options(-g -O0)
+endif()
 # -----------------------------
 # C++ Standard
 # -----------------------------

@@ -12,9 +12,6 @@ namespace Oven{
         m_Window = std::unique_ptr<Window>(Window::Create());
         m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
         unsigned int id;
-        OVEN_CORE_INFO("glfwGetProcAddress = {}", (void*)glfwGetProcAddress);
-        OVEN_CORE_INFO("glGenVertexArrays: {}", (void*)glad_glGenVertexArrays);
-        OVEN_CORE_INFO("glCreateVertexArrays: {}", (void*)glad_glCreateVertexArrays);
         glGenVertexArrays(1, &id);
     }
     Application::~Application(){}
