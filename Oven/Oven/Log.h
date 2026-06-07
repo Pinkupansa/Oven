@@ -30,7 +30,7 @@ namespace Oven{
 #define OVEN_CORE_ASSERT(x, ...) { if(!(x)) { OVEN_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 #define OVEN_ASSERT(x, ...) { if(!(x)) { OVEN_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 #else
-#define OVEN_CORE_ASSERT(x, ...) { if(!(x)) { OVEN_ERROR("Assertion Failed: {0}", __VA_ARGS__); __builtin_trap(); } }
+#define OVEN_CORE_ASSERT(x, ...) { if(!(x)) { OVEN_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __builtin_trap(); } }
 #define OVEN_ASSERT(x, ...) { if(!(x)) { OVEN_ERROR("Assertion Failed: {0}", __VA_ARGS__); __builtin_trap(); } }
 #endif
 

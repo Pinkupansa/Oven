@@ -1,5 +1,18 @@
+cmake_minimum_required(VERSION 3.15) # Requis pour CMAKE_MSVC_RUNTIME_LIBRARY
 project(OvenEngine LANGUAGES C CXX)
 
+# -----------------------------
+# Configuration Globale : Static Runtime
+# -----------------------------
+# Force le runtime statique global (ex: /MT et /MTd sur Windows/MSVC)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+if(APPLE)
+#Sur Apple, impossible de faire du 100% static 
+elseif(UNIX)
+add_compile_options("-static-libstdc++" "-static-libgcc")
+add_link_options("-static-libstdc++" "-static-libgcc")
+endif() 
 # -----------------------------
 # Sources communes (hors Platform)
 # -----------------------------
@@ -29,17 +42,7 @@ list(APPEND ENGINE_SOURCES ${PLATFORM_SOURCES})
 list(APPEND ENGINE_HEADERS ${PLATFORM_HEADERS})
 
 # -----------------------------
-# Library
-# -----------------------------
-add_library(OvenEngine SHARED
-    ${ENGINE_SOURCES}
-    ${ENGINE_HEADERS}
-)
-
-target_precompile_headers(OvenEngine PRIVATE Oven/ovenpch.h)
-
-# -----------------------------
-# Dépendances
+# Dépendances (Vendor)
 # -----------------------------
 add_subdirectory(vendor/spdlog)
 add_subdirectory(vendor/glfw)
@@ -52,6 +55,19 @@ add_library(glad STATIC vendor/glad/src/glad.c)
 target_include_directories(glad PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/include
 )
+
+# -----------------------------
+# Library OvenEngine
+# -----------------------------
+add_library(OvenEngine STATIC
+    ${ENGINE_SOURCES}
+    ${ENGINE_HEADERS}
+)
+
+target_precompile_headers(OvenEngine PRIVATE Oven/ovenpch.h)
+
+# ImGui Custom Loader : Évite les conflits de macros gl entre GLAD et ImGui
+target_compile_definitions(OvenEngine PUBLIC IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
 
 # -----------------------------
 # Include dirs
@@ -84,10 +100,10 @@ target_compile_definitions(OvenEngine
 target_link_libraries(OvenEngine
     PUBLIC
         spdlog
+        imgui
     PRIVATE
         glfw
         glad
-        imgui
         OpenGL::GL
         glm
 )
@@ -98,9 +114,9 @@ target_link_libraries(OvenEngine
 if(MSVC)
     target_compile_options(OvenEngine PRIVATE
         /W4
-        $<$<CONFIG:Debug>:/MDd /Zi /Od>
-        $<$<CONFIG:Release>:/MD /O2>
-        $<$<CONFIG:Dist>:/MD /O2>
+        $<$<CONFIG:Debug>:/Zi /Od>   # NETTOYÉ : Retrait de /MDd pour ne pas écraser le runtime statique
+        $<$<CONFIG:Release>:/O2>     # NETTOYÉ : Retrait de /MD
+        $<$<CONFIG:Dist>:/O2>        # NETTOYÉ : Retrait de /MD
     )
 else()
     target_compile_options(OvenEngine PRIVATE

@@ -24,7 +24,11 @@ target_link_libraries(Sandbox
     PRIVATE
         OvenEngine
         glm
+        imgui
 )
+
+#Je sais pas si c'est ok de link glm et imgui alors que c'est compilé dans oven
+#en terme d'architecture
 
 # -----------------------------
 # Définitions de préprocesseur pour la Sandbox

@@ -4,6 +4,8 @@
 #include "Oven/LayerStack.h"
 #include "Oven/Events/Event.h"
 #include "Oven/Events/ApplicationEvent.h"
+#include "Oven/ImGui/ImGuiLayer.h"
+
 namespace Oven{
     class OVEN_API Application{
         public:
@@ -18,6 +20,7 @@ namespace Oven{
         private: 
             bool OnWindowClose(WindowCloseEvent& e);
             std::unique_ptr<Window> m_Window; 
+            ImGuiLayer* m_ImGuiLayer;
             bool m_Running = true;
             LayerStack m_LayerStack;
         
