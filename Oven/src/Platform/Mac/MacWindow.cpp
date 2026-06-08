@@ -5,6 +5,7 @@
 #include "Oven/Events/KeyEvent.h"
 #include "Oven/Events/MouseEvent.h"
 #include "Oven/Events/ApplicationEvent.h"
+#include "Oven/Platform/OpenGL/OpenGLContext.h"
 namespace Oven{
     static bool s_GLFWInitialized = false;
 
@@ -23,7 +24,7 @@ namespace Oven{
     }
     void MacWindow::OnUpdate(){
         glfwPollEvents();
-        glfwSwapBuffers(m_Window);
+        m_Context->SwapBuffers();
     }
 
     void MacWindow::Shutdown()
@@ -35,6 +36,7 @@ namespace Oven{
         m_Data.Title = props.Title; 
         m_Data.Width = props.Width;
         m_Data.Height = props.Height;
+
 
         OVEN_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
@@ -52,11 +54,11 @@ namespace Oven{
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // obligatoire sur macOS
 
         m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
-        glfwMakeContextCurrent(m_Window);
-        int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-        OVEN_CORE_ASSERT(status, "Failed to initialize GLAD!");
 
-        // Ajoute aussi la version OpenGL chargée :
+        m_Context = new OpenGLContext(m_Window);
+        m_Context->Init();
+
+                // Ajoute aussi la version OpenGL chargée :
         OVEN_CORE_INFO("OpenGL Version: {0}", (const char*)glGetString(GL_VERSION));
         glfwSetWindowUserPointer(m_Window, &m_Data);
         SetVSync(true);

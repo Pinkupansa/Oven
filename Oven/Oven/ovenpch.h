@@ -11,8 +11,6 @@
 #include <vector> 
 #include <unordered_map>
 #include <unordered_set>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #ifdef OVEN_PLATFORM_WINDOWS
 #include <Windows.h>

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15) # Requis pour CMAKE_MSVC_RUNTIME_LIBRARY
 project(OvenEngine LANGUAGES C CXX)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -----------------------------
 # Configuration Globale : Static Runtime
 # -----------------------------
@@ -37,9 +37,12 @@ elseif(UNIX)
 else()
     message(FATAL_ERROR "Plateforme non supportée !")
 endif()
+file(GLOB OPENGL_SOURCES "src/Platform/OpenGL/*.cpp")
+file(GLOB OPENGL_HEADERS "Oven/Platform/OpenGL/*.h")
+message(STATUS "Mac sources: ${PLATFORM_SOURCES}")
+list(APPEND ENGINE_SOURCES ${PLATFORM_SOURCES} ${OPENGL_SOURCES})
+list(APPEND ENGINE_HEADERS ${PLATFORM_HEADERS} ${OPENGL_HEADERS})
 
-list(APPEND ENGINE_SOURCES ${PLATFORM_SOURCES})
-list(APPEND ENGINE_HEADERS ${PLATFORM_HEADERS})
 
 # -----------------------------
 # Dépendances (Vendor)

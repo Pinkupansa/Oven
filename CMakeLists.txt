@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(Oven LANGUAGES CXX)
 if(MSVC)
     # Pour Windows / Visual Studio

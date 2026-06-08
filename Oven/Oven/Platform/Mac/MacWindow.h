@@ -1,6 +1,8 @@
 #pragma once
+#include "Oven/Renderer/RenderingContext.h"
 #include "Oven/Window.h"
-class GLFWwindow;
+#include <GLFW/glfw3.h>
+
 namespace Oven{ 
     class MacWindow : public Window{
         public: 
@@ -24,6 +26,7 @@ namespace Oven{
 
             private: 
                 GLFWwindow* m_Window;
+                RenderingContext* m_Context;
                 struct WindowData{
                     std::string Title; 
                     unsigned int Width, Height, ContentScaleX, ContentScaleY; 

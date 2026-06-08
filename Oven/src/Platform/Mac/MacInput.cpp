@@ -2,6 +2,9 @@
 #include "Oven/ovenpch.h"
 #include "Oven/Platform/Mac/MacInput.h"
 #include "Oven/Application.h"
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 namespace Oven
 {
     Input* Input::s_Instance = new MacInput();
