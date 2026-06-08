@@ -12,10 +12,13 @@ namespace Oven{
         glfwMakeContextCurrent(m_WindowHandle);
         int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
         OVEN_CORE_ASSERT(status, "Failed to initialize GLAD!");
+
+        OVEN_CORE_INFO("OpenGL Version: {0}", (const char*)glGetString(GL_VERSION));
+        OVEN_CORE_INFO("Renderer: {0}", (const char*)glGetString(GL_RENDERER));
+        OVEN_CORE_INFO("Vendor: {0}", (const char*) glGetString(GL_VENDOR));
     }
 
     void OpenGLContext::SwapBuffers(){
-        
         glfwSwapBuffers(m_WindowHandle);
     }
 

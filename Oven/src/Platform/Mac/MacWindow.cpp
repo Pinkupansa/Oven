@@ -59,7 +59,6 @@ namespace Oven{
         m_Context->Init();
 
                 // Ajoute aussi la version OpenGL chargée :
-        OVEN_CORE_INFO("OpenGL Version: {0}", (const char*)glGetString(GL_VERSION));
         glfwSetWindowUserPointer(m_Window, &m_Data);
         SetVSync(true);
 
@@ -128,7 +127,7 @@ namespace Oven{
         {
             WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
             switch(action){
-                case GLFW_PRESS:{
+            case GLFW_PRESS:{
                     MouseButtonPressedEvent event(button);
                     data.EventCallback(event);
                     break;
