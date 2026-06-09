@@ -10,7 +10,7 @@ namespace Oven{
             case RenderingAPI::None : OVEN_CORE_ASSERT(false, "RenderingAPI::None is currently not supported! "); return nullptr;
             case RenderingAPI::OpenGL: return new OpenGLVertexBuffer(vertices, size);
         }
-        OVEN_CORE_ASSERT(false, "Unknown RenderingAPI !");
+        OVEN_CORE_ASSERT(false, "Unknown RenderingAPI!");
         return nullptr;
     }
 
