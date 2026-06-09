@@ -1,17 +1,13 @@
 #pragma once 
-#include <string> 
-
+#include <string>
 namespace Oven{
 
-    class Shader{ 
-        public: 
-            Shader(const std::string& vertexSrc, const std::string& fragmentSrc);
-            ~Shader(); 
+    class Shader{
+        public:
+            virtual void Bind() const = 0; 
+            virtual void Unbind() const = 0; 
 
-            void Bind() const; 
-            void Unbind() const; 
-        
-        private: 
-            uint32_t m_ShaderID;
+            static Shader* Create(std::string &vertexSrc, std::string &fragmentSrc);
     };
+
 }
