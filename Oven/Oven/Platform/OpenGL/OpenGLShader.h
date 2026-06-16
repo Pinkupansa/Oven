@@ -8,6 +8,7 @@ namespace Oven{
             OpenGLShader(const std::string& vertexSrc, const std::string& fragmentSrc);
             ~OpenGLShader(); 
 
+            void UploadUniformMat4(const std::string& name, const glm::mat4& matrix) override; //add type abstraction ? 
             void Bind() const override; 
             void Unbind() const override; 
         

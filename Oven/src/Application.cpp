@@ -3,85 +3,91 @@
 #include "Oven/Log.h"
 #include "Oven/Input.h"
 #include "Oven/Platform/OpenGL/OpenGLMacros.h"
+#include "Oven/Renderer/Renderer.h"
 #include <glad/glad.h>
-
 namespace Oven{
     #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
     Application* Application::s_Instance = nullptr;
     
     //TEMPORARY
 
-    static GLenum ShaderDataTypeToOpenGLDataType(ShaderDataType type){
-        switch (type)
-        {
-            case ShaderDataType::Float: return GL_FLOAT;
-            case ShaderDataType::Float2: return GL_FLOAT;
-            case ShaderDataType::Float3: return GL_FLOAT;
-            case ShaderDataType::Float4: return GL_FLOAT;
-            case ShaderDataType::Mat3: return GL_FLOAT;
-            case ShaderDataType::Mat4: return GL_FLOAT;
-            case ShaderDataType::Int: return GL_INT;
-            case ShaderDataType::Int2: return GL_INT;
-            case ShaderDataType::Int3: return GL_INT;
-            case ShaderDataType::Int4: return GL_INT;
-            case ShaderDataType::Bool: return GL_BOOL;
-        }
-    }
-    Application::Application(){
+    
+    Application::Application() : m_Camera(-1.6f, 1.6f, -0.9f, 0.9f){
         OVEN_CORE_ASSERT(!s_Instance, "Application already exists !");
         s_Instance = this;
         m_Window = std::unique_ptr<Window>(Window::Create());
         m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
         m_ImGuiLayer = new ImGuiLayer();
         PushOverlay(m_ImGuiLayer);
-
-        GLCall(glGenVertexArrays(1, &m_VertexArray));
-        glBindVertexArray(m_VertexArray);
-
+        
+        m_VertexArray.reset(VertexArray::Create());
 
         float vertices[3*7] = { 
-            -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 
+            -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,  
             0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 
             0.0f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f
         };
 
-        m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+        //Create vertex buffer and layout
+
+        std::shared_ptr<VertexBuffer> vertexBuffer;
+        vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+       
         {
             BufferLayout layout = {
                 {ShaderDataType::Float3, "a_Position"},
-                {ShaderDataType::Float4, "a_Position"},
+                {ShaderDataType::Float4, "a_Color"},
             };
-            m_VertexBuffer->SetLayout(layout);
+            vertexBuffer->SetLayout(layout);
         }
-        uint32_t index = 0 ;
-        const auto& layout = m_VertexBuffer->GetLayout();
-
-        for(const auto& element : layout){
-            glEnableVertexAttribArray(index);
-            glVertexAttribPointer(index, 
-                element.GetComponentCount(), 
-            ShaderDataTypeToOpenGLDataType(element.Type), 
-            element.Normalized ? GL_TRUE : GL_FALSE,
-            layout.GetStride(), 
-            (const void *)element.Offset);
-            index++;
-        }
+        
+        std::shared_ptr<IndexBuffer> indexBuffer;
+        //Create index buffer 
         uint32_t indices[3] = {0, 1, 2};
-        m_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices)/sizeof(uint32_t)));
-       
+        indexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices)/sizeof(uint32_t)));
+        
+        //Bind to vertex array
+        m_VertexArray->AddVertexBuffer(vertexBuffer);
+        m_VertexArray->SetIndexBuffer(indexBuffer);
+
+
+        m_SquareVA.reset(VertexArray::Create());
+        float squareVertices[3*4] = { 
+            -0.75f, -0.75f, 0.0f,
+            0.75f, -0.75f, 0.0f,
+            0.75f, 0.75f, 0.0f,
+            -0.75f, 0.75f, 0.0f
+        };
+        
+        std::shared_ptr<VertexBuffer> squareVB;
+        squareVB.reset(VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+        
+        squareVB->SetLayout({
+            {ShaderDataType::Float3, "a_Position"}
+        });
+
+        uint32_t squareIndices[6] = {0, 1, 2, 2, 3, 0};
+        
+        std::shared_ptr<IndexBuffer> squareIB; 
+        squareIB.reset(IndexBuffer::Create(squareIndices, sizeof(squareIndices)/sizeof(uint32_t)));
+        m_SquareVA->AddVertexBuffer(squareVB);
+        m_SquareVA->SetIndexBuffer(squareIB);
+
         std::string vertexSrc = R"(
             #version 330 core 
 
             layout(location = 0) in vec3 a_Position;
             layout(location = 1) in vec4 a_Color;
 
+            uniform mat4 u_ViewProjection;
+
             out vec3 v_Position;
             out vec4 v_Color;
 
             void main(){
-                gl_Position = vec4(a_Position, 1.0);
                 v_Position = a_Position;
                 v_Color = a_Color;
+                gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
             }
 
         )";
@@ -101,6 +107,35 @@ namespace Oven{
 
         )";
 
+        std::string vertexSrc2 = R"(
+            #version 330 core 
+
+            layout(location = 0) in vec3 a_Position;
+
+            uniform mat4 u_ViewProjection;
+
+            out vec3 v_Position;
+
+            void main(){
+                v_Position = a_Position;
+                gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
+            }
+
+        )";
+
+        std::string fragmentSrc2 =R"(
+            #version 330 core 
+
+            layout(location = 0) out vec4 color;
+
+            in vec3 v_Position;
+
+            void main(){
+                color = vec4(v_Position*0.5 + 0.5, 1.0);
+            }
+
+        )";
+        m_Shader2.reset(Shader::Create(vertexSrc2, fragmentSrc2));
         m_Shader.reset(Shader::Create(vertexSrc, fragmentSrc));
     }
     Application::~Application(){}
@@ -114,15 +149,19 @@ namespace Oven{
         layer->OnAttach();
     }
     void Application::Run(){
+        int i = 0;
         while (m_Running)
         {
-            glClearColor(0.13f, 0.1f, 0.1f, 1);
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            m_Shader->Bind();
-            glBindVertexArray(m_VertexArray); 
+            i++;
+            RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
+            RenderCommand::Clear();
             
-            glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr);
+            m_Camera.SetRotation(i/20.0f);
+            
+            Renderer::BeginScene(m_Camera);
+            Renderer::Submit(m_Shader2, m_SquareVA);
+            Renderer::Submit(m_Shader, m_VertexArray);
+            Renderer::EndScene();
 
             //Update layers 
             for(Layer* layer : m_LayerStack)

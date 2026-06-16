@@ -1,16 +1,25 @@
 #pragma once
 
-namespace Oven{
-
-    enum class RenderingAPI{
-        None = 0, OpenGL = 1
-    };
+#include "Oven/Renderer/RendererAPI.h"
+#include "Oven/Renderer/RenderCommand.h"
+#include "Oven/Renderer/OrthographicCamera.h"
+#include "Oven/Renderer/Shader.h"
+namespace Oven{ 
 
     class Renderer{
 
         public:
-            inline static RenderingAPI GetRenderingAPI(){return s_RenderingAPI;}
+            static void BeginScene(OrthographicCamera& camera);
+            static void EndScene();
+
+            static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray);
+
+            inline static RendererAPI::GraphicsAPI GetRenderingAPI(){return RendererAPI::GetAPI();}
+        
         private:
-            static RenderingAPI s_RenderingAPI;
+            struct SceneData{
+                glm::mat4 ViewProjectionMatrix;
+            };
+            static SceneData* m_SceneData;
     };
 }
