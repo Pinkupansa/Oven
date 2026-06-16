@@ -8,37 +8,185 @@
 #include <glm/ext/scalar_constants.hpp> // glm::pi
 
 
-glm::mat4 camera(float Translate, glm::vec2 const& Rotate)
-{
-	glm::mat4 Projection = glm::perspective(glm::pi<float>() * 0.25f, 4.0f / 3.0f, 0.1f, 100.f);
-	glm::mat4 View = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -Translate));
-	View = glm::rotate(View, Rotate.y, glm::vec3(-1.0f, 0.0f, 0.0f));
-	View = glm::rotate(View, Rotate.x, glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 Model = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
-	return Projection * View * Model;
-}
-
 class TestLayer : public Oven::Layer
 {
     public: 
-        TestLayer() : Layer("Example"){
+        TestLayer() : Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CamPos(0.0f){
 
-           auto cam = camera(5.0f, {0.5f, 0.5f});
+            m_VertexArray.reset(Oven::VertexArray::Create());
 
+            float vertices[3*7] = { 
+                -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,  
+                0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 
+                0.0f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f
+            };
+
+            //Create vertex buffer and layout
+
+            std::shared_ptr<Oven::VertexBuffer> vertexBuffer;
+            vertexBuffer.reset(Oven::VertexBuffer::Create(vertices, sizeof(vertices)));
+        
+            {
+                Oven::BufferLayout layout = {
+                    {Oven::ShaderDataType::Float3, "a_Position"},
+                    {Oven::ShaderDataType::Float4, "a_Color"},
+                };
+                vertexBuffer->SetLayout(layout);
+            }
+            
+            std::shared_ptr<Oven::IndexBuffer> indexBuffer;
+            //Create index buffer 
+            uint32_t indices[3] = {0, 1, 2};
+            indexBuffer.reset(Oven::IndexBuffer::Create(indices, sizeof(indices)/sizeof(uint32_t)));
+            
+            //Bind to vertex array
+            m_VertexArray->AddVertexBuffer(vertexBuffer);
+            m_VertexArray->SetIndexBuffer(indexBuffer);
+
+
+            m_SquareVA.reset(Oven::VertexArray::Create());
+            float squareVertices[3*4] = { 
+                -0.75f, -0.75f, 0.0f,
+                0.75f, -0.75f, 0.0f,
+                0.75f, 0.75f, 0.0f,
+                -0.75f, 0.75f, 0.0f
+            };
+            
+            std::shared_ptr<Oven::VertexBuffer> squareVB;
+            squareVB.reset(Oven::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+            
+            squareVB->SetLayout({
+                {Oven::ShaderDataType::Float3, "a_Position"}
+            });
+
+            uint32_t squareIndices[6] = {0, 1, 2, 2, 3, 0};
+            
+            std::shared_ptr<Oven::IndexBuffer> squareIB; 
+            squareIB.reset(Oven::IndexBuffer::Create(squareIndices, sizeof(squareIndices)/sizeof(uint32_t)));
+            m_SquareVA->AddVertexBuffer(squareVB);
+            m_SquareVA->SetIndexBuffer(squareIB);
+
+            std::string vertexSrc = R"(
+                #version 330 core 
+
+                layout(location = 0) in vec3 a_Position;
+                layout(location = 1) in vec4 a_Color;
+
+                uniform mat4 u_ViewProjection;
+
+                out vec3 v_Position;
+                out vec4 v_Color;
+
+                void main(){
+                    v_Position = a_Position;
+                    v_Color = a_Color;
+                    gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
+                }
+
+            )";
+
+            std::string fragmentSrc =R"(
+                #version 330 core 
+
+                layout(location = 0) out vec4 color;
+
+                in vec3 v_Position;
+                in vec4 v_Color;
+
+                void main(){
+                    color = vec4(v_Position*0.5 + 0.5, 1.0);
+                    color = v_Color;
+                }
+
+            )";
+
+            std::string vertexSrc2 = R"(
+                #version 330 core 
+
+                layout(location = 0) in vec3 a_Position;
+
+                uniform mat4 u_ViewProjection;
+
+                out vec3 v_Position;
+
+                void main(){
+                    v_Position = a_Position;
+                    gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
+                }
+
+            )";
+
+            std::string fragmentSrc2 =R"(
+                #version 330 core 
+
+                layout(location = 0) out vec4 color;
+
+                in vec3 v_Position;
+
+                void main(){
+                    color = vec4(v_Position*0.5 + 0.5, 1.0);
+                }
+
+            )";
+            m_Shader2.reset(Oven::Shader::Create(vertexSrc2, fragmentSrc2));
+            m_Shader.reset(Oven::Shader::Create(vertexSrc, fragmentSrc));
         }
 
         void OnUpdate() override{
-            if(Oven::Input::KeyPressed(OVEN_KEY_TAB)){
-                OVEN_INFO("Tab key pressed !");
+
+            if(Oven::Input::KeyPressed(OVEN_KEY_RIGHT)){
+                m_CamPos.x += m_CamSpeed;
             }
+            if(Oven::Input::KeyPressed(OVEN_KEY_LEFT)){
+                m_CamPos.x -= m_CamSpeed;
+            }
+            if(Oven::Input::KeyPressed(OVEN_KEY_UP)){
+                m_CamPos.y += m_CamSpeed;
+            }
+            if(Oven::Input::KeyPressed(OVEN_KEY_DOWN)){
+                m_CamPos.y -= m_CamSpeed;
+            }
+
+            if(Oven::Input::KeyPressed(OVEN_KEY_A)){
+                m_CamRot += m_CamRotSpeed;
+            }
+            if(Oven::Input::KeyPressed(OVEN_KEY_D)){
+                m_CamRot -= m_CamRotSpeed;
+            }
+
+            m_Camera.SetPosition(m_CamPos);
+            m_Camera.SetRotation(m_CamRot);
+            Oven::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
+            Oven::RenderCommand::Clear();
+            
+            
+            Oven::Renderer::BeginScene(m_Camera);
+            Oven::Renderer::Submit(m_Shader2, m_SquareVA);
+            Oven::Renderer::Submit(m_Shader, m_VertexArray);
+            Oven::Renderer::EndScene();
+  
         }
 
         void OnEvent(Oven::Event& event) override{
-            if(event.GetEventType() == Oven::EventType::KeyPressed){
-                Oven::KeyPressedEvent& e = (Oven::KeyPressedEvent&) event;
-                OVEN_TRACE("{0}", (char)e.GetKeyCode());
-            }
+            Oven::EventDispatcher dispatcher(event); 
+            dispatcher.Dispatch<Oven::KeyPressedEvent>(OVEN_BIND_EVENT_FN(TestLayer::OnKeyPressedEvent));
         }
+
+        bool OnKeyPressedEvent(Oven::KeyPressedEvent& event){
+            return false;
+        }
+
+        private: 
+            std::shared_ptr<Oven::Shader> m_Shader;
+            std::shared_ptr<Oven::Shader> m_Shader2;
+            std::shared_ptr<Oven::VertexArray> m_VertexArray;
+
+            std::shared_ptr<Oven::VertexArray> m_SquareVA;
+            Oven::OrthographicCamera m_Camera;
+            glm::vec3 m_CamPos;
+            float m_CamRot = 0;
+            float m_CamSpeed = 0.05f;
+            float m_CamRotSpeed = 2;
 };
 class Sandbox : public Oven::Application
 {
@@ -51,6 +199,7 @@ class Sandbox : public Oven::Application
         {
 
         }
+    
 };
 
 Oven::Application* Oven::CreateApplication(){
