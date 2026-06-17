@@ -1,3 +1,4 @@
+#include "Oven/ovenpch.h"
 #include "Oven/Renderer/VertexArray.h"
 #include "Oven/Renderer/Renderer.h"
 #include "Oven/Log.h"
@@ -6,11 +7,11 @@ namespace Oven{
 
 
     VertexArray* VertexArray::Create(){
-        switch (Renderer::GetRenderingAPI()){
-            case RendererAPI::GraphicsAPI::None: OVEN_CORE_ASSERT(false, "GraphicsAPI::None is currently not supported !"); return nullptr; 
-            case RendererAPI::GraphicsAPI::OpenGL: return new OpenGLVertexArray(); 
+        switch (Renderer::GetGraphicsAPI()){
+            case RendererAPI::RenderingBackend::None: OVEN_CORE_ASSERT(false, "RenderingBackend::None is currently not supported !"); return nullptr; 
+            case RendererAPI::RenderingBackend::OpenGL: return new OpenGLVertexArray(); 
         }
-        OVEN_CORE_ASSERT(false, "Unknown GraphicsAPI !"); 
+        OVEN_CORE_ASSERT(false, "Unknown RenderingBackend !"); 
         return nullptr;
     }
     

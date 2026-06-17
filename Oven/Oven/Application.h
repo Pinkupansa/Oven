@@ -2,6 +2,7 @@
 #include "Oven/Core.h"
 #include "Oven/Window.h"
 #include "Oven/LayerStack.h"
+#include "Oven/Time.h"
 #include "Oven/Events/Event.h"
 #include "Oven/Events/ApplicationEvent.h"
 #include "Oven/ImGui/ImGuiLayer.h"
@@ -22,11 +23,13 @@ namespace Oven{
             inline Window& GetWindow() { return *m_Window; }
         private: 
             bool OnWindowClose(WindowCloseEvent& e);
+        
+        private:
             std::unique_ptr<Window> m_Window; 
             ImGuiLayer* m_ImGuiLayer;
             bool m_Running = true;
             LayerStack m_LayerStack;
-
+            
         private:
             static Application* s_Instance;
     };

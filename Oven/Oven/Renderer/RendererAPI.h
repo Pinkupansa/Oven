@@ -7,7 +7,7 @@ namespace Oven
     
     class RendererAPI{
         public:
-            enum class GraphicsAPI{
+            enum class RenderingBackend{
 
                 None = 0, OpenGL = 1
             };
@@ -15,9 +15,9 @@ namespace Oven
             virtual void SetClearColor(const glm::vec4& color) = 0; 
             virtual void Clear() = 0;
             virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) = 0;
-            inline static GraphicsAPI GetAPI() { return s_GraphicsAPI; }
+            inline static RenderingBackend GetBackend() { return s_RenderingBackend; }
         
         private:
-            static GraphicsAPI s_GraphicsAPI;
+            static RenderingBackend s_RenderingBackend;
     };
 } // namespace Oven

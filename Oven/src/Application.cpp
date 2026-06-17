@@ -5,6 +5,7 @@
 #include "Oven/Platform/OpenGL/OpenGLMacros.h"
 #include "Oven/Renderer/Renderer.h"
 #include <glad/glad.h>
+#include "Oven/Time.h"
 namespace Oven{
     #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
     Application* Application::s_Instance = nullptr;
@@ -16,6 +17,7 @@ namespace Oven{
         OVEN_CORE_ASSERT(!s_Instance, "Application already exists !");
         s_Instance = this;
         m_Window = std::unique_ptr<Window>(Window::Create());
+        m_Window->SetVSync(false);
         m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
         m_ImGuiLayer = new ImGuiLayer();
         PushOverlay(m_ImGuiLayer);
@@ -32,10 +34,9 @@ namespace Oven{
         layer->OnAttach();
     }
     void Application::Run(){
-        int i = 0;
         while (m_Running)
-        {
-            i++;
+        {   
+            Time::OnUpdate();
             //Update layers 
             for(Layer* layer : m_LayerStack)
                 layer->OnUpdate();
@@ -43,10 +44,10 @@ namespace Oven{
             for(Layer* layer : m_LayerStack)
                 layer->OnImGuiRender();
             m_ImGuiLayer->End();
- 
             m_Window->OnUpdate();
-
+            
         }
+
     }
     void Application::OnEvent(Event& e){
         EventDispatcher dispatcher(e);

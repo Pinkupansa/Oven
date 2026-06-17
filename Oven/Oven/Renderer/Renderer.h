@@ -14,7 +14,7 @@ namespace Oven{
 
             static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray);
 
-            inline static RendererAPI::GraphicsAPI GetRenderingAPI(){return RendererAPI::GetAPI();}
+            inline static RendererAPI::RenderingBackend GetGraphicsAPI(){return RendererAPI::GetBackend();}
         
         private:
             struct SceneData{

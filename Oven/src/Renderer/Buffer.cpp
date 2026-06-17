@@ -6,9 +6,9 @@
 namespace Oven{
     VertexBuffer* VertexBuffer::Create(float* vertices, uint32_t size){ 
 
-        switch(Renderer::GetRenderingAPI()){
-            case RendererAPI::GraphicsAPI::None : OVEN_CORE_ASSERT(false, "GraphicsAPI::None is currently not supported! "); return nullptr;
-            case RendererAPI::GraphicsAPI::OpenGL: return new OpenGLVertexBuffer(vertices, size);
+        switch(Renderer::GetGraphicsAPI()){
+            case RendererAPI::RenderingBackend::None : OVEN_CORE_ASSERT(false, "GraphicsAPI::None is currently not supported! "); return nullptr;
+            case RendererAPI::RenderingBackend::OpenGL: return new OpenGLVertexBuffer(vertices, size);
         }
         OVEN_CORE_ASSERT(false, "Unknown GraphicsAPI!");
         return nullptr;
@@ -16,9 +16,9 @@ namespace Oven{
 
     IndexBuffer* IndexBuffer::Create(uint32_t* indices, uint32_t size){ 
         
-        switch(Renderer::GetRenderingAPI()){
-            case RendererAPI::GraphicsAPI::None : OVEN_CORE_ASSERT(false, "GraphicsAPI::None is currently not supported! "); return nullptr;
-            case RendererAPI::GraphicsAPI::OpenGL: return new OpenGLIndexBuffer(indices, size);
+        switch(Renderer::GetGraphicsAPI()){
+            case RendererAPI::RenderingBackend::None : OVEN_CORE_ASSERT(false, "GraphicsAPI::None is currently not supported! "); return nullptr;
+            case RendererAPI::RenderingBackend::OpenGL: return new OpenGLIndexBuffer(indices, size);
         }
         OVEN_CORE_ASSERT(false, "Unknown GraphicsAPI !");
         return nullptr;

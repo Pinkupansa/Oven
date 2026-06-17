@@ -2,5 +2,5 @@
 #include "Oven/Renderer/RendererAPI.h" 
 
 namespace Oven{
-    RendererAPI::GraphicsAPI RendererAPI::s_GraphicsAPI = RendererAPI::GraphicsAPI::OpenGL;
+    RendererAPI::RenderingBackend RendererAPI::s_RenderingBackend = RendererAPI::RenderingBackend::OpenGL;
 }

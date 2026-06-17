@@ -135,23 +135,23 @@ class TestLayer : public Oven::Layer
         void OnUpdate() override{
 
             if(Oven::Input::KeyPressed(OVEN_KEY_RIGHT)){
-                m_CamPos.x += m_CamSpeed;
+                m_CamPos.x += m_CamSpeed * Oven::Time::GetDeltaTime();
             }
             if(Oven::Input::KeyPressed(OVEN_KEY_LEFT)){
-                m_CamPos.x -= m_CamSpeed;
+                m_CamPos.x -= m_CamSpeed * Oven::Time::GetDeltaTime();
             }
             if(Oven::Input::KeyPressed(OVEN_KEY_UP)){
-                m_CamPos.y += m_CamSpeed;
+                m_CamPos.y += m_CamSpeed * Oven::Time::GetDeltaTime();
             }
             if(Oven::Input::KeyPressed(OVEN_KEY_DOWN)){
-                m_CamPos.y -= m_CamSpeed;
+                m_CamPos.y -= m_CamSpeed * Oven::Time::GetDeltaTime();
             }
 
             if(Oven::Input::KeyPressed(OVEN_KEY_A)){
-                m_CamRot += m_CamRotSpeed;
+                m_CamRot += m_CamRotSpeed * Oven::Time::GetDeltaTime();
             }
             if(Oven::Input::KeyPressed(OVEN_KEY_D)){
-                m_CamRot -= m_CamRotSpeed;
+                m_CamRot -= m_CamRotSpeed * Oven::Time::GetDeltaTime();
             }
 
             m_Camera.SetPosition(m_CamPos);
@@ -185,8 +185,8 @@ class TestLayer : public Oven::Layer
             Oven::OrthographicCamera m_Camera;
             glm::vec3 m_CamPos;
             float m_CamRot = 0;
-            float m_CamSpeed = 0.05f;
-            float m_CamRotSpeed = 2;
+            float m_CamSpeed = 5;
+            float m_CamRotSpeed = 50;
 };
 class Sandbox : public Oven::Application
 {
