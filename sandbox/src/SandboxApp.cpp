@@ -11,7 +11,7 @@
 class TestLayer : public Oven::Layer
 {
     public: 
-        TestLayer() : Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CamPos(0.0f){
+        TestLayer() : Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CamPos(0.0f), m_SquarePosition(0.0f){
 
             m_VertexArray.reset(Oven::VertexArray::Create());
 
@@ -73,6 +73,7 @@ class TestLayer : public Oven::Layer
                 layout(location = 1) in vec4 a_Color;
 
                 uniform mat4 u_ViewProjection;
+                uniform mat4 u_Model; 
 
                 out vec3 v_Position;
                 out vec4 v_Color;
@@ -80,7 +81,7 @@ class TestLayer : public Oven::Layer
                 void main(){
                     v_Position = a_Position;
                     v_Color = a_Color;
-                    gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
+                    gl_Position = u_ViewProjection * u_Model * vec4(a_Position, 1.0);
                 }
 
             )";
@@ -106,12 +107,12 @@ class TestLayer : public Oven::Layer
                 layout(location = 0) in vec3 a_Position;
 
                 uniform mat4 u_ViewProjection;
-
+                uniform mat4 u_Model;
                 out vec3 v_Position;
 
                 void main(){
                     v_Position = a_Position;
-                    gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
+                    gl_Position = u_ViewProjection * u_Model * vec4(a_Position, 1.0);
                 }
 
             )";
@@ -130,6 +131,7 @@ class TestLayer : public Oven::Layer
             )";
             m_Shader2.reset(Oven::Shader::Create(vertexSrc2, fragmentSrc2));
             m_Shader.reset(Oven::Shader::Create(vertexSrc, fragmentSrc));
+
         }
 
         void OnUpdate() override{
@@ -153,6 +155,19 @@ class TestLayer : public Oven::Layer
             if(Oven::Input::KeyPressed(OVEN_KEY_D)){
                 m_CamRot -= m_CamRotSpeed * Oven::Time::GetDeltaTime();
             }
+            
+            if(Oven::Input::KeyPressed(OVEN_KEY_L)){
+                m_SquarePosition.x += m_SquareSpeed * Oven::Time::GetDeltaTime();
+            }
+            if(Oven::Input::KeyPressed(OVEN_KEY_J)){
+                m_SquarePosition.x -= m_SquareSpeed * Oven::Time::GetDeltaTime();
+            }
+            if(Oven::Input::KeyPressed(OVEN_KEY_I)){
+                m_SquarePosition.y += m_SquareSpeed * Oven::Time::GetDeltaTime();
+            }
+            if(Oven::Input::KeyPressed(OVEN_KEY_K)){
+                m_SquarePosition.y -= m_SquareSpeed * Oven::Time::GetDeltaTime();
+            }
 
             m_Camera.SetPosition(m_CamPos);
             m_Camera.SetRotation(m_CamRot);
@@ -161,8 +176,17 @@ class TestLayer : public Oven::Layer
             
             
             Oven::Renderer::BeginScene(m_Camera);
-            Oven::Renderer::Submit(m_Shader2, m_SquareVA);
-            Oven::Renderer::Submit(m_Shader, m_VertexArray);
+
+            glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1 * 0.5f/0.75f));
+            for(int x = 0; x < 5; x++){
+                for(int y = 0; y < 5; y++){
+                    glm::vec3 pos(x * 0.11f, y*0.11f, 0.0f);
+                    glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos + m_SquarePosition) * scale;
+
+                    Oven::Renderer::Submit(m_Shader2, m_SquareVA, transform);
+                }
+            }
+            //Oven::Renderer::Submit(m_Shader, m_VertexArray);
             Oven::Renderer::EndScene();
   
         }
@@ -184,9 +208,13 @@ class TestLayer : public Oven::Layer
             std::shared_ptr<Oven::VertexArray> m_SquareVA;
             Oven::OrthographicCamera m_Camera;
             glm::vec3 m_CamPos;
+            glm::vec3 m_SquarePosition;
+            
             float m_CamRot = 0;
             float m_CamSpeed = 5;
             float m_CamRotSpeed = 50;
+            float m_SquareSpeed = 3;
+
 };
 class Sandbox : public Oven::Application
 {
