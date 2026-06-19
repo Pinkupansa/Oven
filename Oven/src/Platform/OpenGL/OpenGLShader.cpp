@@ -127,6 +127,39 @@ namespace Oven
         GL_CALL(glUseProgram(0));
     }
 
+    void OpenGLShader::UploadUniformInt(const std::string& name, int value){
+        GLint location = GL_CALL(glGetUniformLocation(m_RendererID, name.c_str()));
+        GL_CALL(glUniform1i(location, value));
+    }
+
+    void OpenGLShader::UploadUniformFloat(const std::string& name, float value){
+        GLint location = GL_CALL(glGetUniformLocation(m_RendererID, name.c_str()));
+        GL_CALL(glUniform1f(location, value));
+    }
+
+
+    void OpenGLShader::UploadUniformFloat2(const std::string& name, const glm::vec2& values){
+        GLint location = GL_CALL(glGetUniformLocation(m_RendererID, name.c_str()));
+        GL_CALL(glUniform2f(location, values.x, values.y));
+    }
+
+
+    void OpenGLShader::UploadUniformFloat3(const std::string& name, const glm::vec3& values){
+        GLint location = GL_CALL(glGetUniformLocation(m_RendererID, name.c_str()));
+        GL_CALL(glUniform3f(location, values.x, values.y, values.z));
+    }
+
+    void OpenGLShader::UploadUniformFloat4(const std::string& name, const glm::vec4& values){
+        GLint location = GL_CALL(glGetUniformLocation(m_RendererID, name.c_str()));
+        GL_CALL(glUniform4f(location, values.x, values.y, values.z, values.w));
+    }
+
+
+    void OpenGLShader::UploadUniformMat3(const std::string& name, const glm::mat3& matrix){
+        GLint location = GL_CALL(glGetUniformLocation(m_RendererID, name.c_str()));
+        GL_CALL(glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix)));
+    }
+    
     void OpenGLShader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix){
         GLint location = GL_CALL(glGetUniformLocation(m_RendererID, name.c_str()));
         GL_CALL(glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix)));

@@ -11,6 +11,7 @@ namespace Oven{
             case RendererAPI::RenderingBackend::None: OVEN_CORE_ASSERT(false, "GraphicsAPI::None is currently not supported !"); return nullptr;
             case RendererAPI::RenderingBackend::OpenGL: return new OpenGLShader(vertexSrc, fragmentSrc);
         }
+        OVEN_CORE_ASSERT(false, "Unknown GraphicsAPI");
         return nullptr;
     }
 }

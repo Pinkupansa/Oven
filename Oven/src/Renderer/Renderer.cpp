@@ -1,5 +1,6 @@
 #include "Oven/ovenpch.h"
 #include "Oven/Renderer/Renderer.h"
+#include "Oven/Platform/OpenGL/OpenGLShader.h"
 namespace Oven
 {   
     Renderer::SceneData* Renderer::m_SceneData = new Renderer::SceneData;
@@ -13,8 +14,8 @@ namespace Oven
 
 void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform){
         shader->Bind();
-        shader->UploadUniformMat4("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
-        shader->UploadUniformMat4("u_Model", transform);
+        std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
+        std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4("u_Model", transform);
         vertexArray->Bind();
         RenderCommand::DrawIndexed(vertexArray);
     }

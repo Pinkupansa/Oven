@@ -1,3 +1,5 @@
+#include "Oven/Platform/OpenGL/OpenGLShader.h"
+
 #include <iostream> 
 #include <Oven.h>
 #include <glm/vec3.hpp> // glm::vec3
@@ -6,7 +8,8 @@
 #include <glm/ext/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale
 #include <glm/ext/matrix_clip_space.hpp> // glm::perspective
 #include <glm/ext/scalar_constants.hpp> // glm::pi
-
+#include <imgui.h>
+#include <glm/gtc/type_ptr.hpp>
 
 class TestLayer : public Oven::Layer
 {
@@ -122,14 +125,15 @@ class TestLayer : public Oven::Layer
 
                 layout(location = 0) out vec4 color;
 
+                uniform vec3 u_Color; 
                 in vec3 v_Position;
 
                 void main(){
-                    color = vec4(v_Position*0.5 + 0.5, 1.0);
+                    color = vec4(u_Color, 1); 
                 }
 
             )";
-            m_Shader2.reset(Oven::Shader::Create(vertexSrc2, fragmentSrc2));
+            m_SingleColorShader.reset(Oven::Shader::Create(vertexSrc2, fragmentSrc2));
             m_Shader.reset(Oven::Shader::Create(vertexSrc, fragmentSrc));
 
         }
@@ -178,17 +182,30 @@ class TestLayer : public Oven::Layer
             Oven::Renderer::BeginScene(m_Camera);
 
             glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1 * 0.5f/0.75f));
-            for(int x = 0; x < 5; x++){
-                for(int y = 0; y < 5; y++){
+            
+            glm::vec4 blackColor(0.01, 0.01, 0.01, 1);
+            glm::vec4 whiteColor(1, 1, 1, 1);
+
+            m_SingleColorShader->Bind();
+            std::dynamic_pointer_cast<Oven::OpenGLShader>(m_SingleColorShader)->UploadUniformFloat3("u_Color", m_SquareColor);
+            
+            for(int x = 0; x < 8; x++){
+                for(int y = 0; y < 8; y++){
                     glm::vec3 pos(x * 0.11f, y*0.11f, 0.0f);
                     glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos + m_SquarePosition) * scale;
-
-                    Oven::Renderer::Submit(m_Shader2, m_SquareVA, transform);
+                Oven::Renderer::Submit(m_SingleColorShader, m_SquareVA, transform);
                 }
             }
             //Oven::Renderer::Submit(m_Shader, m_VertexArray);
             Oven::Renderer::EndScene();
   
+        }
+
+        void OnImGuiRender() override{
+            ImGui::Begin("Settings");
+            ImGui::ColorEdit3("Square Color", glm::value_ptr(m_SquareColor));
+            ImGui::End();
+
         }
 
         void OnEvent(Oven::Event& event) override{
@@ -202,7 +219,7 @@ class TestLayer : public Oven::Layer
 
         private: 
             std::shared_ptr<Oven::Shader> m_Shader;
-            std::shared_ptr<Oven::Shader> m_Shader2;
+            std::shared_ptr<Oven::Shader> m_SingleColorShader;
             std::shared_ptr<Oven::VertexArray> m_VertexArray;
 
             std::shared_ptr<Oven::VertexArray> m_SquareVA;
@@ -214,6 +231,8 @@ class TestLayer : public Oven::Layer
             float m_CamSpeed = 5;
             float m_CamRotSpeed = 50;
             float m_SquareSpeed = 3;
+
+            glm::vec3 m_SquareColor;
 
 };
 class Sandbox : public Oven::Application
