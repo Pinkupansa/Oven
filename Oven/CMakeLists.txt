@@ -44,6 +44,7 @@ list(APPEND ENGINE_SOURCES ${PLATFORM_SOURCES} ${OPENGL_SOURCES})
 list(APPEND ENGINE_HEADERS ${PLATFORM_HEADERS} ${OPENGL_HEADERS})
 
 
+
 # -----------------------------
 # Dépendances (Vendor)
 # -----------------------------
@@ -51,7 +52,8 @@ add_subdirectory(vendor/spdlog)
 add_subdirectory(vendor/glfw)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/glm)
-
+list(APPEND ENGINE_HEADERS "vendor/stb_image/stb_image.h")
+list(APPEND ENGINE_SOURCES "vendor/stb_image/stb_image.cpp")
 find_package(OpenGL REQUIRED)
 
 add_library(glad STATIC vendor/glad/src/glad.c)

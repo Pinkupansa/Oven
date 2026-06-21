@@ -12,5 +12,4 @@ namespace Oven{
             
             static Shader* Create(std::string &vertexSrc, std::string &fragmentSrc);
     };
-
 }

@@ -1,9 +1,9 @@
 #include "Oven/ovenpch.h"
 #include "Oven/Platform/OpenGL/OpenGLContext.h"
+#include "Oven/Platform/OpenGL/OpenGLMacros.h"
 #include "Oven/Log.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 
 
 namespace Oven{
@@ -19,7 +19,7 @@ namespace Oven{
         OVEN_CORE_INFO("OpenGL Version: {0}", (const char*)glGetString(GL_VERSION));
         OVEN_CORE_INFO("Renderer: {0}", (const char*)glGetString(GL_RENDERER));
         OVEN_CORE_INFO("Vendor: {0}", (const char*) glGetString(GL_VENDOR));
-
+        GL_CALL(glEnable(GL_FRAMEBUFFER_SRGB));
         
     }
 

@@ -15,11 +15,13 @@
         func();
         while(GLenum error = glGetError()) {
             OVEN_CORE_ERROR("OpenGL Error {} in {}", error, expr);
+            OVEN_CORE_ASSERT(false, "OpenGL Error");
         }
     } else {
         auto __ret = func();
         while(GLenum error = glGetError()) {
             OVEN_CORE_ERROR("OpenGL Error {} in {}", error, expr);
+            OVEN_CORE_ASSERT(false, "OpenGL Error");
         }
         return __ret;
     }

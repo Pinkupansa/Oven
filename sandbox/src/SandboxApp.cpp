@@ -26,7 +26,7 @@ class TestLayer : public Oven::Layer
 
             //Create vertex buffer and layout
 
-            std::shared_ptr<Oven::VertexBuffer> vertexBuffer;
+            Oven::Ref<Oven::VertexBuffer> vertexBuffer;
             vertexBuffer.reset(Oven::VertexBuffer::Create(vertices, sizeof(vertices)));
         
             {
@@ -37,7 +37,7 @@ class TestLayer : public Oven::Layer
                 vertexBuffer->SetLayout(layout);
             }
             
-            std::shared_ptr<Oven::IndexBuffer> indexBuffer;
+            Oven::Ref<Oven::IndexBuffer> indexBuffer;
             //Create index buffer 
             uint32_t indices[3] = {0, 1, 2};
             indexBuffer.reset(Oven::IndexBuffer::Create(indices, sizeof(indices)/sizeof(uint32_t)));
@@ -48,23 +48,24 @@ class TestLayer : public Oven::Layer
 
 
             m_SquareVA.reset(Oven::VertexArray::Create());
-            float squareVertices[3*4] = { 
-                -0.75f, -0.75f, 0.0f,
-                0.75f, -0.75f, 0.0f,
-                0.75f, 0.75f, 0.0f,
-                -0.75f, 0.75f, 0.0f
+            float squareVertices[5*4] = { 
+                -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+                0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+                0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
+                -0.5f, 0.5f, 0.0f, 0.0f, 1.0f
             };
             
-            std::shared_ptr<Oven::VertexBuffer> squareVB;
+            Oven::Ref<Oven::VertexBuffer> squareVB;
             squareVB.reset(Oven::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
             
             squareVB->SetLayout({
-                {Oven::ShaderDataType::Float3, "a_Position"}
+                {Oven::ShaderDataType::Float3, "a_Position"},
+                {Oven::ShaderDataType::Float2, "a_TexUV"}
             });
 
             uint32_t squareIndices[6] = {0, 1, 2, 2, 3, 0};
             
-            std::shared_ptr<Oven::IndexBuffer> squareIB; 
+            Oven::Ref<Oven::IndexBuffer> squareIB; 
             squareIB.reset(Oven::IndexBuffer::Create(squareIndices, sizeof(squareIndices)/sizeof(uint32_t)));
             m_SquareVA->AddVertexBuffer(squareVB);
             m_SquareVA->SetIndexBuffer(squareIB);
@@ -133,8 +134,46 @@ class TestLayer : public Oven::Layer
                 }
 
             )";
+             std::string texShaderVertexSrc = R"(
+                #version 330 core 
+
+                layout(location = 0) in vec3 a_Position;
+                layout(location = 1) in vec2 a_TexUV;
+                uniform mat4 u_ViewProjection;
+                uniform mat4 u_Model;
+
+                out vec3 v_Position;
+                out vec2 v_TexUV;
+
+                void main(){
+                    v_Position = a_Position;
+                    gl_Position = u_ViewProjection * u_Model * vec4(a_Position, 1.0);
+                    v_TexUV = a_TexUV;
+                }
+
+            )";
+
+            std::string texShaderFragSrc =R"(
+                #version 330 core 
+
+                layout(location = 0) out vec4 color;
+
+                in vec3 v_Position;
+                in vec2 v_TexUV;
+
+                uniform sampler2D u_Texture;
+
+                void main(){
+                    color = texture(u_Texture, v_TexUV);
+                }
+
+            )";
+
+
             m_SingleColorShader.reset(Oven::Shader::Create(vertexSrc2, fragmentSrc2));
             m_Shader.reset(Oven::Shader::Create(vertexSrc, fragmentSrc));
+            m_TextureShader.reset(Oven::Shader::Create(texShaderVertexSrc, texShaderFragSrc));
+            m_WaterTexture = Oven::Texture2D::Create("sandbox/assets/textures/water.png");
 
         }
 
@@ -181,11 +220,11 @@ class TestLayer : public Oven::Layer
             
             Oven::Renderer::BeginScene(m_Camera);
 
-            glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1 * 0.5f/0.75f));
+            glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1));
             
             glm::vec4 blackColor(0.01, 0.01, 0.01, 1);
             glm::vec4 whiteColor(1, 1, 1, 1);
-
+            
             m_SingleColorShader->Bind();
             std::dynamic_pointer_cast<Oven::OpenGLShader>(m_SingleColorShader)->UploadUniformFloat3("u_Color", m_SquareColor);
             
@@ -193,10 +232,17 @@ class TestLayer : public Oven::Layer
                 for(int y = 0; y < 8; y++){
                     glm::vec3 pos(x * 0.11f, y*0.11f, 0.0f);
                     glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos + m_SquarePosition) * scale;
-                Oven::Renderer::Submit(m_SingleColorShader, m_SquareVA, transform);
+                    Oven::Renderer::Submit(m_SingleColorShader, m_SquareVA, transform);
                 }
             }
-            //Oven::Renderer::Submit(m_Shader, m_VertexArray);
+
+            uint32_t texSlot = 0;
+            m_WaterTexture->Bind(texSlot);
+
+            m_TextureShader->Bind();
+            std::dynamic_pointer_cast<Oven::OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", texSlot);
+            Oven::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+           
             Oven::Renderer::EndScene();
   
         }
@@ -218,11 +264,12 @@ class TestLayer : public Oven::Layer
         }
 
         private: 
-            std::shared_ptr<Oven::Shader> m_Shader;
-            std::shared_ptr<Oven::Shader> m_SingleColorShader;
-            std::shared_ptr<Oven::VertexArray> m_VertexArray;
-
-            std::shared_ptr<Oven::VertexArray> m_SquareVA;
+            Oven::Ref<Oven::Shader> m_Shader;
+            Oven::Ref<Oven::Shader> m_SingleColorShader;
+            Oven::Ref<Oven::Shader> m_TextureShader;
+            Oven::Ref<Oven::VertexArray> m_VertexArray;
+            
+            Oven::Ref<Oven::VertexArray> m_SquareVA;
             Oven::OrthographicCamera m_Camera;
             glm::vec3 m_CamPos;
             glm::vec3 m_SquarePosition;
@@ -234,6 +281,7 @@ class TestLayer : public Oven::Layer
 
             glm::vec3 m_SquareColor;
 
+            Oven::Ref<Oven::Texture2D> m_WaterTexture;
 };
 class Sandbox : public Oven::Application
 {

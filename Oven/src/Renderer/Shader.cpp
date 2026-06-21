@@ -7,11 +7,11 @@ namespace Oven{
 
 
     Shader* Shader::Create(std::string &vertexSrc, std::string &fragmentSrc){
-        switch (Renderer::GetGraphicsAPI()){
-            case RendererAPI::RenderingBackend::None: OVEN_CORE_ASSERT(false, "GraphicsAPI::None is currently not supported !"); return nullptr;
+        switch (Renderer::GetBackend()){
+            case RendererAPI::RenderingBackend::None: OVEN_CORE_ASSERT(false, "RenderingBackend::None is currently not supported !"); return nullptr;
             case RendererAPI::RenderingBackend::OpenGL: return new OpenGLShader(vertexSrc, fragmentSrc);
         }
-        OVEN_CORE_ASSERT(false, "Unknown GraphicsAPI");
+        OVEN_CORE_ASSERT(false, "Unknown RenderingBackend");
         return nullptr;
     }
 }

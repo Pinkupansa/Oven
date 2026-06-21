@@ -14,7 +14,7 @@ namespace Oven
         public:
             virtual void SetClearColor(const glm::vec4& color) = 0; 
             virtual void Clear() = 0;
-            virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) = 0;
+            virtual void DrawIndexed(const Ref<VertexArray>& vertexArray) = 0;
             inline static RenderingBackend GetBackend() { return s_RenderingBackend; }
         
         private:

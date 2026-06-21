@@ -41,3 +41,7 @@ target_compile_definitions(Sandbox
         $<$<CONFIG:Release>:OVEN_RELEASE>
         $<$<CONFIG:Dist>:OVEN_DIST>
 )
+
+# Copy the assets folder to the build directory where the executable lives
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets 
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

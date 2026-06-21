@@ -1,5 +1,5 @@
 #pragma once
-
+#include <memory>
 
 #if OVEN_DYNAMIC_LINK
     #ifdef OVEN_PLATFORM_WINDOWS
@@ -21,3 +21,12 @@
 #define BIT(x) (1 << x)
 
 #define OVEN_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+
+namespace Oven{
+    template<typename T> 
+    using Scope = std::unique_ptr<T>;
+
+    template<typename T> 
+    using Ref = std::shared_ptr<T>;
+
+}
