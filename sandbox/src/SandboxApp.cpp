@@ -1,5 +1,4 @@
 #include "Oven/Platform/OpenGL/OpenGLShader.h"
-
 #include <iostream> 
 #include <Oven.h>
 #include <glm/vec3.hpp> // glm::vec3
@@ -10,7 +9,6 @@
 #include <glm/ext/scalar_constants.hpp> // glm::pi
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
-
 class TestLayer : public Oven::Layer
 {
     public: 
@@ -133,49 +131,11 @@ class TestLayer : public Oven::Layer
                     color = vec4(u_Color, 1); 
                 }
 
-            )";
-             std::string texShaderVertexSrc = R"(
-                #version 330 core 
-
-                layout(location = 0) in vec3 a_Position;
-                layout(location = 1) in vec2 a_TexUV;
-                uniform mat4 u_ViewProjection;
-                uniform mat4 u_Model;
-
-                out vec3 v_Position;
-                out vec2 v_TexUV;
-
-                void main(){
-                    v_Position = a_Position;
-                    gl_Position = u_ViewProjection * u_Model * vec4(a_Position, 1.0);
-                    v_TexUV = a_TexUV;
-                }
-
-            )";
-
-            std::string texShaderFragSrc =R"(
-                #version 330 core 
-
-                layout(location = 0) out vec4 color;
-
-                in vec3 v_Position;
-                in vec2 v_TexUV;
-
-                uniform sampler2D u_Texture;
-
-                void main(){
-                    color = texture(u_Texture, v_TexUV);
-                }
-
-            )";
-
+            )"; 
 
             m_SingleColorShader.reset(Oven::Shader::Create(vertexSrc2, fragmentSrc2));
             m_Shader.reset(Oven::Shader::Create(vertexSrc, fragmentSrc));
-
-            Shader::Create("assets/shaders/Texture.glsl");
-
-            m_TextureShader.reset(Oven::Shader::Create(texShaderVertexSrc, texShaderFragSrc));
+            m_TextureShader.reset(Oven::Shader::Create("sandbox/assets/shaders/Texture.glsl"));
             m_WaterTexture = Oven::Texture2D::Create("sandbox/assets/textures/water.png");
             m_OvenLogoTexture = Oven::Texture2D::Create("sandbox/assets/oven_logo_notext.png");
 

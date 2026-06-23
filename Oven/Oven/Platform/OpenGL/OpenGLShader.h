@@ -1,10 +1,15 @@
 #pragma once 
 #include <string> 
 #include "Oven/Renderer/Shader.h"
+
+
+//REMOVE THIS 
+typedef unsigned int GLenum;
 namespace Oven{
 
     class OpenGLShader: public Shader{ 
         public: 
+            OpenGLShader(const std::string& filepath);
             OpenGLShader(const std::string& vertexSrc, const std::string& fragmentSrc);
             ~OpenGLShader(); 
 
@@ -19,6 +24,10 @@ namespace Oven{
             void Bind() const override; 
             void Unbind() const override; 
         
+        private: 
+            std::string ReadFile(const std::string& filepath);
+            std::unordered_map<GLenum, std::string> SplitShaderSources(const std::string& source);
+            void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);
         private: 
             uint32_t m_RendererID;
     };

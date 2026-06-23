@@ -6,7 +6,15 @@
 namespace Oven{
 
 
-    Shader* Shader::Create(std::string &vertexSrc, std::string &fragmentSrc){
+    Shader* Shader::Create(const std::string &filepath){
+        switch (Renderer::GetBackend()){
+            case RendererAPI::RenderingBackend::None: OVEN_CORE_ASSERT(false, "RenderingBackend::None is currently not supported !"); return nullptr;
+            case RendererAPI::RenderingBackend::OpenGL: return new OpenGLShader(filepath);
+        }
+        OVEN_CORE_ASSERT(false, "Unknown RenderingBackend");
+        return nullptr;
+    }
+    Shader* Shader::Create(const std::string &vertexSrc, const std::string &fragmentSrc){
         switch (Renderer::GetBackend()){
             case RendererAPI::RenderingBackend::None: OVEN_CORE_ASSERT(false, "RenderingBackend::None is currently not supported !"); return nullptr;
             case RendererAPI::RenderingBackend::OpenGL: return new OpenGLShader(vertexSrc, fragmentSrc);
