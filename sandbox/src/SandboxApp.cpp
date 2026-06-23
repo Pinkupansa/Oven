@@ -172,8 +172,12 @@ class TestLayer : public Oven::Layer
 
             m_SingleColorShader.reset(Oven::Shader::Create(vertexSrc2, fragmentSrc2));
             m_Shader.reset(Oven::Shader::Create(vertexSrc, fragmentSrc));
+
+            Shader::Create("assets/shaders/Texture.glsl");
+
             m_TextureShader.reset(Oven::Shader::Create(texShaderVertexSrc, texShaderFragSrc));
             m_WaterTexture = Oven::Texture2D::Create("sandbox/assets/textures/water.png");
+            m_OvenLogoTexture = Oven::Texture2D::Create("sandbox/assets/oven_logo_notext.png");
 
         }
 
@@ -237,7 +241,7 @@ class TestLayer : public Oven::Layer
             }
 
             uint32_t texSlot = 0;
-            m_WaterTexture->Bind(texSlot);
+            m_OvenLogoTexture->Bind(texSlot);
 
             m_TextureShader->Bind();
             std::dynamic_pointer_cast<Oven::OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", texSlot);
@@ -282,6 +286,7 @@ class TestLayer : public Oven::Layer
             glm::vec3 m_SquareColor;
 
             Oven::Ref<Oven::Texture2D> m_WaterTexture;
+            Oven::Ref<Oven::Texture2D> m_OvenLogoTexture;
 };
 class Sandbox : public Oven::Application
 {

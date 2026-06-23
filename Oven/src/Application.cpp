@@ -21,7 +21,7 @@ namespace Oven{
         m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
         m_ImGuiLayer = new ImGuiLayer();
         PushOverlay(m_ImGuiLayer);
-        
+        Renderer::Init();
     }
     Application::~Application(){}
 

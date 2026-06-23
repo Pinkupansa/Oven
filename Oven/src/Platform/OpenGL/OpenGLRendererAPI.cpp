@@ -4,6 +4,11 @@
 
 #include <glad/glad.h>
 namespace Oven{
+    void OpenGLRendererAPI::Init(){
+        GL_CALL(glEnable(GL_BLEND));
+        GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+        GL_CALL(glEnable(GL_FRAMEBUFFER_SRGB));
+    }
     void OpenGLRendererAPI::SetClearColor(const glm::vec4& color){
         GL_CALL(glClearColor(color.r, color.g, color.b, color.a));
     }
