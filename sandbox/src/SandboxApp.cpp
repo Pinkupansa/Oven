@@ -9,10 +9,11 @@
 #include <glm/ext/scalar_constants.hpp> // glm::pi
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <string>
 class TestLayer : public Oven::Layer
 {
     public: 
-        TestLayer() : Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CamPos(0.0f), m_SquarePosition(0.0f){
+        TestLayer() : Layer("Example"), m_CameraController(16.0f/9.0f),  m_SquarePosition(0.0f), m_SquareColor(0.2f, 0.3f, 0.8f){
 
             m_VertexArray.reset(Oven::VertexArray::Create());
 
@@ -133,36 +134,27 @@ class TestLayer : public Oven::Layer
 
             )"; 
 
-            m_SingleColorShader.reset(Oven::Shader::Create(vertexSrc2, fragmentSrc2));
-            m_Shader.reset(Oven::Shader::Create(vertexSrc, fragmentSrc));
-            m_TextureShader.reset(Oven::Shader::Create("sandbox/assets/shaders/Texture.glsl"));
-            m_WaterTexture = Oven::Texture2D::Create("sandbox/assets/textures/water.png");
+            m_SingleColorShader = Oven::Shader::Create("SingleColorShader", vertexSrc2, fragmentSrc2);
+            m_Shader = Oven::Shader::Create("TestShader", vertexSrc, fragmentSrc);
+            
+            auto textureShader = m_ShaderLibrary.Load("sandbox/assets/shaders/Texture.glsl");
+            
+            uint32_t texSlot = 0;
             m_OvenLogoTexture = Oven::Texture2D::Create("sandbox/assets/oven_logo_notext.png");
+
+            textureShader->Bind();
+            std::dynamic_pointer_cast<Oven::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", texSlot);
+            textureShader->Unbind();
+            
+
+            m_WaterTexture = Oven::Texture2D::Create("sandbox/assets/textures/water.png");
 
         }
 
-        void OnUpdate() override{
+        void OnUpdate() override{ 
 
-            if(Oven::Input::KeyPressed(OVEN_KEY_RIGHT)){
-                m_CamPos.x += m_CamSpeed * Oven::Time::GetDeltaTime();
-            }
-            if(Oven::Input::KeyPressed(OVEN_KEY_LEFT)){
-                m_CamPos.x -= m_CamSpeed * Oven::Time::GetDeltaTime();
-            }
-            if(Oven::Input::KeyPressed(OVEN_KEY_UP)){
-                m_CamPos.y += m_CamSpeed * Oven::Time::GetDeltaTime();
-            }
-            if(Oven::Input::KeyPressed(OVEN_KEY_DOWN)){
-                m_CamPos.y -= m_CamSpeed * Oven::Time::GetDeltaTime();
-            }
-
-            if(Oven::Input::KeyPressed(OVEN_KEY_A)){
-                m_CamRot += m_CamRotSpeed * Oven::Time::GetDeltaTime();
-            }
-            if(Oven::Input::KeyPressed(OVEN_KEY_D)){
-                m_CamRot -= m_CamRotSpeed * Oven::Time::GetDeltaTime();
-            }
-            
+            //Update
+            m_CameraController.OnUpdate(); 
             if(Oven::Input::KeyPressed(OVEN_KEY_L)){
                 m_SquarePosition.x += m_SquareSpeed * Oven::Time::GetDeltaTime();
             }
@@ -176,13 +168,12 @@ class TestLayer : public Oven::Layer
                 m_SquarePosition.y -= m_SquareSpeed * Oven::Time::GetDeltaTime();
             }
 
-            m_Camera.SetPosition(m_CamPos);
-            m_Camera.SetRotation(m_CamRot);
+            //Render
             Oven::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
             Oven::RenderCommand::Clear();
             
             
-            Oven::Renderer::BeginScene(m_Camera);
+            Oven::Renderer::BeginScene(m_CameraController.GetCamera());
 
             glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1));
             
@@ -200,13 +191,9 @@ class TestLayer : public Oven::Layer
                 }
             }
 
-            uint32_t texSlot = 0;
-            m_OvenLogoTexture->Bind(texSlot);
-
-            m_TextureShader->Bind();
-            std::dynamic_pointer_cast<Oven::OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", texSlot);
-            Oven::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
-           
+            auto textureShader = m_ShaderLibrary.Get("Texture"); 
+            m_OvenLogoTexture->Bind(0);
+            Oven::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
             Oven::Renderer::EndScene();
   
         }
@@ -219,6 +206,7 @@ class TestLayer : public Oven::Layer
         }
 
         void OnEvent(Oven::Event& event) override{
+            m_CameraController.OnEvent(event);
             Oven::EventDispatcher dispatcher(event); 
             dispatcher.Dispatch<Oven::KeyPressedEvent>(OVEN_BIND_EVENT_FN(TestLayer::OnKeyPressedEvent));
         }
@@ -228,19 +216,16 @@ class TestLayer : public Oven::Layer
         }
 
         private: 
+            Oven::ShaderLibrary m_ShaderLibrary; 
             Oven::Ref<Oven::Shader> m_Shader;
             Oven::Ref<Oven::Shader> m_SingleColorShader;
-            Oven::Ref<Oven::Shader> m_TextureShader;
             Oven::Ref<Oven::VertexArray> m_VertexArray;
             
             Oven::Ref<Oven::VertexArray> m_SquareVA;
-            Oven::OrthographicCamera m_Camera;
-            glm::vec3 m_CamPos;
+            Oven::OrthographicCameraController m_CameraController;
+
             glm::vec3 m_SquarePosition;
-            
-            float m_CamRot = 0;
-            float m_CamSpeed = 5;
-            float m_CamRotSpeed = 50;
+
             float m_SquareSpeed = 3;
 
             glm::vec3 m_SquareColor;

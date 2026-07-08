@@ -6,6 +6,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Oven/Log.h"
 #include <glad/glad.h>
+
+
 namespace Oven
 {
 
@@ -20,8 +22,16 @@ namespace Oven
         std::string source = ReadFile(filepath);
         auto shaderSources = SplitShaderSources(source);
         Compile(shaderSources);
+
+    //Extract name
+        auto nameStartPos= filepath.find_last_of("/\\");
+        nameStartPos = nameStartPos == std::string::npos ? 0 : nameStartPos + 1;
+        auto lastDot = filepath.rfind('.');
+        auto count = lastDot == std::string::npos ? filepath.size() - nameStartPos : lastDot - nameStartPos;
+        m_Name = filepath.substr(nameStartPos, count);
     }
-    OpenGLShader::OpenGLShader(const std::string &vertexSrc, const std::string &fragmentSrc)
+    OpenGLShader::OpenGLShader(const std::string& name, const std::string &vertexSrc, const std::string &fragmentSrc) 
+        : m_Name(name)
     {
         std::unordered_map<GLenum, std::string> sources; 
         sources[GL_VERTEX_SHADER] = vertexSrc; 
@@ -31,7 +41,9 @@ namespace Oven
 
     void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources){
         GLuint program = GL_CALL(glCreateProgram());
-        std::vector<GLenum> glShaderIds;
+        OVEN_CORE_ASSERT(shaderSources.size() <= 2, "Maximum number of shaders in a file exceeded ! (2)");
+        std::array<GLenum, 2> glShaderIds;
+        int glShaderIDIndex = 0;
         for(auto& kv : shaderSources){
             GLenum shaderType = kv.first; 
             const std::string& shaderSource = kv.second;
@@ -62,7 +74,7 @@ namespace Oven
                 OVEN_CORE_ASSERT(false, "Shutting down...");
             }
             GL_CALL(glAttachShader(program, shader));
-            glShaderIds.push_back(shader);
+            glShaderIds[glShaderIDIndex++] = shader;
         }
 
         
