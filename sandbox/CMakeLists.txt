@@ -5,7 +5,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -----------------------------
 file(GLOB_RECURSE SANDBOX_SOURCES
     "src/*.cpp"
-    "include/*.hpp"
 )
 
 # -----------------------------
@@ -15,6 +14,7 @@ add_executable(Sandbox
     ${SANDBOX_SOURCES}
 )
 
+target_include_directories(Sandbox PRIVATE include)
 # -----------------------------
 # Liaison avec le moteur
 # -----------------------------

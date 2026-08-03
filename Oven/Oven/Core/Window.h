@@ -2,6 +2,7 @@
 
 #include "Oven/Core/Core.h"
 #include "Oven/Events/Event.h"
+#include <functional>
 namespace Oven
 {
     struct WindowProps

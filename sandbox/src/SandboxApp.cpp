@@ -10,12 +10,14 @@
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
+#include "Sandbox2D.h"
+#include <Oven/Core/EntryPoint.h>
 class TestLayer : public Oven::Layer
 {
     public: 
         TestLayer() : Layer("Example"), m_CameraController(16.0f/9.0f),  m_SquarePosition(0.0f), m_SquareColor(0.2f, 0.3f, 0.8f){
 
-            m_VertexArray.reset(Oven::VertexArray::Create());
+            m_VertexArray = Oven::VertexArray::Create();
 
             float vertices[3*7] = { 
                 -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,  
@@ -46,7 +48,7 @@ class TestLayer : public Oven::Layer
             m_VertexArray->SetIndexBuffer(indexBuffer);
 
 
-            m_SquareVA.reset(Oven::VertexArray::Create());
+            m_SquareVA = Oven::VertexArray::Create();
             float squareVertices[5*4] = { 
                 -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
                 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
@@ -133,21 +135,6 @@ class TestLayer : public Oven::Layer
                 }
 
             )"; 
-
-            m_SingleColorShader = Oven::Shader::Create("SingleColorShader", vertexSrc2, fragmentSrc2);
-            m_Shader = Oven::Shader::Create("TestShader", vertexSrc, fragmentSrc);
-            
-            auto textureShader = m_ShaderLibrary.Load("sandbox/assets/shaders/Texture.glsl");
-            
-            uint32_t texSlot = 0;
-            m_OvenLogoTexture = Oven::Texture2D::Create("sandbox/assets/oven_logo_notext.png");
-
-            textureShader->Bind();
-            std::dynamic_pointer_cast<Oven::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", texSlot);
-            textureShader->Unbind();
-            
-
-            m_WaterTexture = Oven::Texture2D::Create("sandbox/assets/textures/water.png");
 
         }
 
@@ -238,7 +225,8 @@ class Sandbox : public Oven::Application
     public:
         Sandbox()
         {
-            PushLayer(new TestLayer());
+            //PushLayer(new TestLayer());
+            PushLayer(new Sandbox2D());
         }
         ~Sandbox()
         {
