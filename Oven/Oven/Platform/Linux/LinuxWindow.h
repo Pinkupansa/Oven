@@ -1,5 +1,5 @@
 #pragma once
-#include "Oven/Window.h"
+#include "Oven/Core/Window.h"
 class GLFWwindow;
 namespace Oven {
     class LinuxWindow : public Window {

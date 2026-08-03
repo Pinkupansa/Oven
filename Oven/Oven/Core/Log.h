@@ -1,5 +1,5 @@
 #pragma once
-#include "Oven/Core.h"
+#include "Oven/Core/Core.h"
 
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"

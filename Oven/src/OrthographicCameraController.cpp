@@ -1,9 +1,9 @@
 #include "Oven/ovenpch.h"
 #include "Oven/OrthographicCameraController.h"
-#include "Oven/Time.h"
-#include "Oven/Input.h"
-#include "Oven/KeyCodes.h"
-#include "Oven/Core.h"
+#include "Oven/Core/Time.h"
+#include "Oven/Core/Input.h"
+#include "Oven/Core/KeyCodes.h"
+#include "Oven/Core/Core.h"
 
 namespace Oven{
 

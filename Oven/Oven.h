@@ -2,14 +2,14 @@
 
 //For use by Oven applications
 
-#include "Oven/Application.h"
-#include "Oven/Core.h"
-#include "Oven/Layer.h"
-#include "Oven/Input.h"
-#include "Oven/MouseButtonCodes.h"
-#include "Oven/KeyCodes.h"
-#include "Oven/Log.h"
-#include "Oven/Time.h"
+#include "Oven/Core/Application.h"
+#include "Oven/Core/Core.h"
+#include "Oven/Core/Layer.h"
+#include "Oven/Core/Input.h"
+#include "Oven/Core/MouseButtonCodes.h"
+#include "Oven/Core/KeyCodes.h"
+#include "Oven/Core/Log.h"
+#include "Oven/Core/Time.h"
 #include "Oven/ImGui/ImGuiLayer.h"
 #include "Oven/OrthographicCameraController.h"
 //---Renderer--------------------------
@@ -23,4 +23,4 @@
 //--------------------------------------
 
 
-#include "Oven/EntryPoint.h"
+#include "Oven/Core/EntryPoint.h"

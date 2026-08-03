@@ -1,5 +1,5 @@
-#include "Oven/TimeAPI.h"
-#include "Oven/Log.h"
+#include "Oven/Core/TimeAPI.h"
+#include "Oven/Core/Log.h"
 #include "Oven/Renderer/Renderer.h"
 #include "Oven/GLFWTimeAPI.h"
 

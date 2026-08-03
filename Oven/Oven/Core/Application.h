@@ -1,8 +1,8 @@
 #pragma once 
-#include "Oven/Core.h"
-#include "Oven/Window.h"
-#include "Oven/LayerStack.h"
-#include "Oven/Time.h"
+#include "Oven/Core/Core.h"
+#include "Oven/Core/Window.h"
+#include "Oven/Core/LayerStack.h"
+#include "Oven/Core/Time.h"
 #include "Oven/Events/Event.h"
 #include "Oven/Events/ApplicationEvent.h"
 #include "Oven/ImGui/ImGuiLayer.h"

@@ -1,6 +1,6 @@
 #pragma once 
 #include <string>
-#include "Oven/Core.h"
+#include "Oven/Core/Core.h"
 namespace Oven{ 
     class Texture{
         public: 

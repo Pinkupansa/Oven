@@ -1,7 +1,7 @@
 #include "Oven/ovenpch.h"
 #include "Oven/Platform/OpenGL/OpenGLContext.h"
 #include "Oven/Platform/OpenGL/OpenGLMacros.h"
-#include "Oven/Log.h"
+#include "Oven/Core/Log.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 

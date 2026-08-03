@@ -1,11 +1,11 @@
 #include "Oven/ovenpch.h"
-#include "Oven/Application.h"
-#include "Oven/Log.h"
-#include "Oven/Input.h"
+#include "Oven/Core/Application.h"
+#include "Oven/Core/Log.h"
+#include "Oven/Core/Input.h"
 #include "Oven/Platform/OpenGL/OpenGLMacros.h"
 #include "Oven/Renderer/Renderer.h"
 #include <glad/glad.h>
-#include "Oven/Time.h"
+#include "Oven/Core/Time.h"
 namespace Oven{
     #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
     Application* Application::s_Instance = nullptr;

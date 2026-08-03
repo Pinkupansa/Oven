@@ -1,6 +1,6 @@
 #include "Oven/ovenpch.h"
 #include "Oven/Platform/Linux/LinuxWindow.h"
-#include "Oven/Log.h"
+#include "Oven/Core/Log.h"
 #include "Oven/Events/KeyEvent.h"
 #include "Oven/Events/MouseEvent.h"
 #include "Oven/Events/ApplicationEvent.h"

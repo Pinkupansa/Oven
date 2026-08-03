@@ -1,7 +1,7 @@
 
 #include "Oven/ovenpch.h"
 #include "Oven/Platform/Mac/MacInput.h"
-#include "Oven/Application.h"
+#include "Oven/Core/Application.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

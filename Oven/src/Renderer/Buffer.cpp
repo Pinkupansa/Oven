@@ -1,7 +1,7 @@
 #include "Oven/ovenpch.h"
 #include "Oven/Renderer/Buffer.h"
 #include "Oven/Renderer/Renderer.h"
-#include "Oven/Log.h"
+#include "Oven/Core/Log.h"
 #include "Oven/Platform/OpenGL/OpenGLBuffer.h"
 namespace Oven{
     VertexBuffer* VertexBuffer::Create(float* vertices, uint32_t size){ 

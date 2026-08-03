@@ -1,6 +1,6 @@
 #include "Oven/ovenpch.h"
-#include "Oven/Time.h"
-#include "Oven/Log.h"
+#include "Oven/Core/Time.h"
+#include "Oven/Core/Log.h"
 
 namespace Oven {
 

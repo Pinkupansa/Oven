@@ -2,7 +2,7 @@
 #include "Oven/Platform/OpenGL/OpenGLBuffer.h"
 #include "Oven/Platform/OpenGL/OpenGLMacros.h"
 #include <glad/glad.h>
-#include "Oven/Log.h"
+#include "Oven/Core/Log.h"
 namespace Oven{
     ///////////////////////////////////////
     ////////VertexBuffer///////////////////

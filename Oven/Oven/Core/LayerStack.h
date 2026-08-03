@@ -1,6 +1,6 @@
 #pragma once 
-#include "Oven/Core.h"
-#include "Oven/Layer.h"
+#include "Oven/Core/Core.h"
+#include "Oven/Core/Layer.h"
 
 #include <vector> 
 

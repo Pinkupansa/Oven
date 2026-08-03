@@ -1,6 +1,6 @@
 #pragma once 
 
-#include "Oven/Input.h"
+#include "Oven/Core/Input.h"
 
 namespace Oven{
     class OVEN_API MacInput : public Input{

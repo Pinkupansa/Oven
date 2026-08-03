@@ -6,7 +6,7 @@
     #include <type_traits>
     #include <glad/glad.h>
     #include <utility> 
-    #include <Oven/Log.h>
+    #include <Oven/Core/Log.h>
     template<typename F>
     auto glCallImpl(F&& func, const char* expr) {
     while(glGetError() != GL_NO_ERROR);

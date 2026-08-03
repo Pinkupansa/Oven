@@ -1,7 +1,7 @@
 #pragma once 
 #include <string>
 #include <glm/gtc/matrix_transform.hpp>
-#include "Oven/Core.h"
+#include "Oven/Core/Core.h"
 namespace Oven{
 
     class Shader{

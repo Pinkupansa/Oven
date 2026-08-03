@@ -1,6 +1,6 @@
 #pragma once
 #include "Oven/Renderer/RenderingContext.h"
-#include "Oven/Window.h"
+#include "Oven/Core/Window.h"
 #include <GLFW/glfw3.h>
 
 namespace Oven{ 

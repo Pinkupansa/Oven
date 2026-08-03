@@ -1,7 +1,7 @@
 #include "Oven/ovenpch.h"
 #include "Oven/Renderer/Shader.h"
 #include "Oven/Renderer/Renderer.h"
-#include "Oven/Log.h"
+#include "Oven/Core/Log.h"
 #include "Oven/Platform/OpenGL/OpenGLShader.h"
 namespace Oven{
 
