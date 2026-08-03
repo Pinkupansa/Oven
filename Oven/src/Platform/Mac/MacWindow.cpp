@@ -58,14 +58,14 @@ namespace Oven{
         m_Context = new OpenGLContext(m_Window);
         m_Context->Init();
 
-                // Ajoute aussi la version OpenGL chargée :
+        // Ajoute aussi la version OpenGL chargée :
         glfwSetWindowUserPointer(m_Window, &m_Data);
         SetVSync(true);
 
         //set content scale
         int fbWidth, fbHeight;
         glfwGetFramebufferSize(m_Window, &fbWidth, &fbHeight);
-        m_Data.ContentScaleX = (float)fbWidth / props.Width;
+        m_Data.ContentScaleX = (float)fbWidth / props.Width; // = 2 for Retina display
         m_Data.ContentScaleY = (float)fbHeight / props.Height;
 
         //set GLFW callbacks
@@ -74,8 +74,8 @@ namespace Oven{
             WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
             data.Width = width;
             data.Height = height;
-
-            WindowResizeEvent event(width, height);
+            //width and height are in logical pixels, but we want physical pixels
+            WindowResizeEvent event(width * data.ContentScaleX, height * data.ContentScaleY);
             data.EventCallback(event);
         });
 

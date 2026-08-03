@@ -12,7 +12,7 @@ namespace Oven{
     };
 
     void OpenGLContext::Init(){
-        glfwMakeContextCurrent(m_WindowHandle);
+        glfwMakeContextCurrent(m_WindowHandle);         
         int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
         OVEN_CORE_ASSERT(status, "Failed to initialize GLAD!");
 
