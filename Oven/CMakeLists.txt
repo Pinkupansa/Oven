@@ -107,9 +107,9 @@ target_link_libraries(OvenEngine
     PUBLIC
         spdlog
         imgui
+        glad #bad : put back to private when proper multiplatform interfacing is done
     PRIVATE
         glfw
-        glad
         OpenGL::GL
         glm
 )

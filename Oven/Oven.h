@@ -14,6 +14,7 @@
 #include "Oven/OrthographicCameraController.h"
 //---Renderer--------------------------
 #include "Oven/Renderer/Renderer.h"
+#include "Oven/Renderer/Renderer2D.h"
 #include "Oven/Renderer/RenderCommand.h"
 #include "Oven/Renderer/Buffer.h"
 #include "Oven/Renderer/Shader.h"

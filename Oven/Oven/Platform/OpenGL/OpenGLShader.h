@@ -2,7 +2,7 @@
 #include <string> 
 #include "Oven/Renderer/Shader.h"
 
-
+#include <glad/glad.h>
 //REMOVE THIS 
 typedef unsigned int GLenum;
 namespace Oven{
@@ -30,6 +30,7 @@ namespace Oven{
             std::string ReadFile(const std::string& filepath);
             std::unordered_map<GLenum, std::string> SplitShaderSources(const std::string& source);
             void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);
+            inline GLint GetUniformLocationSafe(const std::string& name) const;
         private: 
             uint32_t m_RendererID;
             std::string m_Name;

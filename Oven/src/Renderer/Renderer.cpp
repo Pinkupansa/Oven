@@ -1,5 +1,6 @@
 #include "Oven/ovenpch.h"
 #include "Oven/Renderer/Renderer.h"
+#include "Oven/Renderer/Renderer2D.h"
 #include "Oven/Platform/OpenGL/OpenGLShader.h"
 namespace Oven
 {   
@@ -7,6 +8,7 @@ namespace Oven
 
     void Renderer::Init(){
         RenderCommand::Init();
+        Renderer2D::Init();
     }
     void Renderer::BeginScene(OrthographicCamera& camera){
         m_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
