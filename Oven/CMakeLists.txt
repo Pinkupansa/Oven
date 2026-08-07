@@ -75,6 +75,8 @@ target_precompile_headers(OvenEngine PRIVATE Oven/ovenpch.h)
 # ImGui Custom Loader : Évite les conflits de macros gl entre GLAD et ImGui
 target_compile_definitions(OvenEngine PUBLIC IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
 
+target_compile_definitions(OvenEngine PUBLIC GL_SILENCE_DEPRECATION)
+
 # -----------------------------
 # Include dirs
 # -----------------------------
@@ -107,11 +109,11 @@ target_link_libraries(OvenEngine
     PUBLIC
         spdlog
         imgui
-        glad #bad : put back to private when proper multiplatform interfacing is done
     PRIVATE
         glfw
         OpenGL::GL
         glm
+        glad
 )
 
 # -----------------------------
@@ -126,7 +128,7 @@ if(MSVC)
     )
 else()
     target_compile_options(OvenEngine PRIVATE
-        -Wall -Wextra -Wpedantic
+        -Wall -Wextra -Wpedantic -Wno-unused-parameter
         $<$<CONFIG:Debug>:-g -O0>
         $<$<CONFIG:Release>:-O3>
         $<$<CONFIG:Dist>:-O3>

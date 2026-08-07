@@ -1,4 +1,3 @@
-#include "Oven/Platform/OpenGL/OpenGLShader.h"
 #include <iostream> 
 #include <Oven.h>
 #include <glm/vec3.hpp> // glm::vec3
@@ -168,7 +167,7 @@ class TestLayer : public Oven::Layer
             glm::vec4 whiteColor(1, 1, 1, 1);
             
             m_SingleColorShader->Bind();
-            std::dynamic_pointer_cast<Oven::OpenGLShader>(m_SingleColorShader)->UploadUniformFloat3("u_Color", m_SquareColor);
+            m_SingleColorShader->SetFloat3("u_Color", m_SquareColor);
             
             for(int x = 0; x < 8; x++){
                 for(int y = 0; y < 8; y++){

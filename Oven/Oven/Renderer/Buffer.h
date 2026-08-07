@@ -20,6 +20,7 @@ namespace Oven {
             case ShaderDataType::Int3: return 4 * 3;
             case ShaderDataType::Int4: return 4 * 4;
             case ShaderDataType::Bool: return 1;
+            case ShaderDataType::None: OVEN_CORE_WARN("ShaderDataType is None !"); return 0;
         }
         OVEN_CORE_ASSERT(false, "Unknown ShaderDataType !");
         return 0;
@@ -32,7 +33,7 @@ namespace Oven {
         uint32_t Size;
         bool Normalized;
         BufferElement() {}
-        BufferElement(ShaderDataType type, const std::string& name, bool normalized = false) : Name(name), Type(type), Size(GetShaderDataTypeSize(type)), Offset(0), Normalized(normalized){
+        BufferElement(ShaderDataType type, const std::string& name, bool normalized = false) : Name(name), Type(type), Offset(0), Size(GetShaderDataTypeSize(type)), Normalized(normalized){
 
         }
         uint32_t GetComponentCount() const{
@@ -48,6 +49,7 @@ namespace Oven {
                 case ShaderDataType::Int3: return 3;
                 case ShaderDataType::Int4: return 4; 
                 case ShaderDataType::Bool: return 1;  
+                case ShaderDataType::None: OVEN_CORE_WARN("ShaderDataType is None !"); return 0;
             }
             return 0;
         }

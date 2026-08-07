@@ -18,6 +18,7 @@ namespace Oven{
             case ShaderDataType::Int3: return GL_INT;
             case ShaderDataType::Int4: return GL_INT;
             case ShaderDataType::Bool: return GL_BOOL;
+            case ShaderDataType::None: OVEN_CORE_WARN("ShaderDataType is None !"); return GL_NONE;
         }
     }
 
@@ -47,7 +48,7 @@ namespace Oven{
             ShaderDataTypeToOpenGLDataType(element.Type), 
             element.Normalized ? GL_TRUE : GL_FALSE,
             layout.GetStride(), 
-            (const void *)element.Offset));
+            reinterpret_cast<const void*>(static_cast<uintptr_t>(element.Offset))));
             index++;
         }
         m_VertexBuffers.push_back(vertexBuffer);

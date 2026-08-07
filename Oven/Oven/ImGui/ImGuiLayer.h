@@ -15,7 +15,5 @@ namespace Oven{
             void End();
             void RescaleContent(float scaleX, float scaleY);
             void ResizeWindow(unsigned int width, unsigned int height);
-        private:
-            float m_Time = 0.0f;
     };
 }
