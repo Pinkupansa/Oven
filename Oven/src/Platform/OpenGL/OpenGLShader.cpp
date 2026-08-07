@@ -217,4 +217,7 @@ namespace Oven
     void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value){
         UploadUniformMat4(name, value);
     }
+    void OpenGLShader::SetInt(const std::string& name, const int value){
+        UploadUniformInt(name, value);
+    }
 }

@@ -9,7 +9,7 @@ namespace Oven{
     Ref<VertexArray> VertexArray::Create(){
         switch (Renderer::GetBackend()){
             case RendererAPI::RenderingBackend::None: OVEN_CORE_ASSERT(false, "RenderingBackend::None is currently not supported !"); return nullptr; 
-            case RendererAPI::RenderingBackend::OpenGL: return std::make_shared<OpenGLVertexArray>(); 
+            case RendererAPI::RenderingBackend::OpenGL: return CreateRef<OpenGLVertexArray>(); 
         }
         OVEN_CORE_ASSERT(false, "Unknown RenderingBackend !"); 
         return nullptr;

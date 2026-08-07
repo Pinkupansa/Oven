@@ -9,7 +9,7 @@ namespace Oven{
     Ref<Shader> Shader::Create(const std::string &filepath){
         switch (Renderer::GetBackend()){
             case RendererAPI::RenderingBackend::None: OVEN_CORE_ASSERT(false, "RenderingBackend::None is currently not supported !"); return nullptr;
-            case RendererAPI::RenderingBackend::OpenGL: return std::make_shared<OpenGLShader>(filepath);
+            case RendererAPI::RenderingBackend::OpenGL: return CreateRef<OpenGLShader>(filepath);
         }
         OVEN_CORE_ASSERT(false, "Unknown RenderingBackend");
         return nullptr;
@@ -17,7 +17,7 @@ namespace Oven{
     Ref<Shader> Shader::Create(const std::string& name, const std::string &vertexSrc, const std::string &fragmentSrc){
         switch (Renderer::GetBackend()){
             case RendererAPI::RenderingBackend::None: OVEN_CORE_ASSERT(false, "RenderingBackend::None is currently not supported !"); return nullptr;
-            case RendererAPI::RenderingBackend::OpenGL: return std::make_shared<OpenGLShader>(name, vertexSrc, fragmentSrc);
+            case RendererAPI::RenderingBackend::OpenGL: return CreateRef<OpenGLShader>(name, vertexSrc, fragmentSrc);
         }
         OVEN_CORE_ASSERT(false, "Unknown RenderingBackend");
         return nullptr;
