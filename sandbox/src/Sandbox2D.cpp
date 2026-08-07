@@ -18,7 +18,8 @@ void Sandbox2D::OnUpdate()
     
     Oven::Renderer2D::BeginScene(m_CameraController.GetCamera());
     
-    Oven::Renderer2D::DrawQuad({0.0f, 0.0f}, {1.0f, 1.0f}, {0.2f, 0.5f, 0.2f, 1.0f});
+    Oven::Renderer2D::DrawQuad({-1.0f, 0.0f}, {0.8f, 1.0f}, {0.2f, 0.5f, 0.2f, 1.0f});
+    Oven::Renderer2D::DrawQuad({1.0f, 0.5f}, {0.2f, 0.3f}, {0.9f, 0.1f, 0.2f, 1.0f});
     Oven::Renderer2D::EndScene();
 
     //m_FlatColorShader->Bind();
@@ -28,7 +29,6 @@ void Sandbox2D::OnUpdate()
 void Sandbox2D::OnImGuiRender()
 {
     ImGui::Begin("Settings");
-    ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
     ImGui::End();
 }
 
