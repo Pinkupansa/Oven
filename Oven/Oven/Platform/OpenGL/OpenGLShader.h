@@ -19,6 +19,7 @@ namespace Oven{
             void SetFloat4(const std::string& name, const glm::vec4& value) override;
             void SetMat4(const std::string& name, const glm::mat4& value) override;
             void SetInt(const std::string& name, const int value) override;
+            void SetIntArray(const std::string& name, int* values, uint32_t count);
 
             const std::string& GetDefaultName() const override { return m_Name; } 
 
@@ -37,6 +38,7 @@ namespace Oven{
             void UploadUniformFloat4(const std::string& name, const glm::vec4& values); 
             void UploadUniformMat3(const std::string& name, const glm::mat3& matrix); 
             void UploadUniformMat4(const std::string& name, const glm::mat4& matrix); 
+            void UploadUniformIntArray(const std::string& name, int* values, uint32_t count);
         private: 
             uint32_t m_RendererID;
             std::string m_Name;

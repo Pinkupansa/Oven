@@ -13,6 +13,8 @@ namespace Oven{
         glm::vec3 Position; 
         glm::vec4 Color;
         glm::vec2 UV;
+        float TexIndex;
+        glm::vec2 TilingFactor;
     };
 
     struct Renderer2DData{
@@ -20,15 +22,18 @@ namespace Oven{
         const uint32_t MaxQuadsPerCall = 10000;
         const uint32_t MaxVerticesPerCall = MaxQuadsPerCall * 4;
         const uint32_t MaxIndicesPerCall = MaxQuadsPerCall * 6;
+        static const uint32_t MaxTextureSlots = 16; 
 
         Ref<VertexArray> QuadVertexArray;
         Ref<VertexBuffer> QuadVertexBuffer;
         Ref<Shader> TextureShader;
         Ref<Texture2D> WhiteTexture;
-        GLint TextureSlot; 
         uint32_t QuadIndexCount = 0;
         QuadVertex* QuadVertexBufferBase = nullptr;
         QuadVertex* QuadVertexBufferPtr = nullptr;
+
+        std::array<Ref<Texture2D>, MaxTextureSlots> Textures; 
+        uint32_t CurrentTextureSlotIndex = 1; //0 is white
     };
     static Renderer2DData s_Data;
 
@@ -41,7 +46,13 @@ namespace Oven{
         s_Data.QuadVertexArray = Oven::VertexArray::Create();
 
         s_Data.QuadVertexBuffer = VertexBuffer::Create(s_Data.MaxVerticesPerCall * sizeof(QuadVertex));
-        s_Data.QuadVertexBuffer->SetLayout({{Oven::ShaderDataType::Float3, "a_Position"}, {Oven::ShaderDataType::Float4, "a_Color"}, {Oven::ShaderDataType::Float2, "a_TexUV"}});
+        s_Data.QuadVertexBuffer->SetLayout({
+              {Oven::ShaderDataType::Float3, "a_Position"},
+              {Oven::ShaderDataType::Float4, "a_Color"},
+              {Oven::ShaderDataType::Float2, "a_TexUV"}, 
+              {Oven::ShaderDataType::Float, "a_TexIndex"},
+              {Oven::ShaderDataType::Float2, "a_TilingFactor"}
+            });
         s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer);
         
         s_Data.QuadVertexBufferBase = new QuadVertex[s_Data.MaxVerticesPerCall];
@@ -66,16 +77,22 @@ namespace Oven{
         s_Data.QuadVertexArray->SetIndexBuffer(quadIB);
         delete[] quadIndices;
         
-        s_Data.TextureShader = Shader::Create("sandbox/assets/shaders/Texture.glsl");
-        s_Data.TextureSlot = 0; 
-        s_Data.TextureShader->Bind();
-        //s_Data.TextureShader->SetInt("u_Texture", s_Data.TextureSlot);
+        
 
         s_Data.WhiteTexture = Texture2D::Create(1, 1);
         uint32_t whiteTexData = 0xffffffff;
         s_Data.WhiteTexture->SetData(&whiteTexData, sizeof(uint32_t));
-
         
+        int32_t samplers[s_Data.MaxTextureSlots];
+        for(uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
+            samplers[i] = i;
+
+        s_Data.TextureShader = Shader::Create("sandbox/assets/shaders/Texture.glsl");
+        s_Data.TextureShader->Bind();
+        s_Data.TextureShader->SetIntArray("u_Textures", samplers, s_Data.MaxTextureSlots);
+
+        s_Data.Textures[0] = s_Data.WhiteTexture;
+        s_Data.Textures[0]->Bind(0);
     }
 
     void Renderer2D::Shutdown(){
@@ -90,6 +107,8 @@ namespace Oven{
         s_Data.TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
         
         s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
+
+        s_Data.CurrentTextureSlotIndex = 1;
     }
 
     void Renderer2D::EndScene(){
@@ -101,17 +120,53 @@ namespace Oven{
     }
     void Renderer2D::Flush()
     {
+        for(uint32_t i = 0; i < s_Data.CurrentTextureSlotIndex; i++){
+            s_Data.Textures[i]->Bind(i);
+        }
         RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
         s_Data.QuadIndexCount = 0;
     }
 
-    void Renderer2D::DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color, glm::vec2 tilingFactor)
+    void Renderer2D::DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color)
     {
-        DrawQuad({position.x, position.y, 0.0f}, size, s_Data.WhiteTexture, color, tilingFactor);
+        DrawQuad({position.x, position.y, 0.0f}, size, color);
     }
-    void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color, glm::vec2 tilingFactor)
-    {
-        DrawQuad(position, size, s_Data.WhiteTexture, color, tilingFactor);
+    void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color)
+    { 
+        OVEN_PROFILE_FUNCTION();
+        const float whiteTextureIndex = 0.0f;
+        const glm::vec2 tilingFactor = {1.0f, 1.0f};
+
+        s_Data.QuadVertexBufferPtr->Position = position;
+        s_Data.QuadVertexBufferPtr->Color = color;
+        s_Data.QuadVertexBufferPtr->UV = {0.0f, 0.0f};
+        s_Data.QuadVertexBufferPtr->TexIndex = whiteTextureIndex;
+        s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+        s_Data.QuadVertexBufferPtr++;
+
+        s_Data.QuadVertexBufferPtr->Position = {position.x + size.x, position.y, 0};
+        s_Data.QuadVertexBufferPtr->Color = color;
+        s_Data.QuadVertexBufferPtr->UV = {1.0f, 0.0f};
+        s_Data.QuadVertexBufferPtr->TexIndex = whiteTextureIndex;
+        s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+        s_Data.QuadVertexBufferPtr++;
+
+        s_Data.QuadVertexBufferPtr->Position = {position.x + size.x, position.y + size.y, 0};;
+        s_Data.QuadVertexBufferPtr->Color = color;
+        s_Data.QuadVertexBufferPtr->UV = {1.0f, 1.0f};
+        s_Data.QuadVertexBufferPtr->TexIndex = whiteTextureIndex;
+        s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+        s_Data.QuadVertexBufferPtr++;
+
+        s_Data.QuadVertexBufferPtr->Position = {position.x, position.y + size.y, 0};
+        s_Data.QuadVertexBufferPtr->Color = color;
+        s_Data.QuadVertexBufferPtr->UV = {0.0f, 1.0f};
+        s_Data.QuadVertexBufferPtr->TexIndex = whiteTextureIndex;
+        s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+        s_Data.QuadVertexBufferPtr++;
+        
+        s_Data.QuadIndexCount += 6;
+
     }
     void Renderer2D::DrawQuad(const glm::vec2 & position, const glm::vec2 &size, const Ref<Texture2D> &texture, const glm::vec4 &color, glm::vec2 tilingFactor)
     {
@@ -119,36 +174,52 @@ namespace Oven{
     }
     void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const Ref<Texture2D> &texture, const glm::vec4 &color, glm::vec2 tilingFactor)
     { 
-        OVEN_PROFILE_FUNCTION();
+        OVEN_PROFILE_FUNCTION();    
+
+        float textureIndex = -1;
+
+        for(uint32_t i = 0; i < s_Data.CurrentTextureSlotIndex; i++){
+            if(*(s_Data.Textures[i].get()) == *(texture.get())){
+                textureIndex = (float)i;
+                break;
+            }
+        }
+
+        if(textureIndex < 0){
+            textureIndex = (float)s_Data.CurrentTextureSlotIndex;
+            s_Data.Textures[s_Data.CurrentTextureSlotIndex] = texture;
+            s_Data.CurrentTextureSlotIndex ++;
+        }
         
         s_Data.QuadVertexBufferPtr->Position = position;
         s_Data.QuadVertexBufferPtr->Color = color;
         s_Data.QuadVertexBufferPtr->UV = {0.0f, 0.0f};
+        s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
+        s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = {position.x + size.x, position.y, 0};
         s_Data.QuadVertexBufferPtr->Color = color;
         s_Data.QuadVertexBufferPtr->UV = {1.0f, 0.0f};
+        s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
+        s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = {position.x + size.x, position.y + size.y, 0};;
         s_Data.QuadVertexBufferPtr->Color = color;
         s_Data.QuadVertexBufferPtr->UV = {1.0f, 1.0f};
+        s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
+        s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = {position.x, position.y + size.y, 0};
         s_Data.QuadVertexBufferPtr->Color = color;
         s_Data.QuadVertexBufferPtr->UV = {0.0f, 1.0f};
+        s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
+        s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
         s_Data.QuadVertexBufferPtr++;
         
         s_Data.QuadIndexCount += 6;
-        /*s_Data.TextureShader->SetFloat2("u_TilingFactor", tilingFactor);
-        
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
-        s_Data.TextureShader->SetMat4("u_Model", transform);
-        texture->Bind(s_Data.TextureSlot); 
-        s_Data.QuadVertexArray->Bind(); 
-        RenderCommand::DrawIndexed(s_Data.QuadVertexArray);*/
 
     }
 
@@ -158,15 +229,7 @@ namespace Oven{
     
     void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Ref<Texture2D> &texture, const glm::vec4 &color, glm::vec2 tilingFactor)
     { 
-        OVEN_PROFILE_FUNCTION();
-
-        s_Data.TextureShader->SetFloat2("u_TilingFactor", glm::vec2(3.0f));
-        s_Data.TextureShader->SetFloat4("u_Color", color);
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::rotate(glm::mat4(1.0f), rotation, {0.0f, 0.0f, 1.0f}) * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
-        s_Data.TextureShader->SetMat4("u_Model", transform);
-        texture->Bind(s_Data.TextureSlot); 
-        s_Data.QuadVertexArray->Bind(); 
-        RenderCommand::DrawIndexed(s_Data.QuadVertexArray);
+        OVEN_PROFILE_FUNCTION(); 
     }
 
 

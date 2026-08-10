@@ -221,6 +221,12 @@ namespace Oven
         GL_CALL(glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix)));
     }
 
+    void OpenGLShader::UploadUniformIntArray(const std::string &name, int *values, uint32_t count)
+    {
+        GLint location = GetUniformLocationSafe(name); 
+        GL_CALL(glUniform1iv(location, count, values)); 
+    }
+
     void OpenGLShader::SetFloat(const std::string &name, const float value){
         OVEN_PROFILE_FUNCTION();
         UploadUniformFloat(name, value);
@@ -246,5 +252,9 @@ namespace Oven
     void OpenGLShader::SetInt(const std::string& name, const int value){
         OVEN_PROFILE_FUNCTION();
         UploadUniformInt(name, value);
+    }
+    void OpenGLShader::SetIntArray(const std::string &name, int *values, uint32_t count)
+    {
+        UploadUniformIntArray(name, values, count);
     }
 }
