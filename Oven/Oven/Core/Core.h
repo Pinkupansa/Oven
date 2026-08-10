@@ -39,3 +39,9 @@ namespace Oven{
         return std::make_shared<T>(std::forward<Args>(args)...);
     }
 }
+
+#if defined(_MSC_VER)
+    #define OVEN_FUNCSIG __FUNCSIG__
+#else
+    #define OVEN_FUNCSIG __PRETTY_FUNCTION__
+#endif

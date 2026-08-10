@@ -18,6 +18,8 @@ namespace Oven{
 
     void Renderer2D::Init(){
         
+        OVEN_PROFILE_FUNCTION();
+
         s_Data = new Renderer2DData();
         s_Data->QuadVertexArray = Oven::VertexArray::Create();
 
@@ -48,15 +50,21 @@ namespace Oven{
     }
 
     void Renderer2D::Shutdown(){
+        OVEN_PROFILE_FUNCTION();
+
         delete s_Data;
     }
 
     void Renderer2D::BeginScene(const OrthographicCamera& camera){
+        OVEN_PROFILE_FUNCTION();
+
         s_Data->TextureShader->Bind();
         s_Data->TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
     }
 
     void Renderer2D::EndScene(){
+        OVEN_PROFILE_FUNCTION();
+
 
     }
     void Renderer2D::DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color)
@@ -67,12 +75,15 @@ namespace Oven{
     {
         DrawQuad(position, size, s_Data->WhiteTexture, color);
     }
-    void Renderer2D::DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const Ref<Texture2D> &texture, const glm::vec4 &color)
+    void Renderer2D::DrawQuad(const glm::vec2 & position, const glm::vec2 &size, const Ref<Texture2D> &texture, const glm::vec4 &color)
     {
         DrawQuad({position.x, position.y, 0.0f}, size, texture, color);
     }
     void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const Ref<Texture2D> &texture, const glm::vec4 &color)
     { 
+        OVEN_PROFILE_FUNCTION();
+
+        s_Data->TextureShader->SetFloat2("u_TilingFactor", glm::vec2(1.0f));
         s_Data->TextureShader->SetFloat4("u_Color", color);
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
         s_Data->TextureShader->SetMat4("u_Model", transform);

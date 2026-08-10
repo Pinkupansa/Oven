@@ -8,11 +8,16 @@
 namespace Oven{
 
     OpenGLTexture2D::OpenGLTexture2D(const std::string &path) : m_Path(path){
+        OVEN_PROFILE_FUNCTION();
+
         int width, height, channels;
 
         stbi_set_flip_vertically_on_load(1);
-        stbi_uc *data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-
+        stbi_uc *data = nullptr;
+        {
+            OVEN_PROFILE_SCOPE("OpenGLTexture2D::OpenGLTexture2D (const std::string&) - stbi_load");
+            data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+        }
         OVEN_CORE_ASSERT(data, "Failed to load image!");
         m_Width = width;
         m_Height = height;
@@ -56,6 +61,8 @@ namespace Oven{
 
     OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height) : m_Width(width), m_Height(height)
     {
+        OVEN_PROFILE_FUNCTION();
+
         m_DataFormat = GL_RGBA, m_InternalFormat  = GL_RGBA8;
 
         OVEN_CORE_ASSERT(m_DataFormat && m_InternalFormat, "Image format not supported !");
@@ -80,15 +87,21 @@ namespace Oven{
     }
 
     OpenGLTexture2D::~OpenGLTexture2D(){
+        OVEN_PROFILE_FUNCTION();
+
         GL_CALL(glDeleteTextures(1, &m_RendererID));
     }
 
     void OpenGLTexture2D::Bind(uint32_t slot) const{
+        OVEN_PROFILE_FUNCTION();
+
         GL_CALL(glActiveTexture(GL_TEXTURE0 + slot));
         GL_CALL(glBindTexture(GL_TEXTURE_2D, m_RendererID));
     }
     void OpenGLTexture2D::SetData(void *data, uint32_t size)
     {
+        OVEN_PROFILE_FUNCTION();
+
         uint32_t bytesPerChannel = m_DataFormat == GL_RGBA ? 4 : 3;
         OVEN_CORE_ASSERT(size == m_Width * m_Height * bytesPerChannel, "Size mismatch between texture and data !")
         GL_CALL(glBindTexture(GL_TEXTURE_2D, m_RendererID));

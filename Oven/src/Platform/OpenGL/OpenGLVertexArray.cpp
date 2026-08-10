@@ -23,16 +23,20 @@ namespace Oven{
     }
 
     OpenGLVertexArray::OpenGLVertexArray(){
+        OVEN_PROFILE_FUNCTION();
         GL_CALL(glGenVertexArrays(1, &m_RendererID));
     }
     void OpenGLVertexArray::Bind() const{
+        OVEN_PROFILE_FUNCTION();
         GL_CALL(glBindVertexArray(m_RendererID));
     }
     void OpenGLVertexArray::Unbind() const{
+        OVEN_PROFILE_FUNCTION();
         GL_CALL(glBindVertexArray(0));
     }
 
     void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer){
+        OVEN_PROFILE_FUNCTION();
         OVEN_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex buffer has no layout !");
         
         glBindVertexArray(m_RendererID);
@@ -55,6 +59,7 @@ namespace Oven{
     }
     
     void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer){ 
+        OVEN_PROFILE_FUNCTION();
         GL_CALL(glBindVertexArray(m_RendererID));
         indexBuffer->Bind(); 
 

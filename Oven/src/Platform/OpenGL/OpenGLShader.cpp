@@ -18,6 +18,7 @@ namespace Oven
         OVEN_CORE_ASSERT(false, "Shutting down...");
     }
     OpenGLShader::OpenGLShader(const std::string &filepath){
+        OVEN_PROFILE_FUNCTION();
         std::string source = ReadFile(filepath);
         auto shaderSources = SplitShaderSources(source);
         Compile(shaderSources);
@@ -32,6 +33,8 @@ namespace Oven
     OpenGLShader::OpenGLShader(const std::string& name, const std::string &vertexSrc, const std::string &fragmentSrc) 
         : m_Name(name)
     {
+        OVEN_PROFILE_FUNCTION();
+
         std::unordered_map<GLenum, std::string> sources; 
         sources[GL_VERTEX_SHADER] = vertexSrc; 
         sources[GL_FRAGMENT_SHADER] = fragmentSrc; 
@@ -39,6 +42,8 @@ namespace Oven
     }
 
     void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources){
+        OVEN_PROFILE_FUNCTION();
+
         GLuint program = GL_CALL(glCreateProgram());
         OVEN_CORE_ASSERT(shaderSources.size() <= 2, "Maximum number of shaders in a file exceeded ! (2)");
         std::array<GLenum, 2> glShaderIds;
@@ -122,6 +127,8 @@ namespace Oven
     }
     std::string OpenGLShader::ReadFile(const std::string &filepath)
     {
+        OVEN_PROFILE_FUNCTION();
+
         std::ifstream in(filepath, std::ios::in | std::ios::binary);
 
         std::string result;
@@ -141,6 +148,8 @@ namespace Oven
     }
 
     OpenGLShader::~OpenGLShader(){
+        OVEN_PROFILE_FUNCTION();
+
         GL_CALL(glDeleteProgram(m_RendererID));
     }
 
@@ -163,10 +172,14 @@ namespace Oven
         return shaderSources;
     }
     void OpenGLShader::Bind() const{
+        OVEN_PROFILE_FUNCTION();
+
         GL_CALL(glUseProgram(m_RendererID));
     }
 
     void OpenGLShader::Unbind() const{
+        OVEN_PROFILE_FUNCTION();
+
         GL_CALL(glUseProgram(0));
     }
 
@@ -208,16 +221,30 @@ namespace Oven
         GL_CALL(glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix)));
     }
 
+    void OpenGLShader::SetFloat(const std::string &name, const float value){
+        OVEN_PROFILE_FUNCTION();
+        UploadUniformFloat(name, value);
+    }
+
+    void OpenGLShader::SetFloat2(const std::string &name, const glm::vec2 &value){
+        OVEN_PROFILE_FUNCTION();
+        UploadUniformFloat2(name, value);
+    }
+
     void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value){
+        OVEN_PROFILE_FUNCTION();
         UploadUniformFloat3(name, value);
     }
     void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value){
+        OVEN_PROFILE_FUNCTION();
         UploadUniformFloat4(name, value);
     }
     void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value){
+        OVEN_PROFILE_FUNCTION();
         UploadUniformMat4(name, value);
     }
     void OpenGLShader::SetInt(const std::string& name, const int value){
+        OVEN_PROFILE_FUNCTION();
         UploadUniformInt(name, value);
     }
 }

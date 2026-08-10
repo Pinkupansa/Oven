@@ -13,6 +13,10 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <glm/glm.hpp>
+
+#include "Oven/Core/Log.h"
+#include "Oven/Debug/Instrumentor.h"
+
 #ifdef OVEN_PLATFORM_WINDOWS
 #include <Windows.h>
 #endif 

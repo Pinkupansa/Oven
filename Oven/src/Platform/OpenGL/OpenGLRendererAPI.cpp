@@ -4,7 +4,10 @@
 
 #include <glad/glad.h>
 namespace Oven{
+
     void OpenGLRendererAPI::Init(){
+        OVEN_PROFILE_FUNCTION();
+
         GL_CALL(glEnable(GL_BLEND));
         GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         GL_CALL(glEnable(GL_FRAMEBUFFER_SRGB));

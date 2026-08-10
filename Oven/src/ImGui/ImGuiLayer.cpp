@@ -21,6 +21,8 @@ namespace Oven
     }
     void ImGuiLayer::OnAttach()
     {
+        OVEN_PROFILE_FUNCTION();
+
         // Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -33,8 +35,8 @@ namespace Oven
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
 		// Setup Dear ImGui style
-		ImGui::StyleColorsDark();
-		//ImGui::StyleColorsClassic();
+		//ImGui::StyleColorsDark();
+		ImGui::StyleColorsClassic();
 
 		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
 		ImGuiStyle& style = ImGui::GetStyle();
@@ -52,11 +54,11 @@ namespace Oven
 	}
 
     void ImGuiLayer::OnImGuiRender(){
-        static bool show = true;
-        ImGui::ShowDemoWindow(&show);
     }
     void ImGuiLayer::OnDetach()
     {
+        OVEN_PROFILE_FUNCTION();
+
         ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
@@ -73,11 +75,15 @@ namespace Oven
         io.DisplayFramebufferScale = ImVec2(scaleX, scaleY);
     }
     void ImGuiLayer::Begin(){
+        OVEN_PROFILE_FUNCTION();
+
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
     }
     void ImGuiLayer::End(){
+        OVEN_PROFILE_FUNCTION();
+        
         ImGuiIO& io = ImGui::GetIO();
         Application& app = Application::Get();
         io.DisplaySize = ImVec2(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
