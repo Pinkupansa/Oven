@@ -14,6 +14,13 @@ namespace Oven{
         GL_CALL(glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW));
     }
 
+    OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size) {
+        OVEN_PROFILE_FUNCTION();
+        GL_CALL(glGenBuffers(1, &m_RendererID));
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
+        GL_CALL(glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW));
+    }
+
     OpenGLVertexBuffer::~OpenGLVertexBuffer(){
         OVEN_PROFILE_FUNCTION();
         GL_CALL(glDeleteBuffers(1, &m_RendererID));
@@ -22,10 +29,18 @@ namespace Oven{
     void OpenGLVertexBuffer::Bind() const{
         OVEN_PROFILE_FUNCTION();
         GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
+
     }
     void OpenGLVertexBuffer::Unbind() const{
         OVEN_PROFILE_FUNCTION();
         GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    }
+
+    void OpenGLVertexBuffer::SetData(const void *data, uint32_t size)
+    {
+        OVEN_PROFILE_FUNCTION(); 
+        glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+        GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, 0, size, data));
     }
 
     ///////////////////////////////////////

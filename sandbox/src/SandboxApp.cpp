@@ -27,7 +27,7 @@ class TestLayer : public Oven::Layer
             //Create vertex buffer and layout
 
             Oven::Ref<Oven::VertexBuffer> vertexBuffer;
-            vertexBuffer.reset(Oven::VertexBuffer::Create(vertices, sizeof(vertices)));
+            vertexBuffer = Oven::VertexBuffer::Create(vertices, sizeof(vertices));
         
             {
                 Oven::BufferLayout layout = {
@@ -40,7 +40,7 @@ class TestLayer : public Oven::Layer
             Oven::Ref<Oven::IndexBuffer> indexBuffer;
             //Create index buffer 
             uint32_t indices[3] = {0, 1, 2};
-            indexBuffer.reset(Oven::IndexBuffer::Create(indices, sizeof(indices)/sizeof(uint32_t)));
+            indexBuffer = Oven::IndexBuffer::Create(indices, sizeof(indices)/sizeof(uint32_t));
             
             //Bind to vertex array
             m_VertexArray->AddVertexBuffer(vertexBuffer);
@@ -56,7 +56,7 @@ class TestLayer : public Oven::Layer
             };
             
             Oven::Ref<Oven::VertexBuffer> squareVB;
-            squareVB.reset(Oven::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+            squareVB = Oven::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
             
             squareVB->SetLayout({
                 {Oven::ShaderDataType::Float3, "a_Position"},
@@ -66,7 +66,7 @@ class TestLayer : public Oven::Layer
             uint32_t squareIndices[6] = {0, 1, 2, 2, 3, 0};
             
             Oven::Ref<Oven::IndexBuffer> squareIB; 
-            squareIB.reset(Oven::IndexBuffer::Create(squareIndices, sizeof(squareIndices)/sizeof(uint32_t)));
+            squareIB = Oven::IndexBuffer::Create(squareIndices, sizeof(squareIndices)/sizeof(uint32_t));
             m_SquareVA->AddVertexBuffer(squareVB);
             m_SquareVA->SetIndexBuffer(squareIB);
 

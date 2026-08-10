@@ -29,7 +29,7 @@ void Sandbox2D::OnUpdate()
         Oven::Renderer2D::BeginScene(m_CameraController.GetCamera());
         Oven::Renderer2D::DrawQuad({-1.0f, 0.0f}, {0.8f, 1.0f}, {0.2f, 0.5f, 0.2f, 1.0f});
         Oven::Renderer2D::DrawQuad({1.0f, 0.5f}, {0.2f, 0.3f}, {0.9f, 0.1f, 0.2f, 1.0f});
-        Oven::Renderer2D::DrawQuad({0.0f, 0.0f, -0.1f}, {10.0f, 10.0f}, m_WaterTexture, {1.0f, 0.7f, 1.0f, 1.0f});
+        //Oven::Renderer2D::DrawQuad({0.0f, 0.0f, -0.1f}, {10.0f, 10.0f},  m_SandTexture, {1.0f, 1.0f, 1.0f, 1.0f});
         Oven::Renderer2D::EndScene();
     }
 }
@@ -45,7 +45,7 @@ void Sandbox2D::OnImGuiRender()
 void Sandbox2D::OnAttach()
 {
     OVEN_PROFILE_FUNCTION();
-    m_WaterTexture = Oven::Texture2D::Create("sandbox/assets/textures/water.png");
+    m_SandTexture = Oven::Texture2D::Create("sandbox/assets/textures/sand.png");
 }
 
 void Sandbox2D::OnDetach()

@@ -16,6 +16,6 @@ class Sandbox2D : public Oven::Layer{
         Oven::Ref<Oven::VertexArray> m_SquareVA;
         glm::vec4 m_SquareColor = {0.2, 0.9, 0.1, 1};
 
-        Oven::Ref<Oven::Texture2D> m_WaterTexture;
+        Oven::Ref<Oven::Texture2D> m_SandTexture;
 
 };
