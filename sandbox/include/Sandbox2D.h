@@ -1,5 +1,6 @@
 #pragma once 
 #include "Oven.h"
+#define N_FRAMES_AVERAGE 60
 class Sandbox2D : public Oven::Layer{
     public:
         Sandbox2D();
@@ -17,5 +18,7 @@ class Sandbox2D : public Oven::Layer{
         glm::vec4 m_SquareColor = {0.2, 0.9, 0.1, 1};
 
         Oven::Ref<Oven::Texture2D> m_SandTexture;
+        Oven::Ref<Oven::Texture2D> m_CheckerboardTexture;
+
 
 };

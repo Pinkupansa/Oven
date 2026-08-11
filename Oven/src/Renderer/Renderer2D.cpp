@@ -5,6 +5,7 @@
 #include "Oven/Renderer/RenderCommand.h"
 #include "Oven/Platform/OpenGL/OpenGLShader.h"
 #include <glm/gtc/matrix_transform.hpp>
+
 namespace Oven{
 
     
@@ -19,7 +20,7 @@ namespace Oven{
 
     struct Renderer2DData{
         
-        const uint32_t MaxQuadsPerCall = 10000;
+        const uint32_t MaxQuadsPerCall = 100;
         const uint32_t MaxVerticesPerCall = MaxQuadsPerCall * 4;
         const uint32_t MaxIndicesPerCall = MaxQuadsPerCall * 6;
         static const uint32_t MaxTextureSlots = 16; 
@@ -36,8 +37,11 @@ namespace Oven{
         uint32_t CurrentTextureSlotIndex = 1; //0 is white
 
         glm::vec4 QuadVertexPositions[4];
+
+        Renderer2D::Statistics Stats; 
+
     };
-    
+
     static Renderer2DData s_Data;
 
     
@@ -111,9 +115,12 @@ namespace Oven{
     void Renderer2D::BeginScene(const OrthographicCamera& camera){
         OVEN_PROFILE_FUNCTION();
 
+        ResetStats();
+
         s_Data.TextureShader->Bind();
         s_Data.TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
         
+        s_Data.QuadIndexCount = 0;
         s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
 
         s_Data.CurrentTextureSlotIndex = 1;
@@ -132,9 +139,17 @@ namespace Oven{
             s_Data.Textures[i]->Bind(i);
         }
         RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
-        s_Data.QuadIndexCount = 0;
+        s_Data.Stats.DrawCalls++;
     }
 
+    void Renderer2D::EndAndReset(){
+        EndScene();
+
+        s_Data.QuadIndexCount = 0;
+        s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
+        s_Data.CurrentTextureSlotIndex = 1;
+
+    }
     void Renderer2D::DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color)
     {
         DrawQuad({position.x, position.y, 0.0f}, size, color);
@@ -145,6 +160,9 @@ namespace Oven{
         const float whiteTextureIndex = 0.0f;
         const glm::vec2 tilingFactor = {1.0f, 1.0f};
 
+        if(s_Data.QuadIndexCount >= s_Data.MaxIndicesPerCall){
+            EndAndReset();
+        }
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
         * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
 
@@ -178,6 +196,7 @@ namespace Oven{
         
         s_Data.QuadIndexCount += 6;
 
+        s_Data.Stats.QuadCount ++;
     }
     void Renderer2D::DrawQuad(const glm::vec2 & position, const glm::vec2 &size, const Ref<Texture2D> &texture, const glm::vec4 &color, glm::vec2 tilingFactor)
     {
@@ -186,6 +205,10 @@ namespace Oven{
     void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const Ref<Texture2D> &texture, const glm::vec4 &color, glm::vec2 tilingFactor)
     { 
         OVEN_PROFILE_FUNCTION();    
+
+        if(s_Data.QuadIndexCount >= s_Data.MaxIndicesPerCall){
+            EndAndReset();
+        }
 
         float textureIndex = -1;
 
@@ -235,6 +258,7 @@ namespace Oven{
         
         s_Data.QuadIndexCount += 6;
 
+        s_Data.Stats.QuadCount ++;
     }
 
     void Renderer2D::DrawRotatedQuad(const glm::vec2 &position, const glm::vec2 &size, float rotation, const glm::vec4 &color)
@@ -245,6 +269,11 @@ namespace Oven{
     void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &size, float rotation, const glm::vec4 &color)
     { 
         OVEN_PROFILE_FUNCTION();
+
+        if(s_Data.QuadIndexCount >= s_Data.MaxIndicesPerCall){
+            EndAndReset();
+        }
+
         const float whiteTextureIndex = 0.0f;
         const glm::vec2 tilingFactor = {1.0f, 1.0f};
 
@@ -283,6 +312,7 @@ namespace Oven{
         
         s_Data.QuadIndexCount += 6;
 
+        s_Data.Stats.QuadCount ++;
 
     }
 
@@ -294,6 +324,11 @@ namespace Oven{
     void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Ref<Texture2D> &texture, const glm::vec4 &color, glm::vec2 tilingFactor)
     { 
         OVEN_PROFILE_FUNCTION(); 
+        
+        if(s_Data.QuadIndexCount >= s_Data.MaxIndicesPerCall){
+            EndAndReset();
+        }
+
         float textureIndex = -1;
 
         for(uint32_t i = 0; i < s_Data.CurrentTextureSlotIndex; i++){
@@ -340,8 +375,18 @@ namespace Oven{
         s_Data.QuadVertexBufferPtr++;
         
         s_Data.QuadIndexCount += 6; 
+
+        s_Data.Stats.QuadCount ++;
         
     }
 
+    Renderer2D::Statistics Renderer2D::GetStats()
+    {
+        return s_Data.Stats;
+    }
 
+    void Renderer2D::ResetStats()
+    {
+        memset(&s_Data.Stats, 0, sizeof(Statistics));
+    }
 }

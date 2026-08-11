@@ -24,7 +24,7 @@ namespace Oven{
 #define OVEN_CORE_ERROR(...) ::Oven::Log::GetCoreLogger()->error(__VA_ARGS__)
 #define OVEN_CORE_FATAL(...) ::Oven::Log::GetCoreLogger()->fatal(__VA_ARGS__)
 
-#ifdef OVEN_ENABLE_ASSERT
+//#ifdef OVEN_ENABLE_ASSERT
 
 #ifdef OVEN_PLATFORM_WINDOWS
 #define OVEN_CORE_ASSERT(x, ...) { if(!(x)) { OVEN_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
@@ -34,7 +34,7 @@ namespace Oven{
 #define OVEN_ASSERT(x, ...) { if(!(x)) { OVEN_ERROR("Assertion Failed: {0}", __VA_ARGS__); __builtin_trap(); } }
 #endif
 
-#endif
+//#endif
 #define OVEN_TRACE(...) ::Oven::Log::GetClientLogger()->trace(__VA_ARGS__)
 #define OVEN_INFO(...) ::Oven::Log::GetClientLogger()->info(__VA_ARGS__)
 #define OVEN_WARN(...) ::Oven::Log::GetClientLogger()->warn(__VA_ARGS__)

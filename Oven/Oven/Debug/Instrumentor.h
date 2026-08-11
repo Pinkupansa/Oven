@@ -136,8 +136,12 @@ namespace Oven{
     };
 
 }
-#define OVEN_PROFILE 1
-#if OVEN_PROFILE
+
+#ifdef OVEN_DEBUG
+#define OVEN_PROFILE
+#endif
+
+#ifdef OVEN_PROFILE
     #define OVEN_PROFILE_BEGIN_SESSION(name, filepath) ::Oven::Instrumentor::Get().BeginSession(name, filepath)
     #define OVEN_PROFILE_END_SESSION() ::Oven::Instrumentor::Get().EndSession()
     #define OVEN_PROFILE_SCOPE(name) ::Oven::InstrumentationTimer timer##__LINE__(name)
