@@ -66,7 +66,7 @@ class TestLayer : public Oven::Layer
             uint32_t squareIndices[6] = {0, 1, 2, 2, 3, 0};
             
             Oven::Ref<Oven::IndexBuffer> squareIB; 
-            squareIB = Oven::IndexBuffer::Create(squareIndices, sizeof(squareIndices)/sizeof(uint32_t));
+        squareIB = Oven::IndexBuffer::Create(squareIndices, sizeof(squareIndices)/sizeof(uint32_t));
             m_SquareVA->AddVertexBuffer(squareVB);
             m_SquareVA->SetIndexBuffer(squareIB);
 

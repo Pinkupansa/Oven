@@ -11,13 +11,13 @@ namespace Oven {
     float Time::currentTime = 0.0f;
     
     float Time::GetTime() {
-        return s_timeAPI->GetTime(); // Assure-toi que TimeAPI::GetTime() renvoie bien un float !
+        return s_timeAPI->GetTime(); 
     }
 
     float Time::GetDeltaTime() {
         if (lastTime < 0.0f) {
             OVEN_CORE_WARN("Asked for deltaTime on first frame !"); 
-            return 1.0f / 60.0f; // Les accolades corrigent le bug du return permanent
+            return 1.0f / 60.0f; 
         }
         return deltaTime;
     }

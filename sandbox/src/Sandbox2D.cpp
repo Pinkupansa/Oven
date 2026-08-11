@@ -26,20 +26,9 @@ void Sandbox2D::OnUpdate()
     {
         OVEN_PROFILE_SCOPE("Renderer Draw");
         Oven::Renderer2D::BeginScene(m_CameraController.GetCamera());
-        Oven::Renderer2D::DrawQuad({-1.0f, 0.0f}, {0.8f, 1.0f}, {0.2f, 0.5f, 0.2f, 1.0f});
-        Oven::Renderer2D::DrawQuad({1.0f, 0.5f}, {0.2f, 0.3f}, {0.9f, 0.1f, 0.2f, 1.0f});
-        Oven::Renderer2D::DrawQuad({0.0f, 0.0f, -0.1f}, {20.0f, 20.0f}, m_CheckerboardTexture, {1.0f, 1.0f, 1.0f, 1.0f}, {10.0F, 10.0F});
-        Oven::Renderer2D::EndScene();
-
-
-        Oven::Renderer2D::BeginScene(m_CameraController.GetCamera());
-        for(float y = -5.0f; y < 5.0f; y += 0.1f){
-            for(float x = -5.0f; x< 5.0f; x += 0.1f){
-                glm::vec4 color = {(x + 5.0f)/10.0f, (y + 5.0f)/10.0f, abs(x*y)/25, 0.7f};
-                Oven::Renderer2D::DrawQuad({x, y}, {0.45f, 0.45f}, color);
-            } 
-        }
-        Oven::Renderer2D::EndScene();
+        //Oven::Renderer2D::DrawQuad({0.0f, 0.0f, -0.1f}, {20.0f, 20.0f}, m_SpriteSheet, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f});
+        Oven::Renderer2D::DrawQuad({0.0f, 0.0f, -0.1f}, {1.0f, 1.0f}, m_TestSubTexture, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f});
+        Oven::Renderer2D::EndScene(); 
 
     }
 }
@@ -53,6 +42,7 @@ void Sandbox2D::OnImGuiRender()
     ImGui::Text("Quads: %d", stats.QuadCount);
     ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
     ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
+    ImGui::Text("Frametime : %f ms, (%d FPS)", Oven::Time::GetDeltaTime() * 1000, (uint32_t)(1.0f/Oven::Time::GetDeltaTime()));
     ImGui::End();
 }
 
@@ -61,6 +51,8 @@ void Sandbox2D::OnAttach()
     OVEN_PROFILE_FUNCTION();
     m_SandTexture = Oven::Texture2D::Create("sandbox/assets/textures/sand.png");
     m_CheckerboardTexture = Oven::Texture2D::Create("sandbox/assets/textures/checkerboard.png");
+    m_SpriteSheet = Oven::Texture2D::Create("sandbox/assets/game/textures/spritesheet_no_padding.png");
+    m_TestSubTexture = Oven::SubTexture2D::CreateFromCoords(m_SpriteSheet, {0, 1}, {16, 16}, {3, 3});
 }
 
 void Sandbox2D::OnDetach()

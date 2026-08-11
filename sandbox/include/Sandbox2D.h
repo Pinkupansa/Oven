@@ -19,6 +19,8 @@ class Sandbox2D : public Oven::Layer{
 
         Oven::Ref<Oven::Texture2D> m_SandTexture;
         Oven::Ref<Oven::Texture2D> m_CheckerboardTexture;
+        Oven::Ref<Oven::Texture2D> m_SpriteSheet;
+        Oven::Ref<Oven::SubTexture2D> m_TestSubTexture;
 
 
 };

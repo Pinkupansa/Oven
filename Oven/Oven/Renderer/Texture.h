@@ -24,5 +24,6 @@ namespace Oven{
 
             virtual bool operator==(const Texture& other) const = 0;
     };
+
 }
 

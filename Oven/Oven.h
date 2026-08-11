@@ -19,6 +19,7 @@
 #include "Oven/Renderer/Buffer.h"
 #include "Oven/Renderer/Shader.h"
 #include "Oven/Renderer/Texture.h"
+#include "Oven/Renderer/SubTexture.h"
 #include "Oven/Renderer/VertexArray.h"
 #include "Oven/Renderer/OrthographicCamera.h"
 //--------------------------------------
