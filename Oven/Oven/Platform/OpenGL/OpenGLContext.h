@@ -3,14 +3,17 @@
 #include "Oven/Renderer/RenderingContext.h"
 
 struct GLFWwindow;
-namespace Oven{
-    class OpenGLContext: public RenderingContext{
-        public:
-            OpenGLContext(GLFWwindow* windowHandle);
+namespace Oven
+{
+class OpenGLContext : public RenderingContext
+{
+public:
+    OpenGLContext(GLFWwindow* windowHandle);
 
-            void Init() override; 
-            void SwapBuffers() override;
-        private: 
-            GLFWwindow* m_WindowHandle;
-    };
-}
+    void Init() override;
+    void SwapBuffers() override;
+
+private:
+    GLFWwindow* m_WindowHandle;
+};
+} // namespace Oven

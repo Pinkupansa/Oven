@@ -5,60 +5,84 @@
 #include "Oven/Core/KeyCodes.h"
 #include "Oven/Core/Core.h"
 
-namespace Oven{
+namespace Oven
+{
 
-    OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool rotation) 
-    :m_AspectRatio(aspectRatio), m_Camera(-m_AspectRatio * m_ZoomLevel, m_AspectRatio*m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel), m_RotationEnabled(rotation){
-
-    }
-    void OrthographicCameraController::OnUpdate(){
-        OVEN_PROFILE_FUNCTION();
-
-        if(Input::KeyPressed(OVEN_KEY_RIGHT)){
-            m_CamPos.x += m_CamSpeed * Time::GetDeltaTime();
-        }
-        if(Input::KeyPressed(OVEN_KEY_LEFT)){
-            m_CamPos.x -= m_CamSpeed * Time::GetDeltaTime();
-        }
-        if(Input::KeyPressed(OVEN_KEY_UP)){
-            m_CamPos.y += m_CamSpeed * Time::GetDeltaTime();
-        }
-        if(Input::KeyPressed(OVEN_KEY_DOWN)){
-            m_CamPos.y -= m_CamSpeed * Time::GetDeltaTime();
-        }
-        if(m_RotationEnabled){
-            if(Input::KeyPressed(OVEN_KEY_A)){
-                m_CamRot += m_CamRotSpeed * Time::GetDeltaTime();
-            }
-            if(Input::KeyPressed(OVEN_KEY_D)){
-                m_CamRot -= m_CamRotSpeed * Time::GetDeltaTime();
-            }
-            m_Camera.SetRotation(m_CamRot);
-        }
-        m_Camera.SetPosition(m_CamPos);
-    }
-
-    void OrthographicCameraController::OnEvent(Event& e){
-        OVEN_PROFILE_FUNCTION();
-
-        EventDispatcher dispatcher(e); 
-        dispatcher.Dispatch<MouseScrolledEvent>(OVEN_BIND_EVENT_FN(OrthographicCameraController::OnMouseScrolled));
-        dispatcher.Dispatch<WindowResizeEvent>(OVEN_BIND_EVENT_FN(OrthographicCameraController::OnWindowResized));
-    }
-
-    bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e){
-        OVEN_PROFILE_FUNCTION();
-
-        m_ZoomLevel -= e.GetYOffset() * 0.25;
-        m_ZoomLevel = std::max(m_ZoomLevel, 0.25f);
-        m_Camera.SetProjection( -m_AspectRatio * m_ZoomLevel, m_AspectRatio*m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel); 
-        return false;
-    }
-    bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e){
-        OVEN_PROFILE_FUNCTION();
-        
-        m_AspectRatio = (float)e.GetWidth() / (float)e.GetHeight();
-        m_Camera.SetProjection( -m_AspectRatio * m_ZoomLevel, m_AspectRatio*m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
-        return false;
-    }
+OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool rotation)
+    : m_AspectRatio(aspectRatio),
+      m_Camera(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel),
+      m_RotationEnabled(rotation)
+{
 }
+void OrthographicCameraController::OnUpdate()
+{
+    OVEN_PROFILE_FUNCTION();
+
+    if (Input::KeyPressed(OVEN_KEY_RIGHT))
+    {
+        m_CamPos.x += m_CamSpeed * Time::GetDeltaTime();
+    }
+    if (Input::KeyPressed(OVEN_KEY_LEFT))
+    {
+        m_CamPos.x -= m_CamSpeed * Time::GetDeltaTime();
+    }
+    if (Input::KeyPressed(OVEN_KEY_UP))
+    {
+        m_CamPos.y += m_CamSpeed * Time::GetDeltaTime();
+    }
+    if (Input::KeyPressed(OVEN_KEY_DOWN))
+    {
+        m_CamPos.y -= m_CamSpeed * Time::GetDeltaTime();
+    }
+    if (m_RotationEnabled)
+    {
+        if (Input::KeyPressed(OVEN_KEY_A))
+        {
+            m_CamRot += m_CamRotSpeed * Time::GetDeltaTime();
+        }
+        if (Input::KeyPressed(OVEN_KEY_D))
+        {
+            m_CamRot -= m_CamRotSpeed * Time::GetDeltaTime();
+        }
+        m_Camera.SetRotation(m_CamRot);
+    }
+    m_Camera.SetPosition(m_CamPos);
+}
+
+void OrthographicCameraController::OnEvent(Event& e)
+{
+    OVEN_PROFILE_FUNCTION();
+
+    EventDispatcher dispatcher(e);
+    dispatcher.Dispatch<MouseScrolledEvent>(OVEN_BIND_EVENT_FN(OrthographicCameraController::OnMouseScrolled));
+    dispatcher.Dispatch<WindowResizeEvent>(OVEN_BIND_EVENT_FN(OrthographicCameraController::OnWindowResized));
+}
+
+void OrthographicCameraController::SetZoomLevel(float zoomLevel)
+{
+    m_ZoomLevel = zoomLevel;
+    RecalculateView();
+}
+
+bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e)
+{
+    OVEN_PROFILE_FUNCTION();
+
+    m_ZoomLevel -= e.GetYOffset() * 0.25;
+    m_ZoomLevel = std::max(m_ZoomLevel, 0.25f);
+    RecalculateView();
+    return false;
+}
+bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
+{
+    OVEN_PROFILE_FUNCTION();
+
+    m_AspectRatio = (float)e.GetWidth() / (float)e.GetHeight();
+    RecalculateView();
+    return false;
+}
+void OrthographicCameraController::RecalculateView()
+{
+    m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
+}
+} // namespace Oven

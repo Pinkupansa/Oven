@@ -2,7 +2,8 @@
 #include "Oven/Debug/Instrumentor.h"
 extern Oven::Application* Oven::CreateApplication();
 
-int main(int argc, char** argv){
+int main(int argc, char** argv)
+{
     Oven::Log::Init();
     OVEN_PROFILE_BEGIN_SESSION("Startup", "OvenProfile_Startup.json");
     auto app = Oven::CreateApplication();
