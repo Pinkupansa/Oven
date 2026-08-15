@@ -67,7 +67,6 @@ target_include_directories(glad PUBLIC
 add_library(OvenEngine STATIC
     ${ENGINE_SOURCES}
     ${ENGINE_HEADERS}
-    src/Renderer/VertexArray.cpp
 )
 
 target_precompile_headers(OvenEngine PRIVATE Oven/ovenpch.h)

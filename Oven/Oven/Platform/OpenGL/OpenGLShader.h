@@ -21,7 +21,7 @@ public:
     void SetFloat4(const std::string& name, const glm::vec4& value) override;
     void SetMat4(const std::string& name, const glm::mat4& value) override;
     void SetInt(const std::string& name, const int value) override;
-    void SetIntArray(const std::string& name, int* values, uint32_t count);
+    void SetIntArray(const std::string& name, int* values, uint32_t count) override;
 
     const std::string& GetDefaultName() const override { return m_Name; }
 

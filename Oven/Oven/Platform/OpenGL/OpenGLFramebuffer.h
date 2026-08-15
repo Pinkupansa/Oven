@@ -6,7 +6,7 @@ class OpenGLFramebuffer : public Framebuffer
 {
 public:
     OpenGLFramebuffer(const FramebufferSpecs& specs);
-    ~OpenGLFramebuffer();
+    ~OpenGLFramebuffer() override;
 
     void Invalidate();
     const FramebufferSpecs& GetSpecs() const override { return m_Specs; }
