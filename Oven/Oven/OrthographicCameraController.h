@@ -18,6 +18,8 @@ public:
     void SetZoomLevel(float zoomLevel);
     float GetZoomLevel() const { return m_ZoomLevel; }
 
+    void Resize(float width, float height);
+
 private:
     bool OnMouseScrolled(MouseScrolledEvent& e);
     bool OnWindowResized(WindowResizeEvent& e);

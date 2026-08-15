@@ -90,7 +90,7 @@ void Renderer2D::Init()
     for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
         samplers[i] = i;
 
-    s_Data.TextureShader = Shader::Create("sandbox/assets/shaders/Texture.glsl");
+    s_Data.TextureShader = Shader::Create("OvenEditor/assets/shaders/Texture.glsl");
     s_Data.TextureShader->Bind();
     s_Data.TextureShader->SetIntArray("u_Textures", samplers, s_Data.MaxTextureSlots);
 

@@ -64,21 +64,25 @@ void OrthographicCameraController::SetZoomLevel(float zoomLevel)
     RecalculateView();
 }
 
+void OrthographicCameraController::Resize(float width, float height)
+{
+    m_AspectRatio = width / height;
+    RecalculateView();
+}
+
 bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e)
 {
     OVEN_PROFILE_FUNCTION();
 
-    m_ZoomLevel -= e.GetYOffset() * 0.25;
-    m_ZoomLevel = std::max(m_ZoomLevel, 0.25f);
-    RecalculateView();
+    SetZoomLevel(std::max(m_ZoomLevel - e.GetYOffset() * 0.25f, 0.25f));
+
     return false;
 }
 bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
 {
     OVEN_PROFILE_FUNCTION();
 
-    m_AspectRatio = (float)e.GetWidth() / (float)e.GetHeight();
-    RecalculateView();
+    Resize((float)e.GetWidth(), (float)e.GetHeight());
     return false;
 }
 void OrthographicCameraController::RecalculateView()

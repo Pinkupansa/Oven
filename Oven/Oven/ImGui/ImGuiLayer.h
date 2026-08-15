@@ -16,6 +16,6 @@ public:
     void Begin();
     void End();
     void RescaleContent(float scaleX, float scaleY);
-    void ResizeWindow(unsigned int width, unsigned int height);
+    void ResizeWindow(uint32_t width, uint32_t height);
 };
 } // namespace Oven

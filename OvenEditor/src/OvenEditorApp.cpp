@@ -9,22 +9,25 @@
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
-#include "Sandbox2D.h"
+#include "EditorLayer.h"
 #include <Oven/Core/EntryPoint.h>
 
-class Sandbox : public Oven::Application
+namespace Oven
+{
+class OvenEditor : public Application
 {
 public:
-    Sandbox() : Application("Sandbox")
+    OvenEditor() : Application("Oven Editor")
     {
         // PushLayer(new TestLayer());
-        PushLayer(new Sandbox2D());
+        PushLayer(new EditorLayer());
     }
-    ~Sandbox() {}
+    ~OvenEditor() {}
 };
 
-Oven::Application* Oven::CreateApplication()
+Application* CreateApplication()
 {
-    printf("Launching Sandbox App ...\n");
-    return new Sandbox();
+    printf("Launching Oven Editor ...\n");
+    return new OvenEditor();
 }
+} // namespace Oven

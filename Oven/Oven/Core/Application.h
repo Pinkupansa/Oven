@@ -15,7 +15,7 @@ namespace Oven
 class OVEN_API Application
 {
 public:
-    Application();
+    Application(const std::string& name = "Oven App");
     virtual ~Application();
     void Run();
     void OnEvent(Event& e);

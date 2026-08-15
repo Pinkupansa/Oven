@@ -4,7 +4,7 @@
 
 #include <glad/glad.h>
 // REMOVE THIS
-typedef unsigned int GLenum;
+typedef uint32_t GLenum;
 namespace Oven
 {
 

@@ -11,11 +11,11 @@ public:
     MacWindow(const WindowProps& props);
     virtual ~MacWindow();
     void OnUpdate() override;
-    inline unsigned int GetWidth() const override { return m_Data.Width; }
-    inline unsigned int GetHeight() const override { return m_Data.Height; }
+    inline uint32_t GetWidth() const override { return m_Data.Width; }
+    inline uint32_t GetHeight() const override { return m_Data.Height; }
 
-    inline unsigned int GetContentScaleX() const override { return m_Data.ContentScaleX; }
-    inline unsigned int GetContentScaleY() const override { return m_Data.ContentScaleY; }
+    inline uint32_t GetContentScaleX() const override { return m_Data.ContentScaleX; }
+    inline uint32_t GetContentScaleY() const override { return m_Data.ContentScaleY; }
     inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 
     void SetVSync(bool enabled) override;
@@ -32,7 +32,7 @@ private:
     struct WindowData
     {
         std::string Title;
-        unsigned int Width, Height, ContentScaleX, ContentScaleY;
+        uint32_t Width, Height, ContentScaleX, ContentScaleY;
         bool VSync;
         EventCallbackFn EventCallback;
     };

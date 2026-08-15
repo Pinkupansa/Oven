@@ -27,10 +27,11 @@ void Sandbox2D::OnUpdate()
 {
     OVEN_PROFILE_FUNCTION();
     m_CameraController.OnUpdate();
-
+    Oven::Renderer2D::ResetStats();
     // Render
     {
         OVEN_PROFILE_SCOPE("Renderer Preparation");
+
         Oven::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
         Oven::RenderCommand::Clear();
     }
@@ -69,6 +70,9 @@ void Sandbox2D::OnImGuiRender()
     ImGui::Text("Frametime : %f ms, (%d FPS)",
                 Oven::Time::GetDeltaTime() * 1000,
                 (uint32_t)(1.0f / Oven::Time::GetDeltaTime()));
+
+    auto pos = m_CameraController.GetCamera().GetPosition();
+    ImGui::Text("Camera Pos: %.2f, %.2f, %.2f", pos.x, pos.y, pos.z);
     ImGui::End();
 }
 
@@ -86,6 +90,10 @@ void Sandbox2D::OnAttach()
     m_CameraController.SetZoomLevel(5.0f);
     m_MapWidth = s_MapWidth;
     m_MapHeight = strlen(s_MapTiles) / s_MapWidth;
+
+    Oven::FramebufferSpecs fbSpecs;
+    fbSpecs.Width = 1280;
+    fbSpecs.Height = 720;
 }
 
 void Sandbox2D::OnDetach()
