@@ -2,12 +2,16 @@
 #include "Oven/Platform/OpenGL/OpenGLFramebuffer.h"
 #include "Oven/Platform/OpenGL/OpenGLMacros.h"
 #include <glad/glad.h>
+
 namespace Oven
 {
+static const uint32_t MaxFramebufferSize = 8192;
+
 OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecs& specs) : m_Specs(specs)
 {
     Invalidate();
 }
+
 OpenGLFramebuffer::~OpenGLFramebuffer()
 {
     Clear();
@@ -61,17 +65,25 @@ void OpenGLFramebuffer::Invalidate()
 
     GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
+
 void OpenGLFramebuffer::Bind()
 {
     GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
     GL_CALL(glViewport(0, 0, m_Specs.Width, m_Specs.Height));
 }
+
 void OpenGLFramebuffer::Unbind()
 {
     GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
+
 void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
 {
+    if (width == 0 || height == 0 || width > MaxFramebufferSize || height > MaxFramebufferSize)
+    {
+        OVEN_CORE_WARN("Invalid framebuffer size : {0} {1}", width, height);
+        return;
+    }
     m_Specs.Width = width;
     m_Specs.Height = height;
     Invalidate();

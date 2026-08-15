@@ -8,12 +8,15 @@
 #include "backends/imgui_impl_glfw.h"
 // TEMPORARY
 #include "GLFW/glfw3.h"
+
 namespace Oven
 {
 
 /// Temporary function until we have a proper key mapping system
 ImGuiLayer::ImGuiLayer() : Layer("ImGuiLayer") {}
+
 ImGuiLayer::~ImGuiLayer() {}
+
 void ImGuiLayer::OnAttach()
 {
     OVEN_PROFILE_FUNCTION();
@@ -31,8 +34,8 @@ void ImGuiLayer::OnAttach()
     //  io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
     // Setup Dear ImGui style
-    // ImGui::StyleColorsDark();
-    ImGui::StyleColorsClassic();
+    ImGui::StyleColorsLight();
+    // ImGui::StyleColorsClassic();
 
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular
     // ones.
@@ -51,6 +54,7 @@ void ImGuiLayer::OnAttach()
 }
 
 void ImGuiLayer::OnImGuiRender() {}
+
 void ImGuiLayer::OnDetach()
 {
     OVEN_PROFILE_FUNCTION();
@@ -59,17 +63,43 @@ void ImGuiLayer::OnDetach()
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
+
+void ImGuiLayer::OnEvent(Event& e)
+{
+    if (m_BlockEvents)
+    {
+        EventDispatcher dispatcher(e);
+        dispatcher.DispatchCategory(OVEN_BIND_EVENT_FN(ImGuiLayer::OnMouseEvent), EventCategory::EventCategoryMouse);
+        dispatcher.DispatchCategory(OVEN_BIND_EVENT_FN(ImGuiLayer::OnKeyboardEvent),
+                                    EventCategory::EventCategoryKeyboard);
+    }
+}
+
 void ImGuiLayer::ResizeWindow(uint32_t width, uint32_t height)
 {
     ImGuiIO& io = ImGui::GetIO();
     io.DisplaySize = ImVec2(width, height);
     glViewport(0, 0, width, height);
 }
+
+bool ImGuiLayer::OnMouseEvent(Event& e)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    return io.WantCaptureMouse;
+}
+
+bool ImGuiLayer::OnKeyboardEvent(Event& e)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    return io.WantCaptureKeyboard;
+}
+
 void ImGuiLayer::RescaleContent(float scaleX, float scaleY)
 {
     ImGuiIO& io = ImGui::GetIO();
     io.DisplayFramebufferScale = ImVec2(scaleX, scaleY);
 }
+
 void ImGuiLayer::Begin()
 {
     OVEN_PROFILE_FUNCTION();
@@ -78,6 +108,7 @@ void ImGuiLayer::Begin()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
+
 void ImGuiLayer::End()
 {
     OVEN_PROFILE_FUNCTION();

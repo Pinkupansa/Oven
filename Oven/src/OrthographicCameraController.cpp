@@ -14,33 +14,34 @@ OrthographicCameraController::OrthographicCameraController(float aspectRatio, bo
       m_RotationEnabled(rotation)
 {
 }
+
 void OrthographicCameraController::OnUpdate()
 {
     OVEN_PROFILE_FUNCTION();
 
-    if (Input::KeyPressed(OVEN_KEY_RIGHT))
+    if (Input::KeyPressed(OvenKey::Right))
     {
         m_CamPos.x += m_CamSpeed * Time::GetDeltaTime();
     }
-    if (Input::KeyPressed(OVEN_KEY_LEFT))
+    if (Input::KeyPressed(OvenKey::Left))
     {
         m_CamPos.x -= m_CamSpeed * Time::GetDeltaTime();
     }
-    if (Input::KeyPressed(OVEN_KEY_UP))
+    if (Input::KeyPressed(OvenKey::Up))
     {
         m_CamPos.y += m_CamSpeed * Time::GetDeltaTime();
     }
-    if (Input::KeyPressed(OVEN_KEY_DOWN))
+    if (Input::KeyPressed(OvenKey::Down))
     {
         m_CamPos.y -= m_CamSpeed * Time::GetDeltaTime();
     }
     if (m_RotationEnabled)
     {
-        if (Input::KeyPressed(OVEN_KEY_A))
+        if (Input::KeyPressed(OvenKey::A))
         {
             m_CamRot += m_CamRotSpeed * Time::GetDeltaTime();
         }
-        if (Input::KeyPressed(OVEN_KEY_D))
+        if (Input::KeyPressed(OvenKey::D))
         {
             m_CamRot -= m_CamRotSpeed * Time::GetDeltaTime();
         }
@@ -78,6 +79,7 @@ bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e)
 
     return false;
 }
+
 bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
 {
     OVEN_PROFILE_FUNCTION();
@@ -85,6 +87,7 @@ bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
     Resize((float)e.GetWidth(), (float)e.GetHeight());
     return false;
 }
+
 void OrthographicCameraController::RecalculateView()
 {
     m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);

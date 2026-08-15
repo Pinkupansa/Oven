@@ -5,6 +5,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 namespace Oven
 {
 bool Input::KeyPressed(int keycode)
@@ -33,6 +34,7 @@ float Input::GetMouseY()
     auto [x, y] = GetMousePosition();
     return y;
 }
+
 std::pair<float, float> Input::GetMousePosition()
 {
     auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());

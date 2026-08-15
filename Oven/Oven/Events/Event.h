@@ -91,6 +91,15 @@ public:
         }
         return false;
     }
+    bool DispatchCategory(EventFn<Event> func, EventCategory category)
+    {
+        if (m_Event.IsInCategory(category))
+        {
+            m_Event.m_Handled = func(m_Event);
+            return true;
+        }
+        return false;
+    }
 
 private:
     Event& m_Event;

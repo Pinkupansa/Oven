@@ -31,5 +31,9 @@ private:
     Ref<Framebuffer> m_Framebuffer;
     glm::vec2 m_ScenePanelSize;
     uint32_t m_MapWidth, m_MapHeight;
+    bool m_SceneTabFocused, m_SceneTabHovered = false;
+    Ref<Scene> m_CurrentScene;
+
+    Entity m_SquareEntity;
 };
 } // namespace Oven

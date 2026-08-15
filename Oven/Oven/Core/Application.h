@@ -10,6 +10,7 @@
 #include "Oven/Renderer/Buffer.h"
 #include "Oven/Renderer/VertexArray.h"
 #include "Oven/Renderer/OrthographicCamera.h"
+
 namespace Oven
 {
 class OVEN_API Application
@@ -21,8 +22,12 @@ public:
     void OnEvent(Event& e);
     void PushLayer(Layer* layer);
     void PushOverlay(Layer* layer);
+
     inline static Application& Get() { return *s_Instance; }
+
     inline Window& GetWindow() { return *m_Window; }
+
+    ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 
 private:
     bool OnWindowClose(WindowCloseEvent& e);

@@ -24,3 +24,7 @@
 #include "Oven/Renderer/VertexArray.h"
 #include "Oven/Renderer/OrthographicCamera.h"
 //--------------------------------------
+
+#include "Oven/Scene/Scene.h"
+#include "Oven/Scene/Entity.h"
+#include "Oven/Scene/Components.h"

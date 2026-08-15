@@ -16,7 +16,7 @@
 
 #include "Oven/Core/Log.h"
 #include "Oven/Debug/Instrumentor.h"
-
+#include "entt.hpp"
 #ifdef OVEN_PLATFORM_WINDOWS
 #include <Windows.h>
 #endif

@@ -1,6 +1,5 @@
 #include "EditorLayer.h"
 #include "imgui.h"
-#include "Oven/Core/Time.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -28,40 +27,24 @@ EditorLayer::EditorLayer() : Layer("OvenEditor"), m_CameraController(1280.0 / 72
 void EditorLayer::OnUpdate()
 {
     OVEN_PROFILE_FUNCTION();
-    m_CameraController.OnUpdate();
+    if (m_SceneTabFocused)
+        m_CameraController.OnUpdate();
+
     Renderer2D::ResetStats();
-    // Render
-    {
-        OVEN_PROFILE_SCOPE("Renderer Preparation");
 
-        RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
-        RenderCommand::Clear();
+    RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
+    RenderCommand::Clear();
 
-        m_Framebuffer->Bind();
-        RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
-        RenderCommand::Clear();
-    }
+    m_Framebuffer->Bind();
+    RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
+    RenderCommand::Clear();
 
-    {
-        OVEN_PROFILE_SCOPE("Renderer Draw");
-        Renderer2D::BeginScene(m_CameraController.GetCamera());
+    Renderer2D::BeginScene(m_CameraController.GetCamera());
 
-        for (uint32_t y = 0; y < m_MapHeight; y++)
-        {
-            for (uint32_t x = 0; x < m_MapWidth; x++)
-            {
-                char tileType = s_MapTiles[x + y * m_MapWidth];
-                Ref<SubTexture2D> texture;
-                if (s_TileDict.find(tileType) != s_TileDict.end())
-                    texture = s_TileDict[tileType];
-                else
-                    texture = m_DirtTexture;
-                Renderer2D::DrawQuad({x - m_MapWidth / 2.0f, y - m_MapHeight / 2.0f, 0.5f}, {1.0f, 1.0f}, texture);
-            }
-        }
-        Renderer2D::EndScene();
-        m_Framebuffer->Unbind();
-    }
+    m_CurrentScene->OnUpdate();
+
+    Renderer2D::EndScene();
+    m_Framebuffer->Unbind();
 }
 
 void EditorLayer::OnImGuiRender()
@@ -69,7 +52,7 @@ void EditorLayer::OnImGuiRender()
     OVEN_PROFILE_FUNCTION();
     ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
     auto stats = Renderer2D::GetStats();
-    ImGui::Begin("Renderer2D Stats");
+    ImGui::Begin("Settings");
     ImGui::Text("Draw Calls: %d", stats.DrawCalls);
     ImGui::Text("Quads: %d", stats.QuadCount);
     ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
@@ -77,8 +60,17 @@ void EditorLayer::OnImGuiRender()
     ImGui::Text("Frametime : %f ms, (%d FPS)", Time::GetDeltaTime() * 1000, (uint32_t)(1.0f / Time::GetDeltaTime()));
     ImGui::End();
 
+    ImGui::Begin("Properties");
+    auto& squareColor = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
+    ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
+    ImGui::End();
+
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
     ImGui::Begin("Scene");
+    m_SceneTabFocused = ImGui::IsWindowFocused();
+    m_SceneTabHovered = ImGui::IsWindowHovered();
+    Application::Get().GetImGuiLayer()->SetBlockEvents(!(m_SceneTabFocused && m_SceneTabHovered));
+
     ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();
     if (m_ScenePanelSize != *((glm::vec2*)&scenePanelSize))
     {
@@ -113,6 +105,10 @@ void EditorLayer::OnAttach()
     fbSpecs.Width = 1280;
     fbSpecs.Height = 720;
     m_Framebuffer = Framebuffer::Create(fbSpecs);
+
+    m_CurrentScene = CreateRef<Scene>();
+    m_SquareEntity = m_CurrentScene->CreateEntity("Square");
+    m_SquareEntity.AddComponent<SpriteRendererComponent>();
 }
 
 void EditorLayer::OnDetach()

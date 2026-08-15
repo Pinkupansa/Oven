@@ -15,12 +15,15 @@ Oven::SubTexture2D::SubTexture2D(const Ref<Texture2D>& texture, const glm::vec2&
 Ref<SubTexture2D> SubTexture2D::CreateFromCoords(const Ref<Texture2D>& texture,
                                                  const glm::vec2& coords,
                                                  const glm::vec2& sheetCellSize,
-                                                 const glm::vec2 spriteSizeInCells)
+                                                 const glm::vec2& spriteSizeInCells,
+                                                 uint32_t sheetPadding)
 {
-    glm::vec2 min = {(coords.x * sheetCellSize.x) / texture->GetWidth(),
-                     (coords.y * sheetCellSize.y) / texture->GetHeight()};
-    glm::vec2 max = {((coords.x + spriteSizeInCells.x) * sheetCellSize.x) / texture->GetWidth(),
-                     ((coords.y + spriteSizeInCells.y) * sheetCellSize.y) / texture->GetHeight()};
+    static const float inShift = 0.01;
+    glm::vec2 min = {((coords.x * (sheetCellSize.x + sheetPadding) + inShift) / texture->GetWidth()),
+                     ((coords.y * (sheetCellSize.y + sheetPadding) + inShift) / texture->GetHeight())};
+    glm::vec2 max = min + glm::vec2{(spriteSizeInCells.x * sheetCellSize.x - 2 * inShift) / texture->GetWidth(),
+                                    (spriteSizeInCells.y * sheetCellSize.y - 2 * inShift) / texture->GetHeight()};
+
     return CreateRef<SubTexture2D>(texture, min, max);
 }
 } // namespace Oven

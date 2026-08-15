@@ -2,6 +2,7 @@
 #include "Oven/Renderer/OrthographicCamera.h"
 #include "Oven/Renderer/Texture.h"
 #include "Oven/Renderer/SubTexture.h"
+
 namespace Oven
 {
 
@@ -14,63 +15,85 @@ public:
     static void EndScene();
     static void Flush();
 
-    static void
+    inline static void
     DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f});
+
     static void
     DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f});
-    static void DrawQuad(const glm::vec2& position,
-                         const glm::vec2& size,
-                         const Ref<Texture2D>& texture,
-                         const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
-                         glm::vec2 tilingFactor = {1.0f, 1.0f});
-    static void DrawQuad(const glm::vec3& position,
-                         const glm::vec2& size,
-                         const Ref<Texture2D>& texture,
-                         const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
-                         glm::vec2 tilingFactor = {1.0f, 1.0f});
-    static void DrawQuad(const glm::vec2& position,
-                         const glm::vec2& size,
-                         const Ref<SubTexture2D>& subTexture,
-                         const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
-                         glm::vec2 tilingFactor = {1.0f, 1.0f});
-    static void DrawQuad(const glm::vec3& position,
-                         const glm::vec2& size,
-                         const Ref<SubTexture2D>& subTexture,
-                         const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
-                         glm::vec2 tilingFactor = {1.0f, 1.0f});
 
-    static void DrawRotatedQuad(const glm::vec2& position,
+    inline static void DrawQuad(const glm::vec2& position,
                                 const glm::vec2& size,
-                                float rotation,
-                                const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f});
+                                const Ref<Texture2D>& texture,
+                                const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
+                                const glm::vec2& tilingFactor = {1.0f, 1.0f});
+
+    static void DrawQuad(const glm::vec3& position,
+                         const glm::vec2& size,
+                         const Ref<Texture2D>& texture,
+                         const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
+                         const glm::vec2& tilingFactor = {1.0f, 1.0f});
+
+    inline static void DrawQuad(const glm::vec2& position,
+                                const glm::vec2& size,
+                                const Ref<SubTexture2D>& subTexture,
+                                const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
+                                const glm::vec2& tilingFactor = {1.0f, 1.0f});
+
+    static void DrawQuad(const glm::vec3& position,
+                         const glm::vec2& size,
+                         const Ref<SubTexture2D>& subTexture,
+                         const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
+                         const glm::vec2& tilingFactor = {1.0f, 1.0f});
+
+    inline static void DrawRotatedQuad(const glm::vec2& position,
+                                       const glm::vec2& size,
+                                       float rotation,
+                                       const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f});
+
     static void DrawRotatedQuad(const glm::vec3& position,
                                 const glm::vec2& size,
                                 float rotation,
                                 const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f});
-    static void DrawRotatedQuad(const glm::vec2& position,
+
+    inline static void DrawRotatedQuad(const glm::vec2& position,
+                                       const glm::vec2& size,
+                                       float rotation,
+                                       const Ref<Texture2D>& texture,
+                                       const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
+                                       const glm::vec2& tilingFactor = {1.0f, 1.0f});
+
+    static void DrawRotatedQuad(const glm::vec3& position,
                                 const glm::vec2& size,
                                 float rotation,
                                 const Ref<Texture2D>& texture,
                                 const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
-                                glm::vec2 tilingFactor = {1.0f, 1.0f});
-    static void DrawRotatedQuad(const glm::vec3& position,
-                                const glm::vec2& size,
-                                float rotation,
-                                const Ref<Texture2D>& texture,
-                                const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
-                                glm::vec2 tilingFactor = {1.0f, 1.0f});
-    static void DrawRotatedQuad(const glm::vec2& position,
-                                const glm::vec2& size,
-                                float rotation,
-                                const Ref<SubTexture2D>& subTexture,
-                                const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
-                                glm::vec2 tilingFactor = {1.0f, 1.0f});
+                                const glm::vec2& tilingFactor = {1.0f, 1.0f});
+
+    inline static void DrawRotatedQuad(const glm::vec2& position,
+                                       const glm::vec2& size,
+                                       float rotation,
+                                       const Ref<SubTexture2D>& subTexture,
+                                       const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
+                                       const glm::vec2& tilingFactor = {1.0f, 1.0f});
+
     static void DrawRotatedQuad(const glm::vec3& position,
                                 const glm::vec2& size,
                                 float rotation,
                                 const Ref<SubTexture2D>& subTexture,
                                 const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
-                                glm::vec2 tilingFactor = {1.0f, 1.0f});
+                                const glm::vec2& tilingFactor = {1.0f, 1.0f});
+
+    static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
+
+    static void DrawQuad(const glm::mat4& transform,
+                         const Ref<Texture2D>& texture,
+                         const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
+                         const glm::vec2& tilingFactor = {1.0f, 1.0f});
+
+    static void DrawQuad(const glm::mat4& transform,
+                         const Ref<SubTexture2D>& subTexture,
+                         const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
+                         const glm::vec2& tilingFactor = {1.0f, 1.0f});
 
     struct Statistics
     {
@@ -78,8 +101,10 @@ public:
         uint32_t QuadCount = 0;
 
         uint32_t GetTotalVertexCount() { return QuadCount * 4; }
+
         uint32_t GetTotalIndexCount() { return QuadCount * 6; }
     };
+
     static Statistics GetStats();
     static void ResetStats();
 
