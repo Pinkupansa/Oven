@@ -108,14 +108,14 @@ void Renderer2D::Shutdown()
     OVEN_PROFILE_FUNCTION();
 }
 
-void Renderer2D::BeginScene(const OrthographicCamera& camera)
+void Renderer2D::BeginScene(const CameraRenderData& camera)
 {
     OVEN_PROFILE_FUNCTION();
 
     ResetStats();
 
     s_Data.TextureShader->Bind();
-    s_Data.TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
+    s_Data.TextureShader->SetMat4("u_ViewProjection", camera.Projection * glm::inverse(camera.Transform));
 
     s_Data.QuadIndexCount = 0;
     s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;

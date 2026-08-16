@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
+#include "Oven/Scene/SceneCamera.h"
 
 namespace Oven
 {
@@ -29,6 +30,21 @@ struct SpriteRendererComponent
     SpriteRendererComponent() = default;
 
     SpriteRendererComponent(const glm::vec4& color) : Color(color) {}
+};
+
+enum CameraAspectRatioMode
+{
+    Adaptive,
+    Fixed
+};
+
+struct CameraComponent
+{
+    SceneCamera Camera;
+    bool IsMain = true;
+    CameraAspectRatioMode AspectRatioMode = Adaptive;
+
+    CameraComponent() = default;
 };
 
 } // namespace Oven

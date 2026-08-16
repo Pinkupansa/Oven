@@ -39,11 +39,8 @@ void EditorLayer::OnUpdate()
     RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
     RenderCommand::Clear();
 
-    Renderer2D::BeginScene(m_CameraController.GetCamera());
-
     m_CurrentScene->OnUpdate();
 
-    Renderer2D::EndScene();
     m_Framebuffer->Unbind();
 }
 
@@ -63,6 +60,10 @@ void EditorLayer::OnImGuiRender()
     ImGui::Begin("Properties");
     auto& squareColor = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
     ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
+    auto& camera = m_CameraEntity.GetComponent<CameraComponent>().Camera;
+    float orthoSize = camera.GetOrthographicSize();
+    if (ImGui::DragFloat("Camera Ortho Size", &orthoSize))
+        camera.SetOrthographicSize(orthoSize);
     ImGui::End();
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
@@ -76,10 +77,12 @@ void EditorLayer::OnImGuiRender()
     {
         m_ScenePanelSize = {scenePanelSize.x, scenePanelSize.y};
         m_Framebuffer->Resize((uint32_t)m_ScenePanelSize.x, (uint32_t)m_ScenePanelSize.y);
-
         m_CameraController.Resize(scenePanelSize.x, scenePanelSize.y);
+
+        m_CurrentScene->OnViewportResize((uint32_t)scenePanelSize.x, (uint32_t)scenePanelSize.y);
     }
-    uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
+
+       uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
 
     ImGui::Image((void*)textureID, ImVec2{m_ScenePanelSize.x, m_ScenePanelSize.y}, ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
@@ -109,6 +112,9 @@ void EditorLayer::OnAttach()
     m_CurrentScene = CreateRef<Scene>();
     m_SquareEntity = m_CurrentScene->CreateEntity("Square");
     m_SquareEntity.AddComponent<SpriteRendererComponent>();
+
+    m_CameraEntity = m_CurrentScene->CreateEntity("Camera");
+    m_CameraEntity.AddComponent<CameraComponent>();
 }
 
 void EditorLayer::OnDetach()

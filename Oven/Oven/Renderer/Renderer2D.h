@@ -1,5 +1,6 @@
 #pragma once
 #include "Oven/Renderer/OrthographicCamera.h"
+#include "Oven/Renderer/Camera.h"
 #include "Oven/Renderer/Texture.h"
 #include "Oven/Renderer/SubTexture.h"
 
@@ -9,9 +10,15 @@ namespace Oven
 class Renderer2D
 {
 public:
+    struct CameraRenderData // keeping independence from the ECS
+    {
+        const glm::mat4& Projection;
+        const glm::mat4& Transform;
+    };
+
     static void Init();
     static void Shutdown();
-    static void BeginScene(const OrthographicCamera& camera);
+    static void BeginScene(const CameraRenderData& camera);
     static void EndScene();
     static void Flush();
 

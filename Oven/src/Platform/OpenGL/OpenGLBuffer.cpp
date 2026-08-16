@@ -3,6 +3,7 @@
 #include "Oven/Platform/OpenGL/OpenGLMacros.h"
 #include <glad/glad.h>
 #include "Oven/Core/Log.h"
+
 namespace Oven
 {
 ///////////////////////////////////////
@@ -35,6 +36,7 @@ void OpenGLVertexBuffer::Bind() const
     OVEN_PROFILE_FUNCTION();
     GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
 }
+
 void OpenGLVertexBuffer::Unbind() const
 {
     OVEN_PROFILE_FUNCTION();
@@ -44,7 +46,7 @@ void OpenGLVertexBuffer::Unbind() const
 void OpenGLVertexBuffer::SetData(const void* data, uint32_t size)
 {
     OVEN_PROFILE_FUNCTION();
-    glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
     GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, 0, size, data));
 }
 
@@ -70,6 +72,7 @@ void OpenGLIndexBuffer::Bind() const
     OVEN_PROFILE_FUNCTION();
     GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID));
 }
+
 void OpenGLIndexBuffer::Unbind() const
 {
     OVEN_PROFILE_FUNCTION();

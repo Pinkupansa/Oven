@@ -35,5 +35,6 @@ private:
     Ref<Scene> m_CurrentScene;
 
     Entity m_SquareEntity;
+    Entity m_CameraEntity;
 };
 } // namespace Oven

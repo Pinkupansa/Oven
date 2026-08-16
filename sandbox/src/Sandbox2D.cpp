@@ -38,7 +38,7 @@ void Sandbox2D::OnUpdate()
 
     {
         OVEN_PROFILE_SCOPE("Renderer Draw");
-        Oven::Renderer2D::BeginScene(m_CameraController.GetCamera());
+        // Oven::Renderer2D::BeginScene(m_CameraController.GetCamera());
 
         for (uint32_t y = 0; y < m_MapHeight; y++)
         {
