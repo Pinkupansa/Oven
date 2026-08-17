@@ -82,7 +82,7 @@ void EditorLayer::OnImGuiRender()
         m_CurrentScene->OnViewportResize((uint32_t)scenePanelSize.x, (uint32_t)scenePanelSize.y);
     }
 
-       uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
+    uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
 
     ImGui::Image((void*)textureID, ImVec2{m_ScenePanelSize.x, m_ScenePanelSize.y}, ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
@@ -115,6 +115,38 @@ void EditorLayer::OnAttach()
 
     m_CameraEntity = m_CurrentScene->CreateEntity("Camera");
     m_CameraEntity.AddComponent<CameraComponent>();
+
+    class CameraController : public NativeScript
+    {
+    public:
+        void OnCreate() {}
+
+        void OnDestroy() {}
+
+        void OnUpdate()
+        {
+            auto& transform = GetComponent<TransformComponent>().Transform;
+            float speed = 5.0f;
+            if (Input::KeyPressed(OvenKey::Right))
+            {
+                transform[3][0] += speed * Time::GetDeltaTime();
+            }
+            if (Input::KeyPressed(OvenKey::Left))
+            {
+                transform[3][0] -= speed * Time::GetDeltaTime();
+            }
+            if (Input::KeyPressed(OvenKey::Up))
+            {
+                transform[3][1] += speed * Time::GetDeltaTime();
+            }
+            if (Input::KeyPressed(OvenKey::Down))
+            {
+                transform[3][1] -= speed * Time::GetDeltaTime();
+            }
+        }
+    };
+
+    m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
 }
 
 void EditorLayer::OnDetach()

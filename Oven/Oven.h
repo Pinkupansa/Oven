@@ -23,8 +23,9 @@
 #include "Oven/Renderer/SubTexture.h"
 #include "Oven/Renderer/VertexArray.h"
 #include "Oven/Renderer/OrthographicCamera.h"
-//--------------------------------------
 
+//---Scene----------------------------
 #include "Oven/Scene/Scene.h"
 #include "Oven/Scene/Entity.h"
+#include "Oven/Scene/Components.h"
 #include "Oven/Scene/Components.h"

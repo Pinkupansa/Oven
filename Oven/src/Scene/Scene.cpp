@@ -22,6 +22,20 @@ Entity Scene::CreateEntity(const std::string& name)
 
 void Scene::OnUpdate()
 {
+    {
+        // Run scripts
+        m_Registry.view<NativeScriptComponent>().each(
+            [=](auto entity, auto& nsc)
+            {
+                if (!nsc.Instance)
+                {
+                    nsc.Instance = nsc.Instantiate();
+                    nsc.Instance->m_Entity = {entity, this};
+                    nsc.Instance->OnCreate();
+                }
+                nsc.Instance->OnUpdate();
+            });
+    }
     Camera* mainCamera = nullptr;
     glm::mat4* mainCamTransform = nullptr;
     {
