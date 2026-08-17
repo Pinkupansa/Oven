@@ -87,6 +87,8 @@ void EditorLayer::OnImGuiRender()
     ImGui::Image((void*)textureID, ImVec2{m_ScenePanelSize.x, m_ScenePanelSize.y}, ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
     ImGui::PopStyleVar();
+
+    m_SceneHierarchyPanel->OnImGuiRender();
 }
 
 void EditorLayer::OnAttach()
@@ -147,6 +149,7 @@ void EditorLayer::OnAttach()
     };
 
     m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+    m_SceneHierarchyPanel = CreateRef<SceneHierarchyPanel>(m_CurrentScene);
 }
 
 void EditorLayer::OnDetach()

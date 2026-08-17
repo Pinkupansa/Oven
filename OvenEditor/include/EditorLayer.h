@@ -1,6 +1,7 @@
 #pragma once
 #include "Oven.h"
 #include <unordered_map>
+#include "UI/Panels/SceneHierarchyPanel.h"
 #define N_FRAMES_AVERAGE 60
 
 namespace Oven
@@ -36,5 +37,8 @@ private:
 
     Entity m_SquareEntity;
     Entity m_CameraEntity;
+
+    // Panels
+    Ref<SceneHierarchyPanel> m_SceneHierarchyPanel;
 };
 } // namespace Oven

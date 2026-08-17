@@ -22,6 +22,7 @@ public:
 
 private:
     friend class Entity;
+    friend class SceneHierarchyPanel;
     entt::registry m_Registry;
     uint32_t m_ViewportWidth, m_ViewportHeight;
 };

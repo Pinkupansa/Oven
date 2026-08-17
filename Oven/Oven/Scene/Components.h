@@ -52,7 +52,7 @@ struct NativeScriptComponent
 {
     NativeScript* Instance = nullptr;
 
-    NativeScript* (*Instantiate)();
+    NativeScript* (*Instantiate)(); // type instanciation on scene play
     void (*DestroyInstance)(NativeScriptComponent*);
 
     template <typename T> void Bind()
