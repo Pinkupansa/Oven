@@ -1,7 +1,8 @@
 #pragma once
 #include "Oven.h"
 #include <unordered_map>
-#include "UI/Panels/SceneHierarchyPanel.h"
+#include "UI/Panels/EditorPanel.h"
+#include "EditorContext.h"
 #define N_FRAMES_AVERAGE 60
 
 namespace Oven
@@ -33,12 +34,12 @@ private:
     glm::vec2 m_ScenePanelSize;
     uint32_t m_MapWidth, m_MapHeight;
     bool m_SceneTabFocused, m_SceneTabHovered = false;
-    Ref<Scene> m_CurrentScene;
 
     Entity m_SquareEntity;
     Entity m_CameraEntity;
 
     // Panels
-    Ref<SceneHierarchyPanel> m_SceneHierarchyPanel;
+    std::vector<Scope<EditorPanel>> m_Panels;
+    EditorContext m_Context;
 };
 } // namespace Oven

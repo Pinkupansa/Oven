@@ -1,21 +1,15 @@
 #pragma once
 #include "Oven.h"
+#include "UI/Panels/EditorPanel.h"
 
 namespace Oven
 {
-class SceneHierarchyPanel
+class SceneHierarchyPanel : public EditorPanel
 {
-public:
-    SceneHierarchyPanel();
-    SceneHierarchyPanel(const Ref<Scene>& scene);
-    void SetScene(const Ref<Scene>& scene);
-    void OnImGuiRender();
-
 private:
     void AddEntityNode(Entity entity);
 
-private:
-    Ref<Scene> m_Scene;
-    Entity m_SelectedEntity;
+public:
+    void OnImGuiRender() override;
 };
 } // namespace Oven

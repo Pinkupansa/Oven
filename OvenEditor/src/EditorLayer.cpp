@@ -8,19 +8,11 @@
 
 #include "Oven/Debug/Instrumentor.h"
 
+#include "UI/Panels/SceneHierarchyPanel.h"
+#include "UI/Panels/PropertiesPanel.h"
+
 namespace Oven
 {
-std::unordered_map<char, Ref<SubTexture2D>> s_TileDict;
-static uint32_t s_MapWidth = 23;
-static const char* s_MapTiles = "WWWWWWWWWWWWWWWWWWWWWWW"
-                                "WWWWWWWWDDDDDDWWWWWWWWW"
-                                "WWWWWWDDDDDDDDDDDWWWWWW"
-                                "WWWDDDDDDWWWWDDDDDWwWWW"
-                                "WWWDDDDDWWWWWWDDDDDWWWW"
-                                "WWWDDDDDDWWWWDDDDDDWWWW"
-                                "WWWWWWDDDDDDDDDDDWWWWWW"
-                                "WWWWWWWWDDDDDDDWWWWWWWW"
-                                "WWWWWWWWWWWWWWWWWWWWWWW";
 
 EditorLayer::EditorLayer() : Layer("OvenEditor"), m_CameraController(1280.0 / 720.0) {}
 
@@ -39,7 +31,7 @@ void EditorLayer::OnUpdate()
     RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
     RenderCommand::Clear();
 
-    m_CurrentScene->OnUpdate();
+    m_Context.GetActiveScene()->OnUpdate();
 
     m_Framebuffer->Unbind();
 }
@@ -49,7 +41,7 @@ void EditorLayer::OnImGuiRender()
     OVEN_PROFILE_FUNCTION();
     ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
     auto stats = Renderer2D::GetStats();
-    ImGui::Begin("Settings");
+    ImGui::Begin("Renderer2D Stats");
     ImGui::Text("Draw Calls: %d", stats.DrawCalls);
     ImGui::Text("Quads: %d", stats.QuadCount);
     ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
@@ -57,14 +49,14 @@ void EditorLayer::OnImGuiRender()
     ImGui::Text("Frametime : %f ms, (%d FPS)", Time::GetDeltaTime() * 1000, (uint32_t)(1.0f / Time::GetDeltaTime()));
     ImGui::End();
 
-    ImGui::Begin("Properties");
+    /*ImGui::Begin("Properties");
     auto& squareColor = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
     ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
     auto& camera = m_CameraEntity.GetComponent<CameraComponent>().Camera;
     float orthoSize = camera.GetOrthographicSize();
     if (ImGui::DragFloat("Camera Ortho Size", &orthoSize))
         camera.SetOrthographicSize(orthoSize);
-    ImGui::End();
+    ImGui::End();*/
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
     ImGui::Begin("Scene");
@@ -79,16 +71,20 @@ void EditorLayer::OnImGuiRender()
         m_Framebuffer->Resize((uint32_t)m_ScenePanelSize.x, (uint32_t)m_ScenePanelSize.y);
         m_CameraController.Resize(scenePanelSize.x, scenePanelSize.y);
 
-        m_CurrentScene->OnViewportResize((uint32_t)scenePanelSize.x, (uint32_t)scenePanelSize.y);
+        m_Context.GetActiveScene()->OnViewportResize((uint32_t)scenePanelSize.x, (uint32_t)scenePanelSize.y);
     }
 
     uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
 
     ImGui::Image((void*)textureID, ImVec2{m_ScenePanelSize.x, m_ScenePanelSize.y}, ImVec2(0, 1), ImVec2(1, 0));
+
+    for (auto& panel : m_Panels)
+    {
+        panel->OnImGuiRender();
+    }
+
     ImGui::End();
     ImGui::PopStyleVar();
-
-    m_SceneHierarchyPanel->OnImGuiRender();
 }
 
 void EditorLayer::OnAttach()
@@ -99,23 +95,19 @@ void EditorLayer::OnAttach()
     m_SpriteSheet = Texture2D::Create("OvenEditor/assets/game/textures/spritesheet_no_padding.png");
     m_DirtTexture = SubTexture2D::CreateFromCoords(m_SpriteSheet, {6, 31}, {16, 16}, {1, 1});
     m_WaterTexture = SubTexture2D::CreateFromCoords(m_SpriteSheet, {0, 31}, {16, 16}, {1, 1});
-    s_TileDict['D'] = m_DirtTexture;
-    s_TileDict['W'] = m_WaterTexture;
 
     m_CameraController.SetZoomLevel(5.0f);
-    m_MapWidth = s_MapWidth;
-    m_MapHeight = strlen(s_MapTiles) / s_MapWidth;
 
     FramebufferSpecs fbSpecs;
     fbSpecs.Width = 1280;
     fbSpecs.Height = 720;
     m_Framebuffer = Framebuffer::Create(fbSpecs);
 
-    m_CurrentScene = CreateRef<Scene>();
-    m_SquareEntity = m_CurrentScene->CreateEntity("Square");
+    m_Context.SetActiveScene(CreateRef<Scene>());
+    m_SquareEntity = m_Context.GetActiveScene()->CreateEntity("Square");
     m_SquareEntity.AddComponent<SpriteRendererComponent>();
 
-    m_CameraEntity = m_CurrentScene->CreateEntity("Camera");
+    m_CameraEntity = m_Context.GetActiveScene()->CreateEntity("Camera");
     m_CameraEntity.AddComponent<CameraComponent>();
 
     class CameraController : public NativeScript
@@ -149,7 +141,8 @@ void EditorLayer::OnAttach()
     };
 
     m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
-    m_SceneHierarchyPanel = CreateRef<SceneHierarchyPanel>(m_CurrentScene);
+    m_Panels.push_back(EditorPanel::CreatePanel<SceneHierarchyPanel>(&m_Context));
+    m_Panels.push_back(EditorPanel::CreatePanel<PropertiesPanel>(&m_Context));
 }
 
 void EditorLayer::OnDetach()
