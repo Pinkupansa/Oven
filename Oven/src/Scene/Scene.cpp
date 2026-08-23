@@ -24,17 +24,15 @@ void Scene::OnUpdate()
 {
     {
         // Run scripts
-        m_Registry.view<NativeScriptComponent>().each(
-            [=](auto entity, auto& nsc)
+        m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc) {
+            if (!nsc.Instance)
             {
-                if (!nsc.Instance)
-                {
-                    nsc.Instance = nsc.Instantiate();
-                    nsc.Instance->m_Entity = {entity, this};
-                    nsc.Instance->OnCreate();
-                }
-                nsc.Instance->OnUpdate();
-            });
+                nsc.Instance = nsc.Instantiate();
+                nsc.Instance->m_Entity = {entity, this};
+                nsc.Instance->OnCreate();
+            }
+            nsc.Instance->OnUpdate();
+        });
     }
     Camera* mainCamera = nullptr;
     glm::mat4* mainCamTransform = nullptr;

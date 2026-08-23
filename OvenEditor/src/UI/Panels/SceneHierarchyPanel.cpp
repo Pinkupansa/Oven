@@ -26,7 +26,7 @@ void SceneHierarchyPanel::AddEntityNode(Entity entity)
     std::string name = entity.GetComponent<NameComponent>().Name;
     ImGuiTreeNodeFlags flags =
         ImGuiTreeNodeFlags_OpenOnArrow | ((m_Context->GetSelectedEntity() == entity) ? ImGuiTreeNodeFlags_Selected : 0);
-    bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, name.c_str());
+    bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, "%s", name.c_str());
     if (ImGui::IsItemClicked())
     {
         m_Context->SelectEntity(entity);
