@@ -98,22 +98,22 @@ public:
 
         if (held)
         {
-            colTop = ToImU32(COLOR_ACCENT_ORANGE);
-            colBottom = ToImU32(COLOR_ACCENT_ORANGE);
-            colContent = ToImU32(COLOR_PORCELAIN_WHITE);
+            colTop = ToImU32(COLOR_COOL_WHITE);
+            colBottom = ToImU32(COLOR_COOL_WHITE);
+            colContent = ToImU32(COLOR_CHARCOAL_DARK);
             colBorder = ToImU32(COLOR_SLATE_TRIM);
         }
         else if (hovered)
         {
-            colTop = ToImU32(COLOR_ACCENT_ORANGE_LIGHT);
-            colBottom = ToImU32(COLOR_ACCENT_ORANGE);
-            colContent = ToImU32(COLOR_PORCELAIN_WHITE);
+            colTop = ToImU32(COLOR_PORCELAIN_WHITE);
+            colBottom = ToImU32(COLOR_COOL_WHITE);
+            colContent = ToImU32(COLOR_CHARCOAL_DARK);
             colBorder = ToImU32(COLOR_SLATE_TRIM);
         }
         else
         {
             colTop = ToImU32(COLOR_PORCELAIN_WHITE);
-            colBottom = ToImU32(COLOR_COOL_WHITE);
+            colBottom = ToImU32(COLOR_PORCELAIN_WHITE);
             colContent = ToImU32(COLOR_CHARCOAL_DARK);
             colBorder = ToImU32(COLOR_SLATE_MUTED);
         }
@@ -425,8 +425,10 @@ public:
             ImGui::Separator();
 
             // Correct template type hashing for unique tree nodes
-            bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, "%s", name.c_str());
+            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
 
+            bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, "%s", name.c_str());
+            ImGui::PopFont();
             const ImVec2 buttonSize = ImVec2(20.0f, 20.0f);
 
             // Align button to right edge

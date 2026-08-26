@@ -11,6 +11,7 @@
 #include "UI/Panels/SceneHierarchyPanel.h"
 #include "UI/Panels/PropertiesPanel.h"
 #include "UI/EditorColors.h"
+#include "Oven/Scene/SceneSerializer.h"
 
 namespace Oven
 {
@@ -87,14 +88,14 @@ void EditorLayer::OnImGuiRender()
 void EditorLayer::OnAttach()
 {
     OVEN_PROFILE_FUNCTION();
+
     SetDefaultTheme();
+
     m_SandTexture = Texture2D::Create("OvenEditor/assets/textures/sand.png");
     m_CheckerboardTexture = Texture2D::Create("OvenEditor/assets/textures/checkerboard.png");
     m_SpriteSheet = Texture2D::Create("OvenEditor/assets/game/textures/spritesheet_no_padding.png");
     m_DirtTexture = SubTexture2D::CreateFromCoords(m_SpriteSheet, {6, 31}, {16, 16}, {1, 1});
     m_WaterTexture = SubTexture2D::CreateFromCoords(m_SpriteSheet, {0, 31}, {16, 16}, {1, 1});
-
-    m_CameraController.SetZoomLevel(5.0f);
 
     FramebufferSpecs fbSpecs;
     fbSpecs.Width = 1280;
@@ -102,6 +103,9 @@ void EditorLayer::OnAttach()
     m_Framebuffer = Framebuffer::Create(fbSpecs);
 
     m_Context.SetActiveScene(CreateRef<Scene>());
+#if 0
+    m_CameraController.SetZoomLevel(5.0f);
+
     m_SquareEntity = m_Context.GetActiveScene()->CreateEntity("Square");
     m_SquareEntity.AddComponent<SpriteRendererComponent>();
 
@@ -140,8 +144,13 @@ void EditorLayer::OnAttach()
     };
 
     m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+#endif
+
     m_Panels.push_back(EditorPanel::CreatePanel<SceneHierarchyPanel>(&m_Context));
     m_Panels.push_back(EditorPanel::CreatePanel<PropertiesPanel>(&m_Context));
+
+    SceneSerializer serializer(m_Context.GetActiveScene());
+    serializer.Deserialize("OvenEditor/assets/scenes/Example.oven");
 }
 
 void EditorLayer::OnDetach() { OVEN_PROFILE_FUNCTION(); }
@@ -200,8 +209,8 @@ void EditorLayer::SetDefaultTheme()
 
     // Frames
     colors[ImGuiCol_FrameBg] = COLOR_PORCELAIN_WHITE;
-    colors[ImGuiCol_FrameBgHovered] = COLOR_ACCENT_ORANGE_LIGHT;
-    colors[ImGuiCol_FrameBgActive] = COLOR_WARM_AMBER;
+    colors[ImGuiCol_FrameBgHovered] = COLOR_COOL_WHITE;
+    colors[ImGuiCol_FrameBgActive] = COLOR_COOL_WHITE;
 
     // Title bars
     colors[ImGuiCol_TitleBg] = COLOR_STEEL_GRAY;
@@ -215,7 +224,7 @@ void EditorLayer::SetDefaultTheme()
     colors[ImGuiCol_TabUnfocused] = COLOR_PORCELAIN_WHITE;
     colors[ImGuiCol_TabUnfocusedActive] = COLOR_PORCELAIN_WHITE;
     colors[ImGuiCol_TextSelectedBg] = COLOR_HOVER_CYAN;
-    colors[ImGuiCol_NavHighlight] = COLOR_ACCENT_ORANGE;
+    colors[ImGuiCol_NavHighlight] = COLOR_ACCENT_ORANGE_LIGHT;
 
     colors[ImGuiCol_Header] = COLOR_COOL_WHITE;
     colors[ImGuiCol_HeaderHovered] = COLOR_ACCENT_ORANGE_LIGHT;
@@ -224,7 +233,7 @@ void EditorLayer::SetDefaultTheme()
     // Buttons
     colors[ImGuiCol_Button] = COLOR_COOL_WHITE;
     colors[ImGuiCol_ButtonHovered] = COLOR_ACCENT_ORANGE_LIGHT;
-    colors[ImGuiCol_ButtonActive] = COLOR_ACCENT_ORANGE;
+    colors[ImGuiCol_ButtonActive] = COLOR_ACCENT_ORANGE_LIGHT;
 
     // Controls
     colors[ImGuiCol_CheckMark] = COLOR_ACCENT_ORANGE;

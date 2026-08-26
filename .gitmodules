@@ -11,3 +11,6 @@
 [submodule "Oven/vendor/glm"]
 	path = Oven/vendor/glm
 	url = https://github.com/icaven/glm.git
+[submodule "Oven/vendor/yaml-cpp"]
+	path = Oven/vendor/yaml-cpp
+	url = git@github.com:TheCherno/yaml-cpp.git

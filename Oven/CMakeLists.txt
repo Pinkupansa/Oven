@@ -56,6 +56,7 @@ add_subdirectory(vendor/spdlog)
 add_subdirectory(vendor/glfw)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/glm)
+add_subdirectory(vendor/yaml-cpp)
 list(APPEND ENGINE_HEADERS "vendor/stb_image/stb_image.h")
 list(APPEND ENGINE_SOURCES "vendor/stb_image/stb_image.cpp")
 find_package(OpenGL REQUIRED)
@@ -118,6 +119,7 @@ target_link_libraries(OvenEngine
         OpenGL::GL
         glm
         glad
+        yaml-cpp
 )
 
 # -----------------------------
