@@ -25,10 +25,7 @@ Application::Application(const std::string& name)
     PushOverlay(m_ImGuiLayer);
     Renderer::Init();
 }
-Application::~Application()
-{
-    OVEN_PROFILE_FUNCTION();
-}
+Application::~Application() { OVEN_PROFILE_FUNCTION(); }
 
 void Application::PushLayer(Layer* layer)
 {

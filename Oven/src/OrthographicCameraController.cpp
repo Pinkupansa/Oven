@@ -89,7 +89,5 @@ bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
 }
 
 void OrthographicCameraController::RecalculateView()
-{
-    m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
-}
+{ m_Camera.SetProjectionMatrix(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel); }
 } // namespace Oven

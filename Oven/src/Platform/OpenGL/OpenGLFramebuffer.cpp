@@ -9,13 +9,11 @@ static const uint32_t MaxFramebufferSize = 8192;
 
 OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecs& specs) : m_Specs(specs)
 {
+    GL_CALL(glDisable(GL_FRAMEBUFFER_SRGB));
     Invalidate();
 }
 
-OpenGLFramebuffer::~OpenGLFramebuffer()
-{
-    Clear();
-}
+OpenGLFramebuffer::~OpenGLFramebuffer() { Clear(); }
 
 void OpenGLFramebuffer::Clear()
 {
@@ -37,7 +35,8 @@ void OpenGLFramebuffer::Invalidate()
     GL_CALL(glGenTextures(1, &m_ColorAttachment));
     GL_CALL(glBindTexture(GL_TEXTURE_2D, m_ColorAttachment));
     GL_CALL(
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Specs.Width, m_Specs.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Specs.Width, m_Specs.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr)
+    );
 
     GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -47,21 +46,24 @@ void OpenGLFramebuffer::Invalidate()
     // --- Depth / Stencil Attachment ---
     GL_CALL(glGenTextures(1, &m_DepthAttachment));
     GL_CALL(glBindTexture(GL_TEXTURE_2D, m_DepthAttachment));
-    GL_CALL(glTexImage2D(GL_TEXTURE_2D,
-                         0,
-                         GL_DEPTH24_STENCIL8,
-                         m_Specs.Width,
-                         m_Specs.Height,
-                         0,
-                         GL_DEPTH_STENCIL,
-                         GL_UNSIGNED_INT_24_8,
-                         nullptr));
+    GL_CALL(glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_DEPTH24_STENCIL8,
+        m_Specs.Width,
+        m_Specs.Height,
+        0,
+        GL_DEPTH_STENCIL,
+        GL_UNSIGNED_INT_24_8,
+        nullptr
+    ));
 
     GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0));
 
     // --- Validation ---
-    OVEN_CORE_ASSERT(GL_CALL(glCheckFramebufferStatus(GL_FRAMEBUFFER)) == GL_FRAMEBUFFER_COMPLETE,
-                     "Framebuffer incomplete !");
+    OVEN_CORE_ASSERT(
+        GL_CALL(glCheckFramebufferStatus(GL_FRAMEBUFFER)) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer incomplete !"
+    );
 
     GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
@@ -72,10 +74,7 @@ void OpenGLFramebuffer::Bind()
     GL_CALL(glViewport(0, 0, m_Specs.Width, m_Specs.Height));
 }
 
-void OpenGLFramebuffer::Unbind()
-{
-    GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-}
+void OpenGLFramebuffer::Unbind() { GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0)); }
 
 void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
 {

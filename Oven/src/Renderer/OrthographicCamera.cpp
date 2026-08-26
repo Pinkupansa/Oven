@@ -23,7 +23,7 @@ void OrthographicCamera::RecalculateViewMatrix()
     m_ViewMatrix = glm::inverse(transform);
     m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 }
-void OrthographicCamera::SetProjection(float left, float right, float bottom, float top)
+void OrthographicCamera::SetProjectionMatrix(float left, float right, float bottom, float top)
 {
     OVEN_PROFILE_FUNCTION();
 

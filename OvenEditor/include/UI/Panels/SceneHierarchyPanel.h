@@ -7,7 +7,7 @@ namespace Oven
 class SceneHierarchyPanel : public EditorPanel
 {
 private:
-    void AddEntityNode(Entity entity);
+    void DrawEntityNode(Entity entity);
 
 public:
     void OnImGuiRender() override;

@@ -34,9 +34,8 @@ void ImGuiLayer::OnAttach()
     //  io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
     // Setup Dear ImGui style
-    ImGui::StyleColorsLight();
+    // ImGui::StyleColorsLight();
     // ImGui::StyleColorsClassic();
-
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular
     // ones.
     ImGuiStyle& style = ImGui::GetStyle();
@@ -70,8 +69,9 @@ void ImGuiLayer::OnEvent(Event& e)
     {
         EventDispatcher dispatcher(e);
         dispatcher.DispatchCategory(OVEN_BIND_EVENT_FN(ImGuiLayer::OnMouseEvent), EventCategory::EventCategoryMouse);
-        dispatcher.DispatchCategory(OVEN_BIND_EVENT_FN(ImGuiLayer::OnKeyboardEvent),
-                                    EventCategory::EventCategoryKeyboard);
+        dispatcher.DispatchCategory(
+            OVEN_BIND_EVENT_FN(ImGuiLayer::OnKeyboardEvent), EventCategory::EventCategoryKeyboard
+        );
     }
 }
 

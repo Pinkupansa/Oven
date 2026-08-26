@@ -19,6 +19,9 @@ public:
     void OnEvent(Event& e) override;
 
 private:
+    void SetDefaultTheme();
+
+private:
     OrthographicCameraController m_CameraController;
     Ref<Shader> m_FlatColorShader;
     Ref<VertexArray> m_SquareVA;

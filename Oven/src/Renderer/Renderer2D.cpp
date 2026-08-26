@@ -52,11 +52,13 @@ void Renderer2D::Init()
     s_Data.QuadVertexArray = Oven::VertexArray::Create();
 
     s_Data.QuadVertexBuffer = VertexBuffer::Create(s_Data.MaxVerticesPerCall * sizeof(QuadVertex));
-    s_Data.QuadVertexBuffer->SetLayout({{Oven::ShaderDataType::Float3, "a_Position"},
-                                        {Oven::ShaderDataType::Float4, "a_Color"},
-                                        {Oven::ShaderDataType::Float2, "a_TexUV"},
-                                        {Oven::ShaderDataType::Float, "a_TexIndex"},
-                                        {Oven::ShaderDataType::Float2, "a_TilingFactor"}});
+    s_Data.QuadVertexBuffer->SetLayout(
+        {{Oven::ShaderDataType::Float3, "a_Position"},
+         {Oven::ShaderDataType::Float4, "a_Color"},
+         {Oven::ShaderDataType::Float2, "a_TexUV"},
+         {Oven::ShaderDataType::Float, "a_TexIndex"},
+         {Oven::ShaderDataType::Float2, "a_TilingFactor"}}
+    );
     s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer);
 
     s_Data.QuadVertexBufferBase = new QuadVertex[s_Data.MaxVerticesPerCall];
@@ -103,10 +105,7 @@ void Renderer2D::Init()
     s_Data.QuadVertexPositions[3] = {-0.5f, 0.5f, 0.0f, 1.0f};
 }
 
-void Renderer2D::Shutdown()
-{
-    OVEN_PROFILE_FUNCTION();
-}
+void Renderer2D::Shutdown() { OVEN_PROFILE_FUNCTION(); }
 
 void Renderer2D::BeginScene(const CameraRenderData& camera)
 {
@@ -114,11 +113,11 @@ void Renderer2D::BeginScene(const CameraRenderData& camera)
 
     ResetStats();
 
+    s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
     s_Data.TextureShader->Bind();
     s_Data.TextureShader->SetMat4("u_ViewProjection", camera.Projection * glm::inverse(camera.Transform));
 
     s_Data.QuadIndexCount = 0;
-    s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
 
     s_Data.CurrentTextureSlotIndex = 1;
 }
@@ -151,11 +150,13 @@ void Renderer2D::EndAndReset()
     s_Data.CurrentTextureSlotIndex = 1;
 }
 
-void Renderer2D::PushQuad(const glm::vec4* positions,
-                          const glm::vec4& color,
-                          const glm::vec2* uvs,
-                          float texIndex,
-                          const glm::vec2 tilingFactor)
+void Renderer2D::PushQuad(
+    const glm::vec4* positions,
+    const glm::vec4& color,
+    const glm::vec2* uvs,
+    float texIndex,
+    const glm::vec2 tilingFactor
+)
 {
 
     s_Data.QuadVertexBufferPtr->Position = positions[0];
@@ -192,9 +193,7 @@ void Renderer2D::PushQuad(const glm::vec4* positions,
 }
 
 void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
-{
-    DrawQuad({position.x, position.y, 0.0f}, size, color);
-}
+{ DrawQuad({position.x, position.y, 0.0f}, size, color); }
 
 void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 {
@@ -205,20 +204,22 @@ void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, cons
     DrawQuad(transform, color);
 }
 
-void Renderer2D::DrawQuad(const glm::vec2& position,
-                          const glm::vec2& size,
-                          const Ref<Texture2D>& texture,
-                          const glm::vec4& color,
-                          const glm::vec2& tilingFactor)
-{
-    DrawQuad({position.x, position.y, 0.0f}, size, texture, color, tilingFactor);
-}
+void Renderer2D::DrawQuad(
+    const glm::vec2& position,
+    const glm::vec2& size,
+    const Ref<Texture2D>& texture,
+    const glm::vec4& color,
+    const glm::vec2& tilingFactor
+)
+{ DrawQuad({position.x, position.y, 0.0f}, size, texture, color, tilingFactor); }
 
-void Renderer2D::DrawQuad(const glm::vec3& position,
-                          const glm::vec2& size,
-                          const Ref<Texture2D>& texture,
-                          const glm::vec4& color,
-                          const glm::vec2& tilingFactor)
+void Renderer2D::DrawQuad(
+    const glm::vec3& position,
+    const glm::vec2& size,
+    const Ref<Texture2D>& texture,
+    const glm::vec4& color,
+    const glm::vec2& tilingFactor
+)
 {
     OVEN_PROFILE_FUNCTION();
 
@@ -228,20 +229,22 @@ void Renderer2D::DrawQuad(const glm::vec3& position,
     DrawQuad(transform, texture, color, tilingFactor);
 }
 
-void Renderer2D::DrawQuad(const glm::vec2& position,
-                          const glm::vec2& size,
-                          const Ref<SubTexture2D>& subTexture,
-                          const glm::vec4& color,
-                          const glm::vec2& tilingFactor)
-{
-    DrawQuad({position.x, position.y, 0.0f}, size, subTexture, color, tilingFactor);
-}
+void Renderer2D::DrawQuad(
+    const glm::vec2& position,
+    const glm::vec2& size,
+    const Ref<SubTexture2D>& subTexture,
+    const glm::vec4& color,
+    const glm::vec2& tilingFactor
+)
+{ DrawQuad({position.x, position.y, 0.0f}, size, subTexture, color, tilingFactor); }
 
-void Renderer2D::DrawQuad(const glm::vec3& position,
-                          const glm::vec2& size,
-                          const Ref<SubTexture2D>& subTexture,
-                          const glm::vec4& color,
-                          const glm::vec2& tilingFactor)
+void Renderer2D::DrawQuad(
+    const glm::vec3& position,
+    const glm::vec2& size,
+    const Ref<SubTexture2D>& subTexture,
+    const glm::vec4& color,
+    const glm::vec2& tilingFactor
+)
 {
     OVEN_PROFILE_FUNCTION();
 
@@ -251,18 +254,14 @@ void Renderer2D::DrawQuad(const glm::vec3& position,
     DrawQuad(transform, subTexture, color, tilingFactor);
 }
 
-void Renderer2D::DrawRotatedQuad(const glm::vec2& position,
-                                 const glm::vec2& size,
-                                 float rotation,
-                                 const glm::vec4& color)
-{
-    DrawRotatedQuad({position.x, position.y, 0.0f}, size, rotation, color);
-}
+void Renderer2D::DrawRotatedQuad(
+    const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color
+)
+{ DrawRotatedQuad({position.x, position.y, 0.0f}, size, rotation, color); }
 
-void Renderer2D::DrawRotatedQuad(const glm::vec3& position,
-                                 const glm::vec2& size,
-                                 float rotation,
-                                 const glm::vec4& color)
+void Renderer2D::DrawRotatedQuad(
+    const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color
+)
 {
     OVEN_PROFILE_FUNCTION();
 
@@ -273,22 +272,24 @@ void Renderer2D::DrawRotatedQuad(const glm::vec3& position,
     DrawQuad(transform, color);
 }
 
-void Renderer2D::DrawRotatedQuad(const glm::vec2& position,
-                                 const glm::vec2& size,
-                                 float rotation,
-                                 const Ref<Texture2D>& texture,
-                                 const glm::vec4& color,
-                                 const glm::vec2& tilingFactor)
-{
-    DrawRotatedQuad({position.x, position.y, 0.0f}, size, rotation, texture, color, tilingFactor);
-}
+void Renderer2D::DrawRotatedQuad(
+    const glm::vec2& position,
+    const glm::vec2& size,
+    float rotation,
+    const Ref<Texture2D>& texture,
+    const glm::vec4& color,
+    const glm::vec2& tilingFactor
+)
+{ DrawRotatedQuad({position.x, position.y, 0.0f}, size, rotation, texture, color, tilingFactor); }
 
-void Renderer2D::DrawRotatedQuad(const glm::vec3& position,
-                                 const glm::vec2& size,
-                                 float rotation,
-                                 const Ref<Texture2D>& texture,
-                                 const glm::vec4& color,
-                                 const glm::vec2& tilingFactor)
+void Renderer2D::DrawRotatedQuad(
+    const glm::vec3& position,
+    const glm::vec2& size,
+    float rotation,
+    const Ref<Texture2D>& texture,
+    const glm::vec4& color,
+    const glm::vec2& tilingFactor
+)
 {
     OVEN_PROFILE_FUNCTION();
 
@@ -299,22 +300,24 @@ void Renderer2D::DrawRotatedQuad(const glm::vec3& position,
     DrawQuad(transform, texture, color, tilingFactor);
 }
 
-void Renderer2D::DrawRotatedQuad(const glm::vec2& position,
-                                 const glm::vec2& size,
-                                 float rotation,
-                                 const Ref<SubTexture2D>& subTexture,
-                                 const glm::vec4& color,
-                                 const glm::vec2& tilingFactor)
-{
-    DrawRotatedQuad({position.x, position.y, 0.0f}, size, rotation, subTexture, color, tilingFactor);
-}
+void Renderer2D::DrawRotatedQuad(
+    const glm::vec2& position,
+    const glm::vec2& size,
+    float rotation,
+    const Ref<SubTexture2D>& subTexture,
+    const glm::vec4& color,
+    const glm::vec2& tilingFactor
+)
+{ DrawRotatedQuad({position.x, position.y, 0.0f}, size, rotation, subTexture, color, tilingFactor); }
 
-void Renderer2D::DrawRotatedQuad(const glm::vec3& position,
-                                 const glm::vec2& size,
-                                 float rotation,
-                                 const Ref<SubTexture2D>& subTexture,
-                                 const glm::vec4& color,
-                                 const glm::vec2& tilingFactor)
+void Renderer2D::DrawRotatedQuad(
+    const glm::vec3& position,
+    const glm::vec2& size,
+    float rotation,
+    const Ref<SubTexture2D>& subTexture,
+    const glm::vec4& color,
+    const glm::vec2& tilingFactor
+)
 {
     OVEN_PROFILE_FUNCTION();
 
@@ -340,18 +343,19 @@ void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
     const float whiteTextureIndex = 0.0f;
     const glm::vec2 tilingFactor = {1.0f, 1.0f};
 
-    const glm::vec4 positions[4] = {transform * s_Data.QuadVertexPositions[0],
-                                    transform * s_Data.QuadVertexPositions[1],
-                                    transform * s_Data.QuadVertexPositions[2],
-                                    transform * s_Data.QuadVertexPositions[3]};
+    const glm::vec4 positions[4] = {
+        transform * s_Data.QuadVertexPositions[0],
+        transform * s_Data.QuadVertexPositions[1],
+        transform * s_Data.QuadVertexPositions[2],
+        transform * s_Data.QuadVertexPositions[3]
+    };
 
     PushQuad(positions, color, quadVertexUVs, whiteTextureIndex, tilingFactor);
 }
 
-void Renderer2D::DrawQuad(const glm::mat4& transform,
-                          const Ref<Texture2D>& texture,
-                          const glm::vec4& color,
-                          const glm::vec2& tilingFactor)
+void Renderer2D::DrawQuad(
+    const glm::mat4& transform, const Ref<Texture2D>& texture, const glm::vec4& color, const glm::vec2& tilingFactor
+)
 {
     OVEN_PROFILE_FUNCTION();
 
@@ -380,18 +384,22 @@ void Renderer2D::DrawQuad(const glm::mat4& transform,
         s_Data.CurrentTextureSlotIndex++;
     }
 
-    const glm::vec4 positions[4] = {transform * s_Data.QuadVertexPositions[0],
-                                    transform * s_Data.QuadVertexPositions[1],
-                                    transform * s_Data.QuadVertexPositions[2],
-                                    transform * s_Data.QuadVertexPositions[3]};
+    const glm::vec4 positions[4] = {
+        transform * s_Data.QuadVertexPositions[0],
+        transform * s_Data.QuadVertexPositions[1],
+        transform * s_Data.QuadVertexPositions[2],
+        transform * s_Data.QuadVertexPositions[3]
+    };
 
     PushQuad(positions, color, quadVertexUVs, textureIndex, tilingFactor);
 }
 
-void Renderer2D::DrawQuad(const glm::mat4& transform,
-                          const Ref<SubTexture2D>& subTexture,
-                          const glm::vec4& color,
-                          const glm::vec2& tilingFactor)
+void Renderer2D::DrawQuad(
+    const glm::mat4& transform,
+    const Ref<SubTexture2D>& subTexture,
+    const glm::vec4& color,
+    const glm::vec2& tilingFactor
+)
 {
     OVEN_PROFILE_FUNCTION();
 
@@ -421,21 +429,17 @@ void Renderer2D::DrawQuad(const glm::mat4& transform,
         s_Data.CurrentTextureSlotIndex++;
     }
 
-    const glm::vec4 positions[4] = {transform * s_Data.QuadVertexPositions[0],
-                                    transform * s_Data.QuadVertexPositions[1],
-                                    transform * s_Data.QuadVertexPositions[2],
-                                    transform * s_Data.QuadVertexPositions[3]};
+    const glm::vec4 positions[4] = {
+        transform * s_Data.QuadVertexPositions[0],
+        transform * s_Data.QuadVertexPositions[1],
+        transform * s_Data.QuadVertexPositions[2],
+        transform * s_Data.QuadVertexPositions[3]
+    };
 
     PushQuad(positions, color, quadVertexUVs, textureIndex, tilingFactor);
 }
 
-Renderer2D::Statistics Renderer2D::GetStats()
-{
-    return s_Data.Stats;
-}
+Renderer2D::Statistics Renderer2D::GetStats() { return s_Data.Stats; }
 
-void Renderer2D::ResetStats()
-{
-    memset(&s_Data.Stats, 0, sizeof(Statistics));
-}
+void Renderer2D::ResetStats() { memset(&s_Data.Stats, 0, sizeof(Statistics)); }
 } // namespace Oven

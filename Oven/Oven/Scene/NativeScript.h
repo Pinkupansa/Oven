@@ -10,6 +10,8 @@ public:
 
     template <typename T> T& AddComponent() { return m_Entity.AddComponent<T>(); }
 
+    virtual ~NativeScript() {}
+
 protected:
     virtual void OnCreate() {}
 

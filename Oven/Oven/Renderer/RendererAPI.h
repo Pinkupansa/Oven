@@ -8,8 +8,7 @@ namespace Oven
 class RendererAPI
 {
 public:
-    enum class RenderingBackend
-    {
+    enum class RenderingBackend {
 
         None = 0,
         OpenGL = 1

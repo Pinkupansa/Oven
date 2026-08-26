@@ -10,6 +10,7 @@
 
 #include "UI/Panels/SceneHierarchyPanel.h"
 #include "UI/Panels/PropertiesPanel.h"
+#include "UI/EditorColors.h"
 
 namespace Oven
 {
@@ -39,24 +40,20 @@ void EditorLayer::OnUpdate()
 void EditorLayer::OnImGuiRender()
 {
     OVEN_PROFILE_FUNCTION();
+    ImGuiStyle& style = ImGui::GetStyle();
+    float minWinSizeX = style.WindowMinSize.x;
+    style.WindowMinSize.x = 200.0f;
     ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+    style.WindowMinSize.x = minWinSizeX;
     auto stats = Renderer2D::GetStats();
     ImGui::Begin("Renderer2D Stats");
+    UIUtils::PanelContentSeparator();
     ImGui::Text("Draw Calls: %d", stats.DrawCalls);
     ImGui::Text("Quads: %d", stats.QuadCount);
     ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
     ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
     ImGui::Text("Frametime : %f ms, (%d FPS)", Time::GetDeltaTime() * 1000, (uint32_t)(1.0f / Time::GetDeltaTime()));
     ImGui::End();
-
-    /*ImGui::Begin("Properties");
-    auto& squareColor = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
-    ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
-    auto& camera = m_CameraEntity.GetComponent<CameraComponent>().Camera;
-    float orthoSize = camera.GetOrthographicSize();
-    if (ImGui::DragFloat("Camera Ortho Size", &orthoSize))
-        camera.SetOrthographicSize(orthoSize);
-    ImGui::End();*/
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
     ImGui::Begin("Scene");
@@ -90,6 +87,7 @@ void EditorLayer::OnImGuiRender()
 void EditorLayer::OnAttach()
 {
     OVEN_PROFILE_FUNCTION();
+    SetDefaultTheme();
     m_SandTexture = Texture2D::Create("OvenEditor/assets/textures/sand.png");
     m_CheckerboardTexture = Texture2D::Create("OvenEditor/assets/textures/checkerboard.png");
     m_SpriteSheet = Texture2D::Create("OvenEditor/assets/game/textures/spritesheet_no_padding.png");
@@ -113,29 +111,30 @@ void EditorLayer::OnAttach()
     class CameraController : public NativeScript
     {
     public:
+        ~CameraController() {}
         void OnCreate() {}
 
         void OnDestroy() {}
 
         void OnUpdate()
         {
-            auto& transform = GetComponent<TransformComponent>().Transform;
+            auto& translation = GetComponent<TransformComponent>().Translation;
             float speed = 5.0f;
             if (Input::KeyPressed(OvenKey::Right))
             {
-                transform[3][0] += speed * Time::GetDeltaTime();
+                translation.x += speed * Time::GetDeltaTime();
             }
             if (Input::KeyPressed(OvenKey::Left))
             {
-                transform[3][0] -= speed * Time::GetDeltaTime();
+                translation.x -= speed * Time::GetDeltaTime();
             }
             if (Input::KeyPressed(OvenKey::Up))
             {
-                transform[3][1] += speed * Time::GetDeltaTime();
+                translation.y += speed * Time::GetDeltaTime();
             }
             if (Input::KeyPressed(OvenKey::Down))
             {
-                transform[3][1] -= speed * Time::GetDeltaTime();
+                translation.y -= speed * Time::GetDeltaTime();
             }
         }
     };
@@ -145,14 +144,112 @@ void EditorLayer::OnAttach()
     m_Panels.push_back(EditorPanel::CreatePanel<PropertiesPanel>(&m_Context));
 }
 
-void EditorLayer::OnDetach()
-{
-    OVEN_PROFILE_FUNCTION();
-}
+void EditorLayer::OnDetach() { OVEN_PROFILE_FUNCTION(); }
 
-void EditorLayer::OnEvent(Event& e)
+void EditorLayer::OnEvent(Event& e) { m_CameraController.OnEvent(e); }
+
+void EditorLayer::SetDefaultTheme()
 {
-    m_CameraController.OnEvent(e);
+    ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->AddFontFromFileTTF("OvenEditor/assets/fonts/Tahoma/static/Tahoma-Bold.ttf", 14.0f);
+    io.FontDefault = io.Fonts->AddFontFromFileTTF("OvenEditor/assets/fonts/Tahoma/static/Tahoma-Regular.ttf", 14.0f);
+    io.Fonts->Build();
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImVec4* colors = style.Colors;
+
+    // Geometry
+    style.WindowRounding = 2.0f;
+    style.ChildRounding = 2.0f;
+    style.FrameRounding = 2.0f;
+    style.PopupRounding = 2.0f;
+    style.ScrollbarRounding = 2.0f;
+    style.GrabRounding = 2.0f;
+    style.TabRounding = 2.0f;
+
+    style.WindowBorderSize = 1.0f;
+    style.ChildBorderSize = 1.0f;
+    style.PopupBorderSize = 1.0f;
+    style.FrameBorderSize = 1.0f;  // clear input-field definition
+    style.TabBorderSize = 0.0f;    // no ring around individual tabs — the bar border below does the separating job
+    style.TabBarBorderSize = 1.0f; // border along the bottom of the tab strip itself
+
+    style.FramePadding = ImVec2(6.0f, 4.0f);
+    style.WindowPadding = ImVec2(8.0f, 8.0f);
+    style.ItemSpacing = ImVec2(6.0f, 6.0f);
+    style.DockingSeparatorSize = 1.0f;
+
+    // Misc
+    style.WindowMenuButtonPosition = ImGuiDir_None;
+
+    io.MouseDrawCursor = false; // Let OS / GLFW / SDL handle the cursor rendering
+    io.ConfigDockingAlwaysTabBar = true;
+
+    // ============================================================
+    // TEXT & CANVAS
+    // ============================================================
+    colors[ImGuiCol_Text] = COLOR_CHARCOAL_DARK;
+    colors[ImGuiCol_TextDisabled] = COLOR_STEEL_GRAY;
+    colors[ImGuiCol_WindowBg] = COLOR_COOL_WHITE;
+    colors[ImGuiCol_ChildBg] = COLOR_COOL_WHITE;
+    colors[ImGuiCol_PopupBg] = COLOR_COOL_WHITE;
+
+    // Border darkened a touch below SLATE_TRIM's raw value so it actually
+    // reads against PORCELAIN_WHITE/COOL_WHITE instead of blending into it.
+    colors[ImGuiCol_Border] = COLOR_SLATE_TRIM;
+    colors[ImGuiCol_BorderShadow] = ImVec4(0.000f, 0.000f, 0.000f, 0.00f);
+
+    // Frames
+    colors[ImGuiCol_FrameBg] = COLOR_PORCELAIN_WHITE;
+    colors[ImGuiCol_FrameBgHovered] = COLOR_ACCENT_ORANGE_LIGHT;
+    colors[ImGuiCol_FrameBgActive] = COLOR_WARM_AMBER;
+
+    // Title bars
+    colors[ImGuiCol_TitleBg] = COLOR_STEEL_GRAY;
+    colors[ImGuiCol_TitleBgActive] = COLOR_STEEL_GRAY;
+    colors[ImGuiCol_TitleBgCollapsed] = COLOR_STEEL_GRAY;
+
+    // Tabs and navigation
+    colors[ImGuiCol_Tab] = COLOR_PORCELAIN_WHITE;
+    colors[ImGuiCol_TabHovered] = COLOR_ACCENT_ORANGE_LIGHT;
+    colors[ImGuiCol_TabActive] = COLOR_ACCENT_ORANGE_LIGHT;
+    colors[ImGuiCol_TabUnfocused] = COLOR_PORCELAIN_WHITE;
+    colors[ImGuiCol_TabUnfocusedActive] = COLOR_PORCELAIN_WHITE;
+    colors[ImGuiCol_TextSelectedBg] = COLOR_HOVER_CYAN;
+    colors[ImGuiCol_NavHighlight] = COLOR_ACCENT_ORANGE;
+
+    colors[ImGuiCol_Header] = COLOR_COOL_WHITE;
+    colors[ImGuiCol_HeaderHovered] = COLOR_ACCENT_ORANGE_LIGHT;
+    colors[ImGuiCol_HeaderActive] = COLOR_ACCENT_ORANGE;
+
+    // Buttons
+    colors[ImGuiCol_Button] = COLOR_COOL_WHITE;
+    colors[ImGuiCol_ButtonHovered] = COLOR_ACCENT_ORANGE_LIGHT;
+    colors[ImGuiCol_ButtonActive] = COLOR_ACCENT_ORANGE;
+
+    // Controls
+    colors[ImGuiCol_CheckMark] = COLOR_ACCENT_ORANGE;
+    colors[ImGuiCol_SliderGrab] = COLOR_SLATE_MUTED;
+    colors[ImGuiCol_SliderGrabActive] = COLOR_ACCENT_ORANGE;
+
+    // Scrollbars
+    colors[ImGuiCol_ScrollbarBg] = COLOR_PORCELAIN_WHITE;
+    colors[ImGuiCol_ScrollbarGrab] = COLOR_STEEL_GRAY;
+    colors[ImGuiCol_ScrollbarGrabHovered] = COLOR_INDICATOR_CYAN;
+    colors[ImGuiCol_ScrollbarGrabActive] = COLOR_ACCENT_ORANGE;
+
+    colors[ImGuiCol_ResizeGripHovered] = COLOR_STEEL_GRAY;
+    colors[ImGuiCol_ResizeGripActive] = COLOR_ACCENT_ORANGE;
+
+    // Plots
+    colors[ImGuiCol_PlotLines] = COLOR_MUTED_GREEN;
+    colors[ImGuiCol_PlotLinesHovered] = COLOR_ALERT_RED;
+    colors[ImGuiCol_PlotHistogram] = COLOR_SLATE_MUTED;
+    colors[ImGuiCol_PlotHistogramHovered] = COLOR_ACCENT_ORANGE;
+
+    // Misc
+    colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.000f, 0.000f, 0.000f, 0.35f);
+    colors[ImGuiCol_InputTextCursor] = COLOR_INDICATOR_CYAN;
+    colors[ImGuiCol_CheckboxSelectedBg] = COLOR_PORCELAIN_WHITE;
 }
 
 } // namespace Oven

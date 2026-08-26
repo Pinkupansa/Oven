@@ -10,6 +10,6 @@ public:
     void OnImGuiRender() override;
 
 private:
-    void DrawEntityComponents();
+    void DrawSelectionComponents();
 };
 } // namespace Oven
