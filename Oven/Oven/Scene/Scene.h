@@ -17,7 +17,7 @@ public:
     void DestroyEntity(Entity entity);
     void OnUpdate();
     void OnViewportResize(uint32_t viewportWidth, uint32_t viewportHeight);
-
+    Entity GetMainCamera();
     entt::registry& Reg() { return m_Registry; }
 
 private:

@@ -28,6 +28,7 @@ target_link_libraries(OvenEditor
         OvenEngine
         glm
         imgui
+        imguizmo
 )
 
 #Je sais pas si c'est ok de link glm et imgui alors que c'est compilé dans oven

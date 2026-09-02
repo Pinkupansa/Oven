@@ -20,6 +20,12 @@ public:
 
 private:
     void SetDefaultTheme();
+    bool OnKeyTyped(KeyPressedEvent& e);
+
+    void NewScene();
+    void OpenSceneDialog();
+    void OpenScene(std::string& filepath);
+    void SaveSceneAsDialog();
 
 private:
     OrthographicCameraController m_CameraController;

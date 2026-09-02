@@ -14,3 +14,6 @@
 [submodule "Oven/vendor/yaml-cpp"]
 	path = Oven/vendor/yaml-cpp
 	url = git@github.com:TheCherno/yaml-cpp.git
+[submodule "Oven/vendor/imguizmo"]
+	path = Oven/vendor/imguizmo
+	url = git@github.com:CedricGuillemet/ImGuizmo.git

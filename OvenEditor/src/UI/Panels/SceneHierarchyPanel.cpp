@@ -7,12 +7,20 @@ namespace Oven
 
 void SceneHierarchyPanel::OnImGuiRender()
 {
-    ImGui::Begin("Scene Hierarchy");
+    ImGui::Begin("Scene Entities");
     UIUtils::PanelContentSeparator();
     m_Context->GetActiveScene()->m_Registry.view<NameComponent>().each([&](auto entity, auto nameComponent) {
         DrawEntityNode({entity, m_Context->GetActiveScene().get()});
     });
 
+    UIUtils::CenterElement(100);
+
+    if (UIUtils::TactileGradientButton("Create Entity", {100.0f, 20.0f}))
+    {
+
+        Entity e = m_Context->GetActiveScene()->CreateEntity("Entity");
+        m_Context->SelectEntity(e);
+    }
     if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
         m_Context->ClearSelection();
 
@@ -20,8 +28,11 @@ void SceneHierarchyPanel::OnImGuiRender()
             "##HierarchyContext", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems
         ))
     {
-        if (UIUtils::MenuItem("Create Empty Entity"))
-            m_Context->GetActiveScene()->CreateEntity("Entity");
+        if (UIUtils::MenuItem("Create Entity"))
+        {
+            Entity e = m_Context->GetActiveScene()->CreateEntity("Entity");
+            m_Context->SelectEntity(e);
+        }
         ImGui::EndPopup();
     }
     ImGui::End();

@@ -52,20 +52,18 @@ void Application::Run()
         // Update layers
         if (!m_Minimized)
         {
-            {
-                OVEN_PROFILE_SCOPE("LayerStack OnUpdate");
-                for (Layer* layer : m_LayerStack)
-                    layer->OnUpdate();
-            }
-            m_ImGuiLayer->Begin();
-            {
-                OVEN_PROFILE_SCOPE("LayerStack OnImGuiRender");
-                for (Layer* layer : m_LayerStack)
-                    layer->OnImGuiRender();
-                m_ImGuiLayer->End();
-            }
-            m_Window->OnUpdate();
+            OVEN_PROFILE_SCOPE("LayerStack OnUpdate");
+            for (Layer* layer : m_LayerStack)
+                layer->OnUpdate();
         }
+        m_ImGuiLayer->Begin();
+        {
+            OVEN_PROFILE_SCOPE("LayerStack OnImGuiRender");
+            for (Layer* layer : m_LayerStack)
+                layer->OnImGuiRender();
+            m_ImGuiLayer->End();
+        }
+        m_Window->OnUpdate();
     }
 }
 

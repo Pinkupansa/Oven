@@ -86,6 +86,18 @@ void Scene::OnViewportResize(uint32_t viewportWidth, uint32_t viewportHeight)
         }
     }
 }
+Entity Scene::GetMainCamera()
+{
+
+    auto view = m_Registry.view<CameraComponent>();
+    for (auto entity : view)
+    {
+        const auto& camera = view.get<CameraComponent>(entity);
+        if (camera.IsMain)
+            return Entity(entity, this);
+    }
+    return {};
+}
 template <typename T> inline void Scene::OnComponentAdded(Entity entity) { static_assert(false); }
 
 template <> void Scene::OnComponentAdded<TransformComponent>(Entity entity) {}

@@ -6,8 +6,10 @@
 #include "Oven/ImGui/ImGuiLayer.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "backends/imgui_impl_glfw.h"
+
 // TEMPORARY
 #include "GLFW/glfw3.h"
+#include "ImGuizmo.h"
 
 namespace Oven
 {
@@ -32,7 +34,6 @@ void ImGuiLayer::OnAttach()
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
     //  io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
     //  io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
-
     // Setup Dear ImGui style
     // ImGui::StyleColorsLight();
     // ImGui::StyleColorsClassic();
@@ -107,6 +108,7 @@ void ImGuiLayer::Begin()
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+    ImGuizmo::BeginFrame();
 }
 
 void ImGuiLayer::End()

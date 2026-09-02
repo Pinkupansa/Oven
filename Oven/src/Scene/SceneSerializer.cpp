@@ -225,7 +225,7 @@ bool SceneSerializer::Deserialize(const std::string& filepath)
                 auto& cc = deserializedEntity.AddComponent<CameraComponent>();
 
                 const auto& cameraProps = cameraComponent["Camera"];
-                cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
+                cc.AspectRatioMode = (CameraAspectRatioMode)cameraComponent["AspectRatioMode"].as<int>();
 
                 cc.Camera.SetPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
                 cc.Camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
@@ -236,7 +236,8 @@ bool SceneSerializer::Deserialize(const std::string& filepath)
                 cc.Camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
 
                 cc.IsMain = cameraComponent["Primary"].as<bool>();
-                cc.AspectRatioMode = (CameraAspectRatioMode)cameraComponent["AspectRatioMode"].as<int>();
+                cc.Camera.SetViewportSize(1, 1);
+                cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
             }
             auto spriteRendererComponent = entity["SpriteRendererComponent"];
             if (spriteRendererComponent)

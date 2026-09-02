@@ -137,34 +137,6 @@ public:
         return pressed;
     }
 
-    // String Buffer Overload
-    static bool LabelledInputField(const char* label, char* buffer, size_t bufferSize, float columnWidth = 100.0f)
-    {
-        bool valueChanged = false;
-
-        if (BeginPropertyRow(label, columnWidth))
-        {
-            // 1. Reset item spacing to ensure input frame padding aligns with DrawVec3 / DrawFloat
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{4.0f, 0.0f});
-
-            // 2. Set width to match remaining available content region
-            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 30.0f);
-
-            // 3. Hide ImGui's internal right-hand label
-            std::string inputID = std::string("##") + label;
-
-            if (ImGui::InputText(inputID.c_str(), buffer, bufferSize))
-            {
-                valueChanged = true;
-            }
-
-            ImGui::PopStyleVar();
-            EndPropertyRow();
-        }
-
-        return valueChanged;
-    }
-
     // Text Gradient Button
     static bool
     TactileGradientButton(const char* label, const ImVec2& size_arg = ImVec2(0, 0), float rounding = DEFAULT_ROUNDING)
@@ -285,7 +257,8 @@ public:
         float speed = 0.1f,
         float min = 0.0f,
         float max = 0.0f,
-        const char* format = "%.2f"
+        const char* format = "%.2f",
+        bool variableSpeed = true
     )
     {
         bool valueChanged = false;

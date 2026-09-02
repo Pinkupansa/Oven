@@ -11,7 +11,6 @@
 #include <string>
 #include "EditorLayer.h"
 #include <Oven/Core/EntryPoint.h>
-
 namespace Oven
 {
 class OvenEditor : public Application

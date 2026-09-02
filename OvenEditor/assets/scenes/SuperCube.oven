@@ -1,0 +1,47 @@
+Scene: Untitled
+Entities:
+  - Entity: 12356789
+    NameComponent:
+      Name: Entity
+    TransformComponent:
+      Translation: [-0.200234473, 2.60220396e-08, -4.75145912]
+      Rotation: [-1.57079637, 0.785398543, -3.97783282e-08]
+      Scale: [0.999943316, 0.99999994, 1]
+    SpriteRendererComponent:
+      Color: [0.658227861, 0.658227861, 0.658227861, 1]
+  - Entity: 12356789
+    NameComponent:
+      Name: Right
+    TransformComponent:
+      Translation: [0.153632164, -0.5, -4.40179873]
+      Rotation: [0, 0.785398245, 0]
+      Scale: [0.999999881, 1, 0.999999881]
+    SpriteRendererComponent:
+      Color: [0.535864949, 0.535864949, 0.535864949, 1]
+  - Entity: 12356789
+    NameComponent:
+      Name: Left
+    TransformComponent:
+      Translation: [-0.553230405, -0.5, -4.40376806]
+      Rotation: [-1.01323671e-07, -0.785398185, -2.05655269e-07]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [0.924050629, 0.924050629, 0.924050629, 1]
+  - Entity: 12356789
+    NameComponent:
+      Name: Camera
+    TransformComponent:
+      Translation: [-0.300000012, 0.800000012, -1.29999995]
+      Rotation: [-0.403171062, -0.0157079622, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+      AspectRatioMode: 0

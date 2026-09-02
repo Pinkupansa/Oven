@@ -1,22 +1,34 @@
 cmake_minimum_required(VERSION 3.15) # Requis pour CMAKE_MSVC_RUNTIME_LIBRARY
-project(OvenEngine LANGUAGES C CXX)
+
+# 1. MODIFICATION : Ajout de OBJCXX pour compiler des fichiers .mm sur macOS
+project(OvenEngine LANGUAGES C CXX OBJCXX)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # -----------------------------
 # Configuration Globale : Static Runtime
 # -----------------------------
-# Force le runtime statique global (ex: /MT et /MTd sur Windows/MSVC)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 if(APPLE)
-#Sur Apple, impossible de faire du 100% static 
 elseif(UNIX)
-add_compile_options("-static-libstdc++" "-static-libgcc")
-add_link_options("-static-libstdc++" "-static-libgcc")
+    add_compile_options("-static-libstdc++" "-static-libgcc")
+    add_link_options("-static-libstdc++" "-static-libgcc")
 endif() 
+
+
+# -----------------------------
+# Frameworks Apple
+# -----------------------------
+if(APPLE)
+    find_library(APPKIT_LIBRARY AppKit REQUIRED)
+    find_library(COCOA_LIBRARY Cocoa REQUIRED)
+    find_library(UTI_LIBRARY UniformTypeIdentifiers REQUIRED)
+endif()
 # -----------------------------
 # Sources communes (hors Platform)
 # -----------------------------
@@ -30,7 +42,8 @@ list(FILTER ENGINE_HEADERS EXCLUDE REGEX ".*/Platform/.*")
 # Sources spécifiques à la plateforme
 # -----------------------------
 if(APPLE)
-    file(GLOB PLATFORM_SOURCES "src/Platform/Mac/*.cpp")
+    # 2. MODIFICATION : Inclure aussi les fichiers *.mm (Objective-C++)
+    file(GLOB PLATFORM_SOURCES "src/Platform/Mac/*.cpp" "src/Platform/Mac/*.mm")
     file(GLOB PLATFORM_HEADERS "Oven/Platform/Mac/*.h")
 elseif(WIN32)
     file(GLOB PLATFORM_SOURCES "src/Platform/Windows/*.cpp")
@@ -41,13 +54,12 @@ elseif(UNIX)
 else()
     message(FATAL_ERROR "Plateforme non supportée !")
 endif()
+
 file(GLOB OPENGL_SOURCES "src/Platform/OpenGL/*.cpp")
 file(GLOB OPENGL_HEADERS "Oven/Platform/OpenGL/*.h")
 message(STATUS "Mac sources: ${PLATFORM_SOURCES}")
 list(APPEND ENGINE_SOURCES ${PLATFORM_SOURCES} ${OPENGL_SOURCES})
 list(APPEND ENGINE_HEADERS ${PLATFORM_HEADERS} ${OPENGL_HEADERS})
-
-
 
 # -----------------------------
 # Dépendances (Vendor)
@@ -57,6 +69,7 @@ add_subdirectory(vendor/glfw)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/glm)
 add_subdirectory(vendor/yaml-cpp)
+add_subdirectory(vendor/imguizmo)
 list(APPEND ENGINE_HEADERS "vendor/stb_image/stb_image.h")
 list(APPEND ENGINE_SOURCES "vendor/stb_image/stb_image.cpp")
 find_package(OpenGL REQUIRED)
@@ -78,7 +91,6 @@ target_precompile_headers(OvenEngine PRIVATE Oven/ovenpch.h)
 
 # ImGui Custom Loader : Évite les conflits de macros gl entre GLAD et ImGui
 target_compile_definitions(OvenEngine PUBLIC IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
-
 target_compile_definitions(OvenEngine PUBLIC GL_SILENCE_DEPRECATION)
 
 # -----------------------------
@@ -120,17 +132,26 @@ target_link_libraries(OvenEngine
         glm
         glad
         yaml-cpp
+        imguizmo
 )
 
+target_link_libraries(imguizmo PUBLIC imgui)
+if(APPLE)
+    target_link_libraries(OvenEngine PRIVATE
+        ${APPKIT_LIBRARY}
+        ${COCOA_LIBRARY}
+        ${UTI_LIBRARY}
+    )
+endif()
 # -----------------------------
 # Flags de compilation
 # -----------------------------
 if(MSVC)
     target_compile_options(OvenEngine PRIVATE
         /W4
-        $<$<CONFIG:Debug>:/Zi /Od>   # NETTOYÉ : Retrait de /MDd pour ne pas écraser le runtime statique
-        $<$<CONFIG:Release>:/O2>     # NETTOYÉ : Retrait de /MD
-        $<$<CONFIG:Dist>:/O2>        # NETTOYÉ : Retrait de /MD
+        $<$<CONFIG:Debug>:/Zi /Od>
+        $<$<CONFIG:Release>:/O2>
+        $<$<CONFIG:Dist>:/O2>
     )
 else()
     target_compile_options(OvenEngine PRIVATE

@@ -12,11 +12,12 @@
 #include "UI/Panels/PropertiesPanel.h"
 #include "UI/EditorColors.h"
 #include "Oven/Scene/SceneSerializer.h"
-
+#include "Oven/Utils/PlatformUtils.h"
+#include "ImGuizmo.h"
 namespace Oven
 {
 
-EditorLayer::EditorLayer() : Layer("OvenEditor"), m_CameraController(1280.0 / 720.0) {}
+EditorLayer::EditorLayer() : Layer("OvenEditor"), m_CameraController(1280.0 / 720.0), m_ScenePanelSize(900, 1200) {}
 
 void EditorLayer::OnUpdate()
 {
@@ -45,6 +46,24 @@ void EditorLayer::OnImGuiRender()
     float minWinSizeX = style.WindowMinSize.x;
     style.WindowMinSize.x = 200.0f;
     ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+    // 2. Créer la barre de menu principale
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("New", "Ctrl+N"))
+                NewScene();
+            if (ImGui::MenuItem("Open...", "Ctrl+O"))
+                OpenSceneDialog();
+            if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
+                SaveSceneAsDialog();
+
+            ImGui::EndMenu();
+        }
+        ImGui::Separator();
+    }
+    ImGui::EndMainMenuBar();
+
     style.WindowMinSize.x = minWinSizeX;
     auto stats = Renderer2D::GetStats();
     ImGui::Begin("Renderer2D Stats");
@@ -80,8 +99,62 @@ void EditorLayer::OnImGuiRender()
     {
         panel->OnImGuiRender();
     }
+    // Gizmos
+    Entity selectedEntity = m_Context.GetSelectedEntity();
+    if (selectedEntity && m_Context.GetCurrentTransformOperation() != NONE)
+    {
+        ImGuizmo::SetOrthographic(false);
+        ImGuizmo::SetDrawlist();
 
+        float windowWidth = (float)ImGui::GetWindowWidth();
+        float windowHeight = (float)ImGui::GetWindowHeight();
+        ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+
+        // Camera
+        auto camera = m_Context.GetActiveScene()->GetMainCamera();
+        if (camera)
+        {
+            const glm::mat4 cameraProjection = camera.GetComponent<CameraComponent>().Camera.GetProjection();
+            glm::mat4 cameraView = glm::inverse(camera.GetComponent<TransformComponent>().GetTransform());
+
+            // Entity transform
+            auto& transformComponent = selectedEntity.GetComponent<TransformComponent>();
+            glm::mat4 transform = transformComponent.GetTransform();
+
+            // snapping
+            bool snap = Input::KeyPressed(OvenKey::LeftShift);
+
+            float snapValue = 0.5f;
+            if (m_Context.GetCurrentTransformOperation() == TransformOperation::ROTATE)
+            {
+                snapValue = 45.0f;
+            }
+            float snapValues[3] = {snapValue, snapValue, snapValue};
+
+            // gizmo manipulation
+
+            ImGuizmo::Manipulate(
+                glm::value_ptr(cameraView),
+                glm::value_ptr(cameraProjection),
+                (ImGuizmo::OPERATION)m_Context.GetCurrentTransformOperation(),
+                (ImGuizmo::MODE)m_Context.GetCurrentTransformOperationMode(),
+                glm::value_ptr(transform),
+                nullptr,
+                snap ? snapValues : nullptr
+            );
+
+            if (ImGuizmo::IsUsing())
+            {
+                glm::vec3 translation, rotation, scale;
+                Maths::DecomposeTransform(transform, translation, rotation, scale);
+                transformComponent.Translation = translation;
+                transformComponent.Rotation = rotation;
+                transformComponent.Scale = scale;
+            }
+        }
+    }
     ImGui::End();
+
     ImGui::PopStyleVar();
 }
 
@@ -138,7 +211,7 @@ void EditorLayer::OnAttach()
             }
             if (Input::KeyPressed(OvenKey::Down))
             {
-                translation.y -= speed * Time::GetDeltaTime();
+                translation.y -= speed * Time::GeDeltaTime();
             }
         }
     };
@@ -148,14 +221,104 @@ void EditorLayer::OnAttach()
 
     m_Panels.push_back(EditorPanel::CreatePanel<SceneHierarchyPanel>(&m_Context));
     m_Panels.push_back(EditorPanel::CreatePanel<PropertiesPanel>(&m_Context));
-
-    SceneSerializer serializer(m_Context.GetActiveScene());
-    serializer.Deserialize("OvenEditor/assets/scenes/Example.oven");
+    std::string sceneFilePath = "OvenEditor/assets/scenes/SuperCube.oven";
+    OpenScene(sceneFilePath);
 }
 
 void EditorLayer::OnDetach() { OVEN_PROFILE_FUNCTION(); }
 
-void EditorLayer::OnEvent(Event& e) { m_CameraController.OnEvent(e); }
+void EditorLayer::OnEvent(Event& e)
+{
+    m_CameraController.OnEvent(e);
+    EventDispatcher dispatcher(e);
+    dispatcher.Dispatch<KeyPressedEvent>(OVEN_BIND_EVENT_FN(EditorLayer::OnKeyTyped));
+}
+
+bool EditorLayer::OnKeyTyped(KeyPressedEvent& e)
+{
+    // Shortcuts
+    if (e.GetRepeatCount() > 0)
+        return false;
+
+    bool controlPressed = Input::KeyPressed(OvenKey::LeftControl) || Input::KeyPressed(OvenKey::RightControl);
+    bool shiftPressed = Input::KeyPressed(OvenKey::LeftShift) || Input::KeyPressed(OvenKey::RightShift);
+    switch (e.GetKeyCode())
+    {
+        case OvenKey::N: {
+            if (controlPressed)
+                NewScene();
+            break;
+        }
+        case OvenKey::O: {
+            if (controlPressed)
+                OpenSceneDialog();
+            break;
+        }
+        case OvenKey::S: {
+            if (controlPressed and shiftPressed)
+            {
+                SaveSceneAsDialog();
+            }
+            else
+            {
+                if (ImGuizmo::IsUsing())
+                    return false;
+                m_Context.SetTransformOperation(TransformOperation::SCALE);
+            }
+            break;
+        }
+        case OvenKey::R: {
+            if (ImGuizmo::IsUsing())
+                return false;
+            m_Context.SetTransformOperation(TransformOperation::ROTATE);
+            break;
+        }
+        case OvenKey::T: {
+            if (ImGuizmo::IsUsing())
+                return false;
+            m_Context.SetTransformOperation(TransformOperation::TRANSLATE);
+            break;
+        }
+
+        default:
+            break;
+    }
+    return true;
+}
+
+void EditorLayer::NewScene()
+{
+    m_Context.SetActiveScene(CreateRef<Scene>());
+    m_Context.GetActiveScene()->OnViewportResize(m_ScenePanelSize.x, m_ScenePanelSize.y);
+}
+
+void EditorLayer::OpenSceneDialog()
+{
+    std::string filepath = FileDialogs::OpenFile("Oven Scene (*.oven)\0*.oven\0");
+
+    OpenScene(filepath);
+}
+
+void EditorLayer::OpenScene(std::string& filepath)
+{
+    if (!filepath.empty())
+    {
+        m_Context.SetActiveScene(CreateRef<Scene>());
+        SceneSerializer serializer(m_Context.GetActiveScene());
+        serializer.Deserialize(filepath);
+        m_Context.GetActiveScene()->OnViewportResize(m_ScenePanelSize.x, m_ScenePanelSize.y);
+    }
+}
+
+void EditorLayer::SaveSceneAsDialog()
+{
+    std::string filepath = FileDialogs::SaveFile("Oven Scene (*.oven)\0*.oven\0");
+    if (!filepath.empty())
+    {
+        SceneSerializer serializer(m_Context.GetActiveScene());
+        serializer.Serialize(filepath);
+    }
+}
 
 void EditorLayer::SetDefaultTheme()
 {
@@ -169,7 +332,7 @@ void EditorLayer::SetDefaultTheme()
     // Geometry
     style.WindowRounding = 2.0f;
     style.ChildRounding = 2.0f;
-    style.FrameRounding = 2.0f;
+    style.FrameRounding = 0.0f;
     style.PopupRounding = 2.0f;
     style.ScrollbarRounding = 2.0f;
     style.GrabRounding = 2.0f;
@@ -259,6 +422,8 @@ void EditorLayer::SetDefaultTheme()
     colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.000f, 0.000f, 0.000f, 0.35f);
     colors[ImGuiCol_InputTextCursor] = COLOR_INDICATOR_CYAN;
     colors[ImGuiCol_CheckboxSelectedBg] = COLOR_PORCELAIN_WHITE;
+
+    colors[ImGuiCol_MenuBarBg] = COLOR_COOL_WHITE;
 }
 
 } // namespace Oven
