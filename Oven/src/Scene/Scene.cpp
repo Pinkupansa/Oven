@@ -2,9 +2,7 @@
 #include "Oven/Scene/Scene.h"
 #include "Oven/Scene/Components.h"
 #include "Oven/Scene/Entity.h"
-#include "Oven/Renderer/Renderer2D.h"
 #include <glm/glm.hpp>
-
 namespace Oven
 {
 Scene::Scene() {}
@@ -22,7 +20,7 @@ Entity Scene::CreateEntity(const std::string& name)
 
 void Scene::DestroyEntity(Entity entity) { m_Registry.destroy(entity); }
 
-void Scene::OnUpdate()
+void Scene::OnUpdateRuntime()
 {
     {
         // Run scripts
@@ -57,7 +55,7 @@ void Scene::OnUpdate()
     if (mainCamera)
     {
 
-        Renderer2D::BeginScene({mainCamera->GetProjection(), mainCamTransform});
+        Renderer2D::BeginScene({mainCamera->GetProjection(), glm::inverse(mainCamTransform)});
         // Change group to view
         auto group = m_Registry.group<TransformComponent, SpriteRendererComponent>();
         for (auto entity : group)
@@ -70,8 +68,24 @@ void Scene::OnUpdate()
     }
 }
 
+void Scene::OnUpdateEditor(Renderer2D::CameraRenderData editorCameraRenderData)
+{
+    Renderer2D::BeginScene(editorCameraRenderData);
+
+    // Change group to view
+    auto group = m_Registry.group<TransformComponent, SpriteRendererComponent>();
+    for (auto entity : group)
+    {
+
+        auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+        Renderer2D::DrawQuad(transform.GetTransform(), sprite.Color);
+    }
+    Renderer2D::EndScene();
+}
+
 void Scene::OnViewportResize(uint32_t viewportWidth, uint32_t viewportHeight)
 {
+
     m_ViewportWidth = viewportWidth;
     m_ViewportHeight = viewportHeight;
 

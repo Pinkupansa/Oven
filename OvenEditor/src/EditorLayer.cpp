@@ -34,7 +34,8 @@ void EditorLayer::OnUpdate()
     RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
     RenderCommand::Clear();
 
-    m_Context.GetActiveScene()->OnUpdate();
+    m_EditorCamera.OnUpdate();
+    m_Context.GetActiveScene()->OnUpdateEditor({m_EditorCamera.GetProjection(), m_EditorCamera.GetViewMatrix()});
 
     m_Framebuffer->Unbind();
 }
@@ -87,8 +88,7 @@ void EditorLayer::OnImGuiRender()
         m_ScenePanelSize = {scenePanelSize.x, scenePanelSize.y};
         m_Framebuffer->Resize((uint32_t)m_ScenePanelSize.x, (uint32_t)m_ScenePanelSize.y);
         m_CameraController.Resize(scenePanelSize.x, scenePanelSize.y);
-
-        m_Context.GetActiveScene()->OnViewportResize((uint32_t)scenePanelSize.x, (uint32_t)scenePanelSize.y);
+        OnViewportResize();
     }
 
     uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
@@ -101,6 +101,8 @@ void EditorLayer::OnImGuiRender()
     }
     // Gizmos
     Entity selectedEntity = m_Context.GetSelectedEntity();
+
+    m_Context.SetIsManipulatingEntity(ImGuizmo::IsUsing());
     if (selectedEntity && m_Context.GetCurrentTransformOperation() != NONE)
     {
         ImGuizmo::SetOrthographic(false);
@@ -134,8 +136,8 @@ void EditorLayer::OnImGuiRender()
             // gizmo manipulation
 
             ImGuizmo::Manipulate(
-                glm::value_ptr(cameraView),
-                glm::value_ptr(cameraProjection),
+                glm::value_ptr(m_EditorCamera.GetViewMatrix()),
+                glm::value_ptr(m_EditorCamera.GetProjection()),
                 (ImGuizmo::OPERATION)m_Context.GetCurrentTransformOperation(),
                 (ImGuizmo::MODE)m_Context.GetCurrentTransformOperationMode(),
                 glm::value_ptr(transform),
@@ -176,49 +178,7 @@ void EditorLayer::OnAttach()
     m_Framebuffer = Framebuffer::Create(fbSpecs);
 
     m_Context.SetActiveScene(CreateRef<Scene>());
-#if 0
-    m_CameraController.SetZoomLevel(5.0f);
-
-    m_SquareEntity = m_Context.GetActiveScene()->CreateEntity("Square");
-    m_SquareEntity.AddComponent<SpriteRendererComponent>();
-
-    m_CameraEntity = m_Context.GetActiveScene()->CreateEntity("Camera");
-    m_CameraEntity.AddComponent<CameraComponent>();
-
-    class CameraController : public NativeScript
-    {
-    public:
-        ~CameraController() {}
-        void OnCreate() {}
-
-        void OnDestroy() {}
-
-        void OnUpdate()
-        {
-            auto& translation = GetComponent<TransformComponent>().Translation;
-            float speed = 5.0f;
-            if (Input::KeyPressed(OvenKey::Right))
-            {
-                translation.x += speed * Time::GetDeltaTime();
-            }
-            if (Input::KeyPressed(OvenKey::Left))
-            {
-                translation.x -= speed * Time::GetDeltaTime();
-            }
-            if (Input::KeyPressed(OvenKey::Up))
-            {
-                translation.y += speed * Time::GetDeltaTime();
-            }
-            if (Input::KeyPressed(OvenKey::Down))
-            {
-                translation.y -= speed * Time::GeDeltaTime();
-            }
-        }
-    };
-
-    m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
-#endif
-
+    m_EditorCamera = EditorCamera(45.0f, 1.778f, 0.1f, 1000.0f, &m_Context);
     m_Panels.push_back(EditorPanel::CreatePanel<SceneHierarchyPanel>(&m_Context));
     m_Panels.push_back(EditorPanel::CreatePanel<PropertiesPanel>(&m_Context));
     std::string sceneFilePath = "OvenEditor/assets/scenes/SuperCube.oven";
@@ -229,6 +189,8 @@ void EditorLayer::OnDetach() { OVEN_PROFILE_FUNCTION(); }
 
 void EditorLayer::OnEvent(Event& e)
 {
+
+    m_EditorCamera.OnEvent(e);
     m_CameraController.OnEvent(e);
     EventDispatcher dispatcher(e);
     dispatcher.Dispatch<KeyPressedEvent>(OVEN_BIND_EVENT_FN(EditorLayer::OnKeyTyped));
@@ -289,7 +251,7 @@ bool EditorLayer::OnKeyTyped(KeyPressedEvent& e)
 void EditorLayer::NewScene()
 {
     m_Context.SetActiveScene(CreateRef<Scene>());
-    m_Context.GetActiveScene()->OnViewportResize(m_ScenePanelSize.x, m_ScenePanelSize.y);
+    OnViewportResize();
 }
 
 void EditorLayer::OpenSceneDialog()
@@ -306,7 +268,7 @@ void EditorLayer::OpenScene(std::string& filepath)
         m_Context.SetActiveScene(CreateRef<Scene>());
         SceneSerializer serializer(m_Context.GetActiveScene());
         serializer.Deserialize(filepath);
-        m_Context.GetActiveScene()->OnViewportResize(m_ScenePanelSize.x, m_ScenePanelSize.y);
+        OnViewportResize();
     }
 }
 
@@ -318,6 +280,12 @@ void EditorLayer::SaveSceneAsDialog()
         SceneSerializer serializer(m_Context.GetActiveScene());
         serializer.Serialize(filepath);
     }
+}
+
+void EditorLayer::OnViewportResize()
+{
+    m_Context.GetActiveScene()->OnViewportResize(m_ScenePanelSize.x, m_ScenePanelSize.y);
+    m_EditorCamera.SetViewportSize(m_ScenePanelSize.x, m_ScenePanelSize.y);
 }
 
 void EditorLayer::SetDefaultTheme()

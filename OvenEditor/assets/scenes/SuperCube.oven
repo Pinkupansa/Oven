@@ -2,31 +2,13 @@ Scene: Untitled
 Entities:
   - Entity: 12356789
     NameComponent:
-      Name: Entity
+      Name: Floor
     TransformComponent:
-      Translation: [-0.200234473, 2.60220396e-08, -4.75145912]
-      Rotation: [-1.57079637, 0.785398543, -3.97783282e-08]
-      Scale: [0.999943316, 0.99999994, 1]
+      Translation: [0, -1, -4]
+      Rotation: [1.56881297, 3.14159274, 3.14159274]
+      Scale: [7.30499935, 7.30499983, 7.30499983]
     SpriteRendererComponent:
-      Color: [0.658227861, 0.658227861, 0.658227861, 1]
-  - Entity: 12356789
-    NameComponent:
-      Name: Right
-    TransformComponent:
-      Translation: [0.153632164, -0.5, -4.40179873]
-      Rotation: [0, 0.785398245, 0]
-      Scale: [0.999999881, 1, 0.999999881]
-    SpriteRendererComponent:
-      Color: [0.535864949, 0.535864949, 0.535864949, 1]
-  - Entity: 12356789
-    NameComponent:
-      Name: Left
-    TransformComponent:
-      Translation: [-0.553230405, -0.5, -4.40376806]
-      Rotation: [-1.01323671e-07, -0.785398185, -2.05655269e-07]
-      Scale: [1, 1, 1]
-    SpriteRendererComponent:
-      Color: [0.924050629, 0.924050629, 0.924050629, 1]
+      Color: [0.570305109, 0.729957819, 0.369598895, 1]
   - Entity: 12356789
     NameComponent:
       Name: Camera
@@ -45,3 +27,30 @@ Entities:
         OrthographicFar: 1
       Primary: true
       AspectRatioMode: 0
+  - Entity: 12356789
+    NameComponent:
+      Name: Left
+    TransformComponent:
+      Translation: [-0.553230405, -0.5, -4.40376806]
+      Rotation: [-1.01323671e-07, -0.785398185, -2.05655269e-07]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [0.878201008, 0.915611804, 0.741761506, 1]
+  - Entity: 12356789
+    NameComponent:
+      Name: Right
+    TransformComponent:
+      Translation: [0.153632164, -0.5, -4.40179873]
+      Rotation: [0, 0.785398245, 0]
+      Scale: [0.999999881, 1, 0.999999881]
+    SpriteRendererComponent:
+      Color: [0.480429858, 0.518987298, 0.284676582, 1]
+  - Entity: 12356789
+    NameComponent:
+      Name: Top
+    TransformComponent:
+      Translation: [-0.200234473, 2.60220396e-08, -4.75145912]
+      Rotation: [-1.57079637, 0.785398543, -3.97783282e-08]
+      Scale: [0.999943316, 0.99999994, 1]
+    SpriteRendererComponent:
+      Color: [0.636877239, 0.691983104, 0.484680146, 1]

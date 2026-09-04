@@ -3,6 +3,7 @@
 #include "entt.hpp"
 
 #include "Oven/Core/Time.h"
+#include "Oven/Renderer/Renderer2D.h"
 namespace Oven
 {
 class Entity;
@@ -15,7 +16,8 @@ public:
 
     Entity CreateEntity(const std::string& name = "");
     void DestroyEntity(Entity entity);
-    void OnUpdate();
+    void OnUpdateRuntime();
+    void OnUpdateEditor(Renderer2D::CameraRenderData camera);
     void OnViewportResize(uint32_t viewportWidth, uint32_t viewportHeight);
     Entity GetMainCamera();
     entt::registry& Reg() { return m_Registry; }

@@ -1,6 +1,7 @@
 
 #include "Oven/ovenpch.h"
 #include "Oven/Core/Input.h"
+
 #include "Oven/Core/Application.h"
 
 #include <glad/glad.h>
@@ -12,14 +13,14 @@ bool Input::KeyPressed(int keycode)
 {
     // on Mac we know we're using GLFWwindow so we can cast
     auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-    auto state = glfwGetKey(window, keycode);
+    auto state = glfwGetKey(window, (int)keycode);
     return state == GLFW_PRESS || state == GLFW_REPEAT;
 }
 
 bool Input::MouseButtonPressed(int button)
 {
     auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-    auto state = glfwGetMouseButton(window, button);
+    auto state = glfwGetMouseButton(window, (int)button);
     return state == GLFW_PRESS;
 }
 

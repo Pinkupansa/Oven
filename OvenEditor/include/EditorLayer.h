@@ -2,8 +2,8 @@
 #include "Oven.h"
 #include <unordered_map>
 #include "UI/Panels/EditorPanel.h"
+#include "EditorCamera.h"
 #include "EditorContext.h"
-#define N_FRAMES_AVERAGE 60
 
 namespace Oven
 {
@@ -26,6 +26,7 @@ private:
     void OpenSceneDialog();
     void OpenScene(std::string& filepath);
     void SaveSceneAsDialog();
+    void OnViewportResize();
 
 private:
     OrthographicCameraController m_CameraController;
@@ -50,5 +51,6 @@ private:
     // Panels
     std::vector<Scope<EditorPanel>> m_Panels;
     EditorContext m_Context;
+    EditorCamera m_EditorCamera;
 };
 } // namespace Oven

@@ -115,7 +115,7 @@ void Renderer2D::BeginScene(const CameraRenderData& camera)
 
     s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
     s_Data.TextureShader->Bind();
-    s_Data.TextureShader->SetMat4("u_ViewProjection", camera.Projection * glm::inverse(camera.Transform));
+    s_Data.TextureShader->SetMat4("u_ViewProjection", camera.Projection * camera.View);
 
     s_Data.QuadIndexCount = 0;
 

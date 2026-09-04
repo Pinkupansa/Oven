@@ -1,14 +1,20 @@
 #pragma once
-// from glfw3.h
-#define OVEN_MOUSE_BUTTON_1 0
-#define OVEN_MOUSE_BUTTON_2 1
-#define OVEN_MOUSE_BUTTON_3 2
-#define OVEN_MOUSE_BUTTON_4 3
-#define OVEN_MOUSE_BUTTON_5 4
-#define OVEN_MOUSE_BUTTON_6 5
-#define OVEN_MOUSE_BUTTON_7 6
-#define OVEN_MOUSE_BUTTON_8 7
-#define OVEN_MOUSE_BUTTON_LAST OVEN_MOUSE_BUTTON_8
-#define OVEN_MOUSE_BUTTON_LEFT OVEN_MOUSE_BUTTON_1
-#define OVEN_MOUSE_BUTTON_RIGHT OVEN_MOUSE_BUTTON_2
-#define OVEN_MOUSE_BUTTON_MIDDLE OVEN_MOUSE_BUTTON_3
+
+namespace OvenMouseButton
+{
+enum : int {
+    Button1 = 0,
+    Button2 = 1,
+    Button3 = 2,
+    Button4 = 3,
+    Button5 = 4,
+    Button6 = 5,
+    Button7 = 6,
+    Button8 = 7,
+
+    Last = Button8,
+    Left = Button1,
+    Right = Button2,
+    Middle = Button3
+};
+}

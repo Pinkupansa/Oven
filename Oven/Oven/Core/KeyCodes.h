@@ -1,8 +1,8 @@
 #pragma once
 
-// Key definitions
-typedef enum OvenKey
+namespace OvenKey
 {
+enum : int {
     Unknown = -1,
 
     Space = 32,
@@ -130,6 +130,7 @@ typedef enum OvenKey
 
     Last = Menu
 };
+}
 
 #if 0
 #define OVEN_KEY_SPACE Space
