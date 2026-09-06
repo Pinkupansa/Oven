@@ -79,7 +79,7 @@ void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shader
             // We don't need the shader anymore.
             GL_CALL(glDeleteShader(shader));
 
-            OVEN_CORE_ERROR("Shader compilation failed ! Message : {0}", infoLog.data());
+            OVEN_CORE_ERROR("{0} Shader compilation failed ! Message : {1}", m_Name, infoLog.data());
             OVEN_CORE_ASSERT(false, "Shutting down...");
         }
         GL_CALL(glAttachShader(program, shader));
@@ -176,8 +176,9 @@ std::unordered_map<GLenum, std::string> OpenGLShader::SplitShaderSources(const s
         OVEN_CORE_ASSERT(lineEnd != std::string::npos, "Syntax error");
         size_t typeNameStart = pos + typeMarkerLength + 1;
         std::string shaderType = source.substr(typeNameStart, lineEnd - typeNameStart);
-        OVEN_CORE_ASSERT(shaderType == "vertex" || shaderType == "fragment" || shaderType == "pixel",
-                         "Unknown shader type !");
+        OVEN_CORE_ASSERT(
+            shaderType == "vertex" || shaderType == "fragment" || shaderType == "pixel", "Unknown shader type !"
+        );
         size_t firstSourceLinePos = source.find_first_not_of("\r\n", lineEnd);
         pos = source.find(typeMarker, firstSourceLinePos);
         shaderSources[StringToShaderType(shaderType)] = source.substr(firstSourceLinePos, pos - firstSourceLinePos);
@@ -279,7 +280,5 @@ void OpenGLShader::SetInt(const std::string& name, const int value)
     UploadUniformInt(name, value);
 }
 void OpenGLShader::SetIntArray(const std::string& name, int* values, uint32_t count)
-{
-    UploadUniformIntArray(name, values, count);
-}
+{ UploadUniformIntArray(name, values, count); }
 } // namespace Oven

@@ -4,12 +4,12 @@ namespace Oven
 {
 enum TransformOperation { TRANSLATE = 7, ROTATE = 120, SCALE = 896, NONE = -1 };
 enum TransformOperationMode { LOCAL = 0, WORLD };
-class EditorContext
+struct EditorContext
 {
 private:
     Ref<Scene> m_CurrentScene = nullptr;
     Entity m_SelectedEntity = {entt::null, nullptr};
-    TransformOperation m_CurrentTransformOperation;
+    TransformOperation m_CurrentTransformOperation = TransformOperation::TRANSLATE;
     TransformOperationMode m_CurrentTransformOpMode;
     bool m_IsManipulatingEntity;
 
@@ -35,7 +35,7 @@ public:
     TransformOperationMode GetCurrentTransformOperationMode() { return m_CurrentTransformOpMode; }
     void SetTransformOperationMode(TransformOperationMode mode) { m_CurrentTransformOpMode = mode; }
 
-    bool IsManipulatingObject() { return m_IsManipulatingEntity; }
+    bool IsManipulatingEntity() { return m_IsManipulatingEntity; }
     void SetIsManipulatingEntity(bool isManipulating) { m_IsManipulatingEntity = isManipulating; }
 };
 

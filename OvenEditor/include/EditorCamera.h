@@ -39,6 +39,8 @@ public:
     float GetPitch() const { return m_Pitch; }
     float GetYaw() const { return m_Yaw; }
 
+    void SetFocalPoint(const glm::vec3& newPoint);
+
 private:
     void UpdateProjection();
     void UpdateView();

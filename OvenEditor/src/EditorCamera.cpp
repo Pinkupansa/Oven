@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 namespace Oven
@@ -63,7 +64,7 @@ void EditorCamera::OnUpdate()
     glm::vec2 delta = (mouse - m_InitialMousePosition) * 0.003f;
     m_InitialMousePosition = mouse;
 
-    if (Input::MouseButtonPressed(OvenMouseButton::Left) && !m_Context->IsManipulatingObject())
+    if (Input::MouseButtonPressed(OvenMouseButton::Left) && !m_Context->IsManipulatingEntity())
         MousePan(delta);
     else
     {
@@ -119,6 +120,23 @@ void EditorCamera::MouseZoom(float delta)
         m_FocalPoint += GetForwardDirection() * ZoomSpeed();
         m_Distance = 1.0f;
     }
+}
+
+void EditorCamera::SetFocalPoint(const glm::vec3& newPoint)
+{
+    glm::vec3 position = CalculatePosition(); // we want to keep the position fixed
+    glm::mat4 newRot = glm::lookAt(position, newPoint, GetUpDirection());
+
+    glm::quat orientation = glm::toQuat(newRot);
+
+    glm::vec3 euler = glm::eulerAngles(orientation);
+
+    m_Pitch = euler.x;
+    m_Yaw = euler.y;
+
+    m_Distance = glm::distance(position, newPoint);
+
+    m_FocalPoint = newPoint;
 }
 
 glm::vec3 EditorCamera::GetUpDirection() const { return glm::rotate(GetOrientation(), glm::vec3(0.0f, 1.0f, 0.0f)); }

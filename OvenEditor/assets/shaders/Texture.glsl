@@ -26,6 +26,7 @@ void main(){
 #version 330 core 
 
 layout(location = 0) out vec4 color;
+layout(location = 1) out int entityID;
 
 in vec2 v_TexUV;
 in vec4 v_Color;
@@ -39,4 +40,5 @@ void main(){
     //color = texture(u_Texture, v_TexUV * u_TilingFactor) * u_Color;
     color = texture(u_Textures[int(v_TexIndex)], v_TexUV * v_TilingFactor) * v_Color;
     //color = vec4(v_TexIndex/3.0f, v_TexIndex/3.0f, v_TexIndex/3.0f, 1.0f);
+    entityID = 50;
 }

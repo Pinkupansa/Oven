@@ -91,15 +91,15 @@ void PropertiesPanel::DrawSelectionComponents()
             if (cameraComponent.Camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)
             {
                 float projFov = glm::degrees(camera.GetPerspectiveVerticalFOV());
-                if (UIUtils::DrawFloatControl("##VerticalFOV", projFov))
+                if (UIUtils::DrawFloatControl("Vertical FOV", projFov))
                     camera.SetPerspectiveVerticalFOV(glm::radians(projFov));
 
                 float projNear = camera.GetPerspectiveNearClip();
-                if (UIUtils::DrawFloatControl("##NearClip", projNear))
+                if (UIUtils::DrawFloatControl("Near Clip", projNear))
                     camera.SetPerspectiveNearClip(projNear);
 
                 float projFar = camera.GetPerspectiveFarClip();
-                if (UIUtils::DrawFloatControl("##FarClip", projFar))
+                if (UIUtils::DrawFloatControl("Far Clip", projFar))
                     camera.SetPerspectiveFarClip(projFar);
             }
 

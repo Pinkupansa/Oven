@@ -1,6 +1,7 @@
 #pragma once
 #include "EditorContext.h"
 #include "UI/UIUtils.h"
+#include "Oven/Events/Event.h"
 namespace Oven
 {
 class EditorPanel
@@ -12,6 +13,10 @@ protected:
 public:
     virtual ~EditorPanel() = default;
     virtual void OnImGuiRender() = 0;
+    virtual void OnUpdate() {}
+    virtual void OnEvent(Event& e) {}
+    virtual void OnSceneChange() {}
+    virtual void OnAttach() {}
 
     void SetContext(EditorContext* context) { m_Context = context; };
 
@@ -21,6 +26,7 @@ public:
     {
         auto panel = CreateScope<T>();
         panel->SetContext(context);
+        panel->OnAttach();
         return panel;
     }
 };

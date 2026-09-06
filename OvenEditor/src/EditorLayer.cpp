@@ -10,34 +10,30 @@
 
 #include "UI/Panels/SceneHierarchyPanel.h"
 #include "UI/Panels/PropertiesPanel.h"
+#include "UI/Panels/ScenePanel.h"
 #include "UI/EditorColors.h"
 #include "Oven/Scene/SceneSerializer.h"
 #include "Oven/Utils/PlatformUtils.h"
-#include "ImGuizmo.h"
+
 namespace Oven
 {
 
-EditorLayer::EditorLayer() : Layer("OvenEditor"), m_CameraController(1280.0 / 720.0), m_ScenePanelSize(900, 1200) {}
+EditorLayer::EditorLayer() : Layer("OvenEditor") {}
 
+static float time = 0;
 void EditorLayer::OnUpdate()
 {
     OVEN_PROFILE_FUNCTION();
-    if (m_SceneTabFocused)
-        m_CameraController.OnUpdate();
 
     Renderer2D::ResetStats();
 
     RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
     RenderCommand::Clear();
 
-    m_Framebuffer->Bind();
-    RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
-    RenderCommand::Clear();
-
-    m_EditorCamera.OnUpdate();
-    m_Context.GetActiveScene()->OnUpdateEditor({m_EditorCamera.GetProjection(), m_EditorCamera.GetViewMatrix()});
-
-    m_Framebuffer->Unbind();
+    for (auto& panel : m_Panels)
+    {
+        panel->OnUpdate();
+    }
 }
 
 void EditorLayer::OnImGuiRender()
@@ -76,88 +72,10 @@ void EditorLayer::OnImGuiRender()
     ImGui::Text("Frametime : %f ms, (%d FPS)", Time::GetDeltaTime() * 1000, (uint32_t)(1.0f / Time::GetDeltaTime()));
     ImGui::End();
 
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-    ImGui::Begin("Scene");
-    m_SceneTabFocused = ImGui::IsWindowFocused();
-    m_SceneTabHovered = ImGui::IsWindowHovered();
-    Application::Get().GetImGuiLayer()->SetBlockEvents(!(m_SceneTabFocused && m_SceneTabHovered));
-
-    ImVec2 scenePanelSize = ImGui::GetContentRegionAvail();
-    if (m_ScenePanelSize != *((glm::vec2*)&scenePanelSize))
-    {
-        m_ScenePanelSize = {scenePanelSize.x, scenePanelSize.y};
-        m_Framebuffer->Resize((uint32_t)m_ScenePanelSize.x, (uint32_t)m_ScenePanelSize.y);
-        m_CameraController.Resize(scenePanelSize.x, scenePanelSize.y);
-        OnViewportResize();
-    }
-
-    uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
-
-    ImGui::Image((void*)textureID, ImVec2{m_ScenePanelSize.x, m_ScenePanelSize.y}, ImVec2(0, 1), ImVec2(1, 0));
-
     for (auto& panel : m_Panels)
     {
         panel->OnImGuiRender();
     }
-    // Gizmos
-    Entity selectedEntity = m_Context.GetSelectedEntity();
-
-    m_Context.SetIsManipulatingEntity(ImGuizmo::IsUsing());
-    if (selectedEntity && m_Context.GetCurrentTransformOperation() != NONE)
-    {
-        ImGuizmo::SetOrthographic(false);
-        ImGuizmo::SetDrawlist();
-
-        float windowWidth = (float)ImGui::GetWindowWidth();
-        float windowHeight = (float)ImGui::GetWindowHeight();
-        ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
-
-        // Camera
-        auto camera = m_Context.GetActiveScene()->GetMainCamera();
-        if (camera)
-        {
-            const glm::mat4 cameraProjection = camera.GetComponent<CameraComponent>().Camera.GetProjection();
-            glm::mat4 cameraView = glm::inverse(camera.GetComponent<TransformComponent>().GetTransform());
-
-            // Entity transform
-            auto& transformComponent = selectedEntity.GetComponent<TransformComponent>();
-            glm::mat4 transform = transformComponent.GetTransform();
-
-            // snapping
-            bool snap = Input::KeyPressed(OvenKey::LeftShift);
-
-            float snapValue = 0.5f;
-            if (m_Context.GetCurrentTransformOperation() == TransformOperation::ROTATE)
-            {
-                snapValue = 45.0f;
-            }
-            float snapValues[3] = {snapValue, snapValue, snapValue};
-
-            // gizmo manipulation
-
-            ImGuizmo::Manipulate(
-                glm::value_ptr(m_EditorCamera.GetViewMatrix()),
-                glm::value_ptr(m_EditorCamera.GetProjection()),
-                (ImGuizmo::OPERATION)m_Context.GetCurrentTransformOperation(),
-                (ImGuizmo::MODE)m_Context.GetCurrentTransformOperationMode(),
-                glm::value_ptr(transform),
-                nullptr,
-                snap ? snapValues : nullptr
-            );
-
-            if (ImGuizmo::IsUsing())
-            {
-                glm::vec3 translation, rotation, scale;
-                Maths::DecomposeTransform(transform, translation, rotation, scale);
-                transformComponent.Translation = translation;
-                transformComponent.Rotation = rotation;
-                transformComponent.Scale = scale;
-            }
-        }
-    }
-    ImGui::End();
-
-    ImGui::PopStyleVar();
 }
 
 void EditorLayer::OnAttach()
@@ -172,15 +90,9 @@ void EditorLayer::OnAttach()
     m_DirtTexture = SubTexture2D::CreateFromCoords(m_SpriteSheet, {6, 31}, {16, 16}, {1, 1});
     m_WaterTexture = SubTexture2D::CreateFromCoords(m_SpriteSheet, {0, 31}, {16, 16}, {1, 1});
 
-    FramebufferSpecs fbSpecs;
-    fbSpecs.Width = 1280;
-    fbSpecs.Height = 720;
-    m_Framebuffer = Framebuffer::Create(fbSpecs);
-
-    m_Context.SetActiveScene(CreateRef<Scene>());
-    m_EditorCamera = EditorCamera(45.0f, 1.778f, 0.1f, 1000.0f, &m_Context);
     m_Panels.push_back(EditorPanel::CreatePanel<SceneHierarchyPanel>(&m_Context));
     m_Panels.push_back(EditorPanel::CreatePanel<PropertiesPanel>(&m_Context));
+    m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
     std::string sceneFilePath = "OvenEditor/assets/scenes/SuperCube.oven";
     OpenScene(sceneFilePath);
 }
@@ -190,8 +102,10 @@ void EditorLayer::OnDetach() { OVEN_PROFILE_FUNCTION(); }
 void EditorLayer::OnEvent(Event& e)
 {
 
-    m_EditorCamera.OnEvent(e);
-    m_CameraController.OnEvent(e);
+    for (auto& panel : m_Panels)
+    {
+        panel->OnEvent(e);
+    }
     EventDispatcher dispatcher(e);
     dispatcher.Dispatch<KeyPressedEvent>(OVEN_BIND_EVENT_FN(EditorLayer::OnKeyTyped));
 }
@@ -223,20 +137,20 @@ bool EditorLayer::OnKeyTyped(KeyPressedEvent& e)
             }
             else
             {
-                if (ImGuizmo::IsUsing())
+                if (m_Context.IsManipulatingEntity())
                     return false;
                 m_Context.SetTransformOperation(TransformOperation::SCALE);
             }
             break;
         }
         case OvenKey::R: {
-            if (ImGuizmo::IsUsing())
+            if (m_Context.IsManipulatingEntity())
                 return false;
             m_Context.SetTransformOperation(TransformOperation::ROTATE);
             break;
         }
         case OvenKey::T: {
-            if (ImGuizmo::IsUsing())
+            if (m_Context.IsManipulatingEntity())
                 return false;
             m_Context.SetTransformOperation(TransformOperation::TRANSLATE);
             break;
@@ -251,7 +165,7 @@ bool EditorLayer::OnKeyTyped(KeyPressedEvent& e)
 void EditorLayer::NewScene()
 {
     m_Context.SetActiveScene(CreateRef<Scene>());
-    OnViewportResize();
+    OnSceneChange();
 }
 
 void EditorLayer::OpenSceneDialog()
@@ -268,7 +182,7 @@ void EditorLayer::OpenScene(std::string& filepath)
         m_Context.SetActiveScene(CreateRef<Scene>());
         SceneSerializer serializer(m_Context.GetActiveScene());
         serializer.Deserialize(filepath);
-        OnViewportResize();
+        OnSceneChange();
     }
 }
 
@@ -282,10 +196,12 @@ void EditorLayer::SaveSceneAsDialog()
     }
 }
 
-void EditorLayer::OnViewportResize()
+void EditorLayer::OnSceneChange()
 {
-    m_Context.GetActiveScene()->OnViewportResize(m_ScenePanelSize.x, m_ScenePanelSize.y);
-    m_EditorCamera.SetViewportSize(m_ScenePanelSize.x, m_ScenePanelSize.y);
+    for (auto& panel : m_Panels)
+    {
+        panel->OnSceneChange();
+    }
 }
 
 void EditorLayer::SetDefaultTheme()
