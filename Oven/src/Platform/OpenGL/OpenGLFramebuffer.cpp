@@ -223,4 +223,12 @@ void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
     m_Specs.Height = height;
     Invalidate();
 }
+int OpenGLFramebuffer::ReadPixel(uint32_t attachmentIndex, int x, int y)
+{
+    OVEN_CORE_ASSERT("Attachment Index out of bounds !", attachmentIndex < m_ColorAttachments.size());
+    GL_CALL(glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex));
+    int pixelData;
+    GL_CALL(glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData));
+    return pixelData;
+}
 } // namespace Oven

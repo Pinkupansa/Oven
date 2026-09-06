@@ -20,7 +20,8 @@ private:
     void OnNewSelectedEntity();
 
 private:
-    glm::vec2 m_Size = {1.0f, 1.0f};
+    glm::vec2 m_ViewportSize = {1.0f, 1.0f};
+    std::array<glm::vec2, 2> m_ViewportScreenSpaceBounds;
     bool m_Focused, m_Hovered;
     Ref<Framebuffer> m_Framebuffer;
     EditorCamera m_EditorCamera;

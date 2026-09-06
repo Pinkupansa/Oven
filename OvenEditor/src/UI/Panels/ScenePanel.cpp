@@ -30,6 +30,20 @@ void ScenePanel::OnUpdate()
     m_EditorCamera.OnUpdate();
     m_Context->GetActiveScene()->OnUpdateEditor({m_EditorCamera.GetProjection(), m_EditorCamera.GetViewMatrix()});
 
+    auto [mx, my] = ImGui::GetMousePos();
+    mx -= m_ViewportScreenSpaceBounds[0].x;
+    my -= m_ViewportScreenSpaceBounds[0].y;
+    my = m_ViewportSize.y - my;
+
+    int mouseX = (int)mx;
+    int mouseY = (int)my;
+
+    if (mx > 0 && my >= 0 && mx <= m_ViewportSize.x && my <= m_ViewportSize.y)
+    {
+        int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+        OVEN_CORE_WARN("Pixel data = {0}", pixelData);
+    }
+
     m_Framebuffer->Unbind();
 }
 void ScenePanel::OnEvent(Event& e) { m_EditorCamera.OnEvent(e); }
@@ -38,8 +52,8 @@ void ScenePanel::OnSceneChange() { OnViewportResize(); }
 
 void ScenePanel::OnViewportResize()
 {
-    m_Context->GetActiveScene()->OnViewportResize(m_Size.x, m_Size.y);
-    m_EditorCamera.SetViewportSize(m_Size.x, m_Size.y);
+    m_Context->GetActiveScene()->OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
+    m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
 }
 
 void ScenePanel::OnNewSelectedEntity()
@@ -61,21 +75,22 @@ void ScenePanel::OnImGuiRender()
     Application::Get().GetImGuiLayer()->SetBlockEvents(!m_Focused && !m_Hovered);
 
     ImVec2 newSize = ImGui::GetContentRegionAvail();
-    if (m_Size != *((glm::vec2*)&newSize))
+    if (m_ViewportSize != *((glm::vec2*)&newSize))
     {
-        m_Size = {newSize.x, newSize.y};
-        m_Framebuffer->Resize((uint32_t)m_Size.x, (uint32_t)m_Size.y);
+        m_ViewportSize = {newSize.x, newSize.y};
+        m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
         OnViewportResize();
     }
 
     uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID(0);
 
-    ImGui::Image((void*)textureID, ImVec2{m_Size.x, m_Size.y}, ImVec2(0, 1), ImVec2(1, 0));
     auto viewportOffset = ImGui::GetCursorPos();
-    auto windowSize = ImGui::GetWindowSize();
-    ImVec2 viewportScreenMin = {ImGui::GetWindowPos().x + viewportOffset.x, ImGui::GetWindowPos().y + viewportOffset.y};
+    ImVec2 screenSpaceMin = {ImGui::GetWindowPos().x + viewportOffset.x, ImGui::GetWindowPos().y + viewportOffset.y};
+    m_ViewportScreenSpaceBounds[0] = {screenSpaceMin.x, screenSpaceMin.y};
+    m_ViewportScreenSpaceBounds[1] = {screenSpaceMin.x + m_ViewportSize.y, screenSpaceMin.y + m_ViewportSize.y};
 
-    // Gizmos
+    ImGui::Image((void*)textureID, ImVec2{m_ViewportSize.x, m_ViewportSize.y}, ImVec2(0, 1), ImVec2(1, 0));
+
     Entity selectedEntity = m_Context->GetSelectedEntity();
     if (selectedEntity != m_LastSelectedEntity)
     {
