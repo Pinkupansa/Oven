@@ -18,6 +18,7 @@ public:
 private:
     void OnViewportResize();
     void OnNewSelectedEntity();
+    bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
 
 private:
     glm::vec2 m_ViewportSize = {1.0f, 1.0f};
@@ -26,5 +27,10 @@ private:
     Ref<Framebuffer> m_Framebuffer;
     EditorCamera m_EditorCamera;
     Entity m_LastSelectedEntity;
+    uint32_t m_ScenePanelID;
+    std::string m_PanelName;
+    uint32_t m_DrawCount;
+    static uint32_t s_ScenePanelCount;
+    static uint32_t s_LastFocusedScenePanelID;
 };
 } // namespace Oven

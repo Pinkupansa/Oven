@@ -39,6 +39,7 @@ void EditorLayer::OnUpdate()
 void EditorLayer::OnImGuiRender()
 {
     OVEN_PROFILE_FUNCTION();
+    Application::Get().GetImGuiLayer()->SetBlockEvents(true);
     ImGuiStyle& style = ImGui::GetStyle();
     float minWinSizeX = style.WindowMinSize.x;
     style.WindowMinSize.x = 200.0f;
@@ -92,6 +93,9 @@ void EditorLayer::OnAttach()
 
     m_Panels.push_back(EditorPanel::CreatePanel<SceneHierarchyPanel>(&m_Context));
     m_Panels.push_back(EditorPanel::CreatePanel<PropertiesPanel>(&m_Context));
+    m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
+    m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
+    m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
     m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
     std::string sceneFilePath = "OvenEditor/assets/scenes/SuperCube.oven";
     OpenScene(sceneFilePath);

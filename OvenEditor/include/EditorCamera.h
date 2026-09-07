@@ -41,6 +41,8 @@ public:
 
     void SetFocalPoint(const glm::vec3& newPoint);
 
+    void EnableMovement(bool enable) { m_CanMove = enable; }
+
 private:
     void UpdateProjection();
     void UpdateView();
@@ -72,5 +74,7 @@ private:
     float m_ViewportWidth = 1280, m_ViewportHeight = 720;
 
     EditorContext* m_Context;
+
+    bool m_CanMove;
 };
 } // namespace Oven

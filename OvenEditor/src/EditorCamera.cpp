@@ -64,6 +64,8 @@ void EditorCamera::OnUpdate()
     glm::vec2 delta = (mouse - m_InitialMousePosition) * 0.003f;
     m_InitialMousePosition = mouse;
 
+    if (!m_CanMove)
+        return; // we still want to capture the mousepos to avoid camera jumping on focus
     if (Input::MouseButtonPressed(OvenMouseButton::Left) && !m_Context->IsManipulatingEntity())
         MousePan(delta);
     else
