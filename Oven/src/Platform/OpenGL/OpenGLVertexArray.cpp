@@ -52,29 +52,78 @@ void OpenGLVertexArray::Unbind() const
     OVEN_PROFILE_FUNCTION();
     GL_CALL(glBindVertexArray(0));
 }
-
 void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 {
     OVEN_PROFILE_FUNCTION();
     OVEN_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex buffer has no layout !");
 
-    glBindVertexArray(m_RendererID);
+    GL_CALL(glBindVertexArray(m_RendererID));
     vertexBuffer->Bind();
 
-    uint32_t index = 0;
     const auto& layout = vertexBuffer->GetLayout();
 
     for (const auto& element : layout)
     {
-        GL_CALL(glEnableVertexAttribArray(index));
-        GL_CALL(glVertexAttribPointer(index,
-                                      element.GetComponentCount(),
-                                      ShaderDataTypeToOpenGLDataType(element.Type),
-                                      element.Normalized ? GL_TRUE : GL_FALSE,
-                                      layout.GetStride(),
-                                      reinterpret_cast<const void*>(static_cast<uintptr_t>(element.Offset))));
-        index++;
+        switch (element.Type)
+        {
+            case ShaderDataType::Float:
+            case ShaderDataType::Float2:
+            case ShaderDataType::Float3:
+            case ShaderDataType::Float4: {
+                GL_CALL(glEnableVertexAttribArray(m_VertexBufferIndex));
+                GL_CALL(glVertexAttribPointer(
+                    m_VertexBufferIndex,
+                    element.GetComponentCount(),
+                    ShaderDataTypeToOpenGLDataType(element.Type),
+                    element.Normalized ? GL_TRUE : GL_FALSE,
+                    layout.GetStride(),
+                    reinterpret_cast<const void*>(static_cast<uintptr_t>(element.Offset))
+                ));
+                m_VertexBufferIndex++;
+                break;
+            }
+            case ShaderDataType::Int:
+            case ShaderDataType::Int2:
+            case ShaderDataType::Int3:
+            case ShaderDataType::Int4:
+            case ShaderDataType::Bool: {
+                GL_CALL(glEnableVertexAttribArray(m_VertexBufferIndex));
+                GL_CALL(glVertexAttribIPointer( // Note le 'I' pour les entiers
+                    m_VertexBufferIndex,
+                    element.GetComponentCount(),
+                    ShaderDataTypeToOpenGLDataType(element.Type),
+                    layout.GetStride(),
+                    reinterpret_cast<const void*>(static_cast<uintptr_t>(element.Offset))
+                ));
+                m_VertexBufferIndex++;
+                break;
+            }
+            case ShaderDataType::Mat3:
+            case ShaderDataType::Mat4: {
+                uint8_t count = element.GetComponentCount();
+                for (uint8_t i = 0; i < count; i++)
+                {
+                    GL_CALL(glEnableVertexAttribArray(m_VertexBufferIndex));
+                    GL_CALL(glVertexAttribPointer(
+                        m_VertexBufferIndex,
+                        count,
+                        ShaderDataTypeToOpenGLDataType(element.Type),
+                        element.Normalized ? GL_TRUE : GL_FALSE,
+                        layout.GetStride(),
+                        reinterpret_cast<const void*>(
+                            static_cast<uintptr_t>(element.Offset + sizeof(float) * count * i)
+                        )
+                    ));
+                    GL_CALL(glVertexAttribDivisor(m_VertexBufferIndex, 1));
+                    m_VertexBufferIndex++;
+                }
+                break;
+            }
+            default:
+                OVEN_CORE_ASSERT(false, "Unknown ShaderDataType!");
+        }
     }
+
     m_VertexBuffers.push_back(vertexBuffer);
 }
 

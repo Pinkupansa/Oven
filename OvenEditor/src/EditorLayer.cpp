@@ -14,6 +14,7 @@
 #include "UI/EditorColors.h"
 #include "Oven/Scene/SceneSerializer.h"
 #include "Oven/Utils/PlatformUtils.h"
+#include "misc/freetype/imgui_freetype.h"
 
 namespace Oven
 {
@@ -216,7 +217,6 @@ void EditorLayer::SetDefaultTheme()
     io.Fonts->Build();
     ImGuiStyle& style = ImGui::GetStyle();
     ImVec4* colors = style.Colors;
-
     // Geometry
     style.WindowRounding = 2.0f;
     style.ChildRounding = 2.0f;

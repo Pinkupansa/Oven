@@ -16,6 +16,9 @@ struct QuadVertex
     glm::vec2 UV;
     float TexIndex;
     glm::vec2 TilingFactor;
+
+    // Editor-only
+    int EntityID = -1;
 };
 
 struct Renderer2DData
@@ -57,7 +60,8 @@ void Renderer2D::Init()
          {Oven::ShaderDataType::Float4, "a_Color"},
          {Oven::ShaderDataType::Float2, "a_TexUV"},
          {Oven::ShaderDataType::Float, "a_TexIndex"},
-         {Oven::ShaderDataType::Float2, "a_TilingFactor"}}
+         {Oven::ShaderDataType::Float2, "a_TilingFactor"},
+         {Oven::ShaderDataType::Int, "a_EntityID"}}
     );
     s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer);
 
@@ -137,6 +141,7 @@ void Renderer2D::Flush()
     {
         s_Data.Textures[i]->Bind(i);
     }
+
     RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
     s_Data.Stats.DrawCalls++;
 }
@@ -155,37 +160,21 @@ void Renderer2D::PushQuad(
     const glm::vec4& color,
     const glm::vec2* uvs,
     float texIndex,
-    const glm::vec2 tilingFactor
+    const glm::vec2 tilingFactor,
+    int entityID = -1
 )
 {
-
-    s_Data.QuadVertexBufferPtr->Position = positions[0];
-    s_Data.QuadVertexBufferPtr->Color = color;
-    s_Data.QuadVertexBufferPtr->UV = uvs[0];
-    s_Data.QuadVertexBufferPtr->TexIndex = texIndex;
-    s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
-    s_Data.QuadVertexBufferPtr++;
-
-    s_Data.QuadVertexBufferPtr->Position = positions[1];
-    s_Data.QuadVertexBufferPtr->Color = color;
-    s_Data.QuadVertexBufferPtr->UV = uvs[1];
-    s_Data.QuadVertexBufferPtr->TexIndex = texIndex;
-    s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
-    s_Data.QuadVertexBufferPtr++;
-
-    s_Data.QuadVertexBufferPtr->Position = positions[2];
-    s_Data.QuadVertexBufferPtr->Color = color;
-    s_Data.QuadVertexBufferPtr->UV = uvs[2];
-    s_Data.QuadVertexBufferPtr->TexIndex = texIndex;
-    s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
-    s_Data.QuadVertexBufferPtr++;
-
-    s_Data.QuadVertexBufferPtr->Position = positions[3];
-    s_Data.QuadVertexBufferPtr->Color = color;
-    s_Data.QuadVertexBufferPtr->UV = uvs[3];
-    s_Data.QuadVertexBufferPtr->TexIndex = texIndex;
-    s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
-    s_Data.QuadVertexBufferPtr++;
+    constexpr size_t quadVertexCount = 4;
+    for (size_t i = 0; i < quadVertexCount; i++)
+    {
+        s_Data.QuadVertexBufferPtr->Position = positions[i];
+        s_Data.QuadVertexBufferPtr->Color = color;
+        s_Data.QuadVertexBufferPtr->UV = uvs[i];
+        s_Data.QuadVertexBufferPtr->TexIndex = texIndex;
+        s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+        s_Data.QuadVertexBufferPtr->EntityID = entityID;
+        s_Data.QuadVertexBufferPtr++;
+    }
 
     s_Data.QuadIndexCount += 6;
 
@@ -328,7 +317,7 @@ void Renderer2D::DrawRotatedQuad(
     DrawQuad(transform, subTexture, color, tilingFactor);
 }
 
-void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
+void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
 {
 
     OVEN_PROFILE_FUNCTION();
@@ -350,11 +339,15 @@ void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
         transform * s_Data.QuadVertexPositions[3]
     };
 
-    PushQuad(positions, color, quadVertexUVs, whiteTextureIndex, tilingFactor);
+    PushQuad(positions, color, quadVertexUVs, whiteTextureIndex, tilingFactor, entityID);
 }
 
 void Renderer2D::DrawQuad(
-    const glm::mat4& transform, const Ref<Texture2D>& texture, const glm::vec4& color, const glm::vec2& tilingFactor
+    const glm::mat4& transform,
+    const Ref<Texture2D>& texture,
+    const glm::vec4& color,
+    const glm::vec2& tilingFactor,
+    int entityID
 )
 {
     OVEN_PROFILE_FUNCTION();
@@ -391,14 +384,15 @@ void Renderer2D::DrawQuad(
         transform * s_Data.QuadVertexPositions[3]
     };
 
-    PushQuad(positions, color, quadVertexUVs, textureIndex, tilingFactor);
+    PushQuad(positions, color, quadVertexUVs, textureIndex, tilingFactor, entityID);
 }
 
 void Renderer2D::DrawQuad(
     const glm::mat4& transform,
     const Ref<SubTexture2D>& subTexture,
     const glm::vec4& color,
-    const glm::vec2& tilingFactor
+    const glm::vec2& tilingFactor,
+    int entityID
 )
 {
     OVEN_PROFILE_FUNCTION();
@@ -436,8 +430,11 @@ void Renderer2D::DrawQuad(
         transform * s_Data.QuadVertexPositions[3]
     };
 
-    PushQuad(positions, color, quadVertexUVs, textureIndex, tilingFactor);
+    PushQuad(positions, color, quadVertexUVs, textureIndex, tilingFactor, entityID);
 }
+
+void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& sprite, int entityID)
+{ DrawQuad(transform, sprite.Color, entityID); }
 
 Renderer2D::Statistics Renderer2D::GetStats() { return s_Data.Stats; }
 

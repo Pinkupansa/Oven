@@ -19,6 +19,33 @@ static bool IsDepthFormat(FramebufferTextureFormat format)
     return false;
 }
 
+static GLenum OvenFBTextureFormatToGL(FramebufferTextureFormat format)
+{
+    switch (format)
+    {
+        case FramebufferTextureFormat::COLOR_UNORM8_RGBA:
+            return GL_RGBA;
+        case FramebufferTextureFormat::COLOR_UNORM8_RGB:
+            return GL_RGB;
+        case FramebufferTextureFormat::COLOR_INT8_R:
+            return GL_RED_INTEGER;
+        default:
+            OVEN_CORE_ASSERT(false, "Texture format conversion not supported !")
+            return GL_NONE;
+    }
+}
+
+static GLenum GLDataType(FramebufferTextureFormat format)
+{
+    switch (format)
+    {
+        case FramebufferTextureFormat::COLOR_UNORM8_RGBA:
+            return GL_UNSIGNED_BYTE;
+        case FramebufferTextureFormat::COLOR_INT8_R:
+            return GL_INT;
+    }
+}
+
 static inline GLenum TextureTarget(bool multisampled)
 { return multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D; }
 
@@ -208,6 +235,16 @@ void OpenGLFramebuffer::Bind()
 {
     GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
     GL_CALL(glViewport(0, 0, m_Specs.Width, m_Specs.Height));
+}
+
+void OpenGLFramebuffer::ClearColorAttachment(uint32_t index, int value)
+{
+    OVEN_CORE_ASSERT(index < m_ColorAttachments.size(), "Attachment index out of bounds!");
+
+    GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
+
+    int clearValue = value;
+    GL_CALL(glClearBufferiv(GL_COLOR, index, &clearValue));
 }
 
 void OpenGLFramebuffer::Unbind() { GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0)); }

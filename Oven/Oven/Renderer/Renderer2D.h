@@ -3,6 +3,7 @@
 #include "Oven/Renderer/Camera.h"
 #include "Oven/Renderer/Texture.h"
 #include "Oven/Renderer/SubTexture.h"
+#include "Oven/Scene/SpriteRendererComponent.h"
 
 namespace Oven
 {
@@ -110,21 +111,25 @@ public:
         const glm::vec2& tilingFactor = {1.0f, 1.0f}
     );
 
-    static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
+    static void DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID = -1);
 
     static void DrawQuad(
         const glm::mat4& transform,
         const Ref<Texture2D>& texture,
         const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
-        const glm::vec2& tilingFactor = {1.0f, 1.0f}
+        const glm::vec2& tilingFactor = {1.0f, 1.0f},
+        int entityID = -1
     );
 
     static void DrawQuad(
         const glm::mat4& transform,
         const Ref<SubTexture2D>& subTexture,
         const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
-        const glm::vec2& tilingFactor = {1.0f, 1.0f}
+        const glm::vec2& tilingFactor = {1.0f, 1.0f},
+        int entityID = -1
     );
+
+    static void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& sprite, int entityID);
 
     struct Statistics
     {
@@ -146,7 +151,8 @@ private:
         const glm::vec4& color,
         const glm::vec2* uvs,
         float texIndex,
-        const glm::vec2 tilingFactor
+        const glm::vec2 tilingFactor,
+        int entityID
     );
 };
 } // namespace Oven

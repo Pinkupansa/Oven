@@ -36,7 +36,7 @@ void ScenePanel::OnUpdate()
     m_Framebuffer->Bind();
     RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
     RenderCommand::Clear();
-
+    m_Framebuffer->ClearColorAttachment(1, -1);
     m_EditorCamera.OnUpdate();
     m_Context->GetActiveScene()->OnUpdateEditor({m_EditorCamera.GetProjection(), m_EditorCamera.GetViewMatrix()});
 
@@ -93,6 +93,9 @@ bool ScenePanel::OnMouseButtonPressed(MouseButtonPressedEvent& e)
         {
             m_Framebuffer->Bind();
             int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+            if (pixelData >= 0)
+
+                m_Context->SelectEntity({(entt::entity)pixelData, m_Context->GetActiveScene().get()});
             m_Framebuffer->Unbind();
         }
     }

@@ -26,7 +26,7 @@ void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_
 {
     if (indexCount == 0)
         return;
-
+    vertexArray->Bind();
     GL_CALL(glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr));
 }
 } // namespace Oven
