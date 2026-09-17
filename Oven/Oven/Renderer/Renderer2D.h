@@ -145,6 +145,7 @@ public:
     static void ResetStats();
 
 private:
+    static void StartBatch();
     static void EndAndReset();
     static void PushQuad(
         const glm::vec4* positions,

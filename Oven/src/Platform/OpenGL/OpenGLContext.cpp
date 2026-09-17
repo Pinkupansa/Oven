@@ -1,6 +1,7 @@
 #include "Oven/ovenpch.h"
 #include "Oven/Platform/OpenGL/OpenGLContext.h"
 #include "Oven/Platform/OpenGL/OpenGLMacros.h"
+#include "Oven/Platform/OpenGL/OpenGLCaps.h"
 #include "Oven/Core/Log.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -21,6 +22,7 @@ void OpenGLContext::Init()
     OVEN_CORE_INFO("OpenGL Version: {0}", (const char*)glGetString(GL_VERSION));
     OVEN_CORE_INFO("Renderer: {0}", (const char*)glGetString(GL_RENDERER));
     OVEN_CORE_INFO("Vendor: {0}", (const char*)glGetString(GL_VENDOR));
+    OpenGLCaps::Init();
 }
 
 void OpenGLContext::SwapBuffers()

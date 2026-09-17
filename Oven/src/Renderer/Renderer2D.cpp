@@ -5,7 +5,7 @@
 #include "Oven/Renderer/RenderCommand.h"
 #include "Oven/Platform/OpenGL/OpenGLShader.h"
 #include <glm/gtc/matrix_transform.hpp>
-
+#include "Oven/Renderer/UniformBuffer.h"
 namespace Oven
 {
 
@@ -43,6 +43,11 @@ struct Renderer2DData
     glm::vec4 QuadVertexPositions[4];
 
     Renderer2D::Statistics Stats;
+
+    struct CameraData
+    { glm::mat4 ViewProjection; };
+    CameraData CameraBuffer;
+    Ref<UniformBuffer> CameraUniformBuffer;
 };
 
 static Renderer2DData s_Data;
@@ -107,6 +112,8 @@ void Renderer2D::Init()
     s_Data.QuadVertexPositions[1] = {0.5f, -0.5f, 0.0f, 1.0f};
     s_Data.QuadVertexPositions[2] = {0.5f, 0.5f, 0.0f, 1.0f};
     s_Data.QuadVertexPositions[3] = {-0.5f, 0.5f, 0.0f, 1.0f};
+
+    s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0);
 }
 
 void Renderer2D::Shutdown() { OVEN_PROFILE_FUNCTION(); }
@@ -117,13 +124,10 @@ void Renderer2D::BeginScene(const CameraRenderData& camera)
 
     ResetStats();
 
-    s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
-    s_Data.TextureShader->Bind();
-    s_Data.TextureShader->SetMat4("u_ViewProjection", camera.Projection * camera.View);
+    s_Data.CameraBuffer.ViewProjection = camera.Projection * camera.View;
+    s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
 
-    s_Data.QuadIndexCount = 0;
-
-    s_Data.CurrentTextureSlotIndex = 1;
+    StartBatch();
 }
 
 void Renderer2D::EndScene()
@@ -144,6 +148,14 @@ void Renderer2D::Flush()
 
     RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
     s_Data.Stats.DrawCalls++;
+}
+
+void Renderer2D::StartBatch()
+{
+    s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
+    s_Data.QuadIndexCount = 0;
+
+    s_Data.CurrentTextureSlotIndex = 1;
 }
 
 void Renderer2D::EndAndReset()

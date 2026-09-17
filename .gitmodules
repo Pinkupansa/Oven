@@ -17,3 +17,12 @@
 [submodule "Oven/vendor/imguizmo"]
 	path = Oven/vendor/imguizmo
 	url = git@github.com:CedricGuillemet/ImGuizmo.git
+[submodule "Oven/vendor/shaderc"]
+	path = Oven/vendor/shaderc
+	url = git@github.com:google/shaderc.git
+[submodule "vendor/SPIRV-Cross"]
+	path = vendor/SPIRV-Cross
+	url = https://github.com/KhronosGroup/SPIRV-Cross.git
+[submodule "Oven/vendor/SPIRV-Cross"]
+	path = Oven/vendor/SPIRV-Cross
+	url = https://github.com/KhronosGroup/SPIRV-Cross.git
