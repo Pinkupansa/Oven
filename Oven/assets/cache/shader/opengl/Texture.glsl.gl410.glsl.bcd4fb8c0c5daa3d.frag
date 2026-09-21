@@ -17,7 +17,7 @@ layout(location = 4) flat in int v_EntityID;
 
 void main()
 {
-    color = (texture(u_Textures[int(v_Output.TexIndex)], v_Output.TexUV * v_Output.TilingFactor) * v_Output.Color) * 10.0;
+    color = texture(u_Textures[int(v_Output.TexIndex)], v_Output.TexUV * v_Output.TilingFactor) * v_Output.Color;
     entityID = v_EntityID;
 }
 

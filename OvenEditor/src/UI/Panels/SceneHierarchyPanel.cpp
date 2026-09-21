@@ -46,7 +46,7 @@ void SceneHierarchyPanel::DrawEntityNode(Entity entity)
         ImGuiTreeNodeFlags_OpenOnArrow | ((m_Context->GetSelectedEntity() == entity) ? ImGuiTreeNodeFlags_Selected : 0);
     flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
     // Since TreeNodeEx uses header color we need to push it temporarily to orange
-    ImGui::PushStyleColor(ImGuiCol_Header, COLOR_ACCENT_ORANGE_LIGHT);
+    ImGui::PushStyleColor(ImGuiCol_Header, COLOR_HOVERED_DEFAULT);
     bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, "%s", name.c_str());
     ImGui::PopStyleColor();
     bool entityDeleted = false;

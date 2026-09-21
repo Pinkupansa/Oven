@@ -11,6 +11,7 @@
 #include "UI/Panels/SceneHierarchyPanel.h"
 #include "UI/Panels/PropertiesPanel.h"
 #include "UI/Panels/ScenePanel.h"
+#include "UI/Panels/ContentBrowserPanel.h"
 #include "UI/EditorColors.h"
 #include "Oven/Scene/SceneSerializer.h"
 #include "Oven/Utils/PlatformUtils.h"
@@ -95,9 +96,10 @@ void EditorLayer::OnAttach()
     m_Panels.push_back(EditorPanel::CreatePanel<SceneHierarchyPanel>(&m_Context));
     m_Panels.push_back(EditorPanel::CreatePanel<PropertiesPanel>(&m_Context));
     m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
-    m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
-    m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
-    m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
+    // m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
+    // m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
+    // m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
+    m_Panels.push_back(EditorPanel::CreatePanel<ContentBrowserPanel>(&m_Context));
     std::string sceneFilePath = "OvenEditor/assets/scenes/SuperCube.oven";
     OpenScene(sceneFilePath);
 }
@@ -212,8 +214,8 @@ void EditorLayer::OnSceneChange()
 void EditorLayer::SetDefaultTheme()
 {
     ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->AddFontFromFileTTF("OvenEditor/assets/fonts/Tahoma/static/Tahoma-Bold.ttf", 14.0f);
-    io.FontDefault = io.Fonts->AddFontFromFileTTF("OvenEditor/assets/fonts/Tahoma/static/Tahoma-Regular.ttf", 14.0f);
+    io.Fonts->AddFontFromFileTTF("OvenEditor/resources/fonts/Tahoma/static/Tahoma-Bold.ttf", 14.0f);
+    io.FontDefault = io.Fonts->AddFontFromFileTTF("OvenEditor/resources/fonts/Tahoma/static/Tahoma-Regular.ttf", 14.0f);
     io.Fonts->Build();
     ImGuiStyle& style = ImGui::GetStyle();
     ImVec4* colors = style.Colors;
@@ -247,71 +249,98 @@ void EditorLayer::SetDefaultTheme()
     // ============================================================
     // TEXT & CANVAS
     // ============================================================
-    colors[ImGuiCol_Text] = COLOR_CHARCOAL_DARK;
-    colors[ImGuiCol_TextDisabled] = COLOR_STEEL_GRAY;
-    colors[ImGuiCol_WindowBg] = COLOR_COOL_WHITE;
-    colors[ImGuiCol_ChildBg] = COLOR_COOL_WHITE;
-    colors[ImGuiCol_PopupBg] = COLOR_COOL_WHITE;
+    colors[ImGuiCol_Text] = COLOR_TEXT_DEFAULT;
+    colors[ImGuiCol_TextDisabled] = COLOR_TEXT_DISABLED;
+    colors[ImGuiCol_WindowBg] = COLOR_PANEL_DEFAULT;
+    colors[ImGuiCol_ChildBg] = COLOR_PANEL_DEFAULT;
+    colors[ImGuiCol_PopupBg] = COLOR_PANEL_DEFAULT;
 
-    // Border darkened a touch below SLATE_TRIM's raw value so it actually
-    // reads against PORCELAIN_WHITE/COOL_WHITE instead of blending into it.
-    colors[ImGuiCol_Border] = COLOR_SLATE_TRIM;
-    colors[ImGuiCol_BorderShadow] = ImVec4(0.000f, 0.000f, 0.000f, 0.00f);
+    // Bordures : laissées par défaut, elles sortaient en gris-bleu.
+    colors[ImGuiCol_Border] = COLOR_BORDER_DEFAULT;
+    colors[ImGuiCol_BorderShadow] = COLOR_BORDER_SHADOW;
 
     // Frames
-    colors[ImGuiCol_FrameBg] = COLOR_PORCELAIN_WHITE;
-    colors[ImGuiCol_FrameBgHovered] = COLOR_COOL_WHITE;
-    colors[ImGuiCol_FrameBgActive] = COLOR_COOL_WHITE;
+    colors[ImGuiCol_FrameBg] = COLOR_INPUT_FIELD_DEFAULT;
+    colors[ImGuiCol_FrameBgHovered] = COLOR_INPUT_FIELD_HOVERED;
+    colors[ImGuiCol_FrameBgActive] = COLOR_INPUT_FIELD_HOVERED;
 
     // Title bars
-    colors[ImGuiCol_TitleBg] = COLOR_STEEL_GRAY;
-    colors[ImGuiCol_TitleBgActive] = COLOR_STEEL_GRAY;
-    colors[ImGuiCol_TitleBgCollapsed] = COLOR_STEEL_GRAY;
+    // Attention : une fenêtre dockée n'a plus de barre de titre, ces trois slots
+    // peignent le fond de la bande d'onglets du nœud de dock. Les garder
+    // identiques évite que la sélection colorie la bande au lieu de l'onglet.
+    colors[ImGuiCol_TitleBg] = COLOR_MENU_BAR;
+    colors[ImGuiCol_TitleBgActive] = COLOR_MENU_BAR;
+    colors[ImGuiCol_TitleBgCollapsed] = COLOR_MENU_BAR;
 
     // Tabs and navigation
-    colors[ImGuiCol_Tab] = COLOR_PORCELAIN_WHITE;
-    colors[ImGuiCol_TabHovered] = COLOR_ACCENT_ORANGE_LIGHT;
-    colors[ImGuiCol_TabActive] = COLOR_ACCENT_ORANGE_LIGHT;
-    colors[ImGuiCol_TabUnfocused] = COLOR_PORCELAIN_WHITE;
-    colors[ImGuiCol_TabUnfocusedActive] = COLOR_PORCELAIN_WHITE;
-    colors[ImGuiCol_TextSelectedBg] = COLOR_HOVER_CYAN;
-    colors[ImGuiCol_NavHighlight] = COLOR_ACCENT_ORANGE_LIGHT;
+    colors[ImGuiCol_Tab] = COLOR_TAB_BG; // Onglet inactif : manquait
+    colors[ImGuiCol_TabHovered] = COLOR_HOVERED_DEFAULT;
+    colors[ImGuiCol_TabActive] = COLOR_HOVERED_DEFAULT;
+    colors[ImGuiCol_TabUnfocused] = COLOR_TAB_TITLE_BG;
+    colors[ImGuiCol_TabUnfocusedActive] = COLOR_TAB_TITLE_BG;
+    // Les deux traits qui apparaissaient en bleu au-dessus du titre :
+    colors[ImGuiCol_TabSelectedOverline] = COLOR_TAB_OVERLINE;              // [1.91+]
+    colors[ImGuiCol_TabDimmedSelectedOverline] = COLOR_TAB_OVERLINE_DIMMED; // [1.91+]
 
-    colors[ImGuiCol_Header] = COLOR_COOL_WHITE;
-    colors[ImGuiCol_HeaderHovered] = COLOR_ACCENT_ORANGE_LIGHT;
-    colors[ImGuiCol_HeaderActive] = COLOR_ACCENT_ORANGE;
+    colors[ImGuiCol_TextSelectedBg] = COLOR_TEXT_SELECTED;
+    colors[ImGuiCol_NavHighlight] = COLOR_HOVERED_DEFAULT;
+
+    colors[ImGuiCol_Header] = COLOR_TAB_HEADER_BG;
+    colors[ImGuiCol_HeaderHovered] = COLOR_HOVERED_DEFAULT;
+    colors[ImGuiCol_HeaderActive] = COLOR_FOCUSED_DEFAULT;
+
+    // Separators : manquaient
+    colors[ImGuiCol_Separator] = COLOR_SEPARATOR;
+    colors[ImGuiCol_SeparatorHovered] = COLOR_SEPARATOR_HOVERED;
+    colors[ImGuiCol_SeparatorActive] = COLOR_SEPARATOR_ACTIVE;
 
     // Buttons
-    colors[ImGuiCol_Button] = COLOR_COOL_WHITE;
-    colors[ImGuiCol_ButtonHovered] = COLOR_ACCENT_ORANGE_LIGHT;
-    colors[ImGuiCol_ButtonActive] = COLOR_ACCENT_ORANGE_LIGHT;
+    colors[ImGuiCol_Button] = COLOR_BUTTON_DEFAULT;
+    colors[ImGuiCol_ButtonHovered] = COLOR_HOVERED_DEFAULT;
+    colors[ImGuiCol_ButtonActive] = COLOR_HOVERED_DEFAULT;
 
     // Controls
-    colors[ImGuiCol_CheckMark] = COLOR_ACCENT_ORANGE;
-    colors[ImGuiCol_SliderGrab] = COLOR_SLATE_MUTED;
-    colors[ImGuiCol_SliderGrabActive] = COLOR_ACCENT_ORANGE;
+    colors[ImGuiCol_CheckMark] = COLOR_CHECKMARK;
+    colors[ImGuiCol_SliderGrab] = COLOR_SLIDER;
+    colors[ImGuiCol_SliderGrabActive] = COLOR_FOCUSED_DEFAULT;
+    colors[ImGuiCol_TextLink] = COLOR_TEXT_LINK; // [1.91+] manquait
 
     // Scrollbars
-    colors[ImGuiCol_ScrollbarBg] = COLOR_PORCELAIN_WHITE;
-    colors[ImGuiCol_ScrollbarGrab] = COLOR_STEEL_GRAY;
-    colors[ImGuiCol_ScrollbarGrabHovered] = COLOR_INDICATOR_CYAN;
-    colors[ImGuiCol_ScrollbarGrabActive] = COLOR_ACCENT_ORANGE;
+    colors[ImGuiCol_ScrollbarBg] = COLOR_SCROLLBAR_BG;
+    colors[ImGuiCol_ScrollbarGrab] = COLOR_SCROLLBAR;
+    colors[ImGuiCol_ScrollbarGrabHovered] = COLOR_SCROLLBAR;
+    colors[ImGuiCol_ScrollbarGrabActive] = COLOR_SCROLLBAR;
 
-    colors[ImGuiCol_ResizeGripHovered] = COLOR_STEEL_GRAY;
-    colors[ImGuiCol_ResizeGripActive] = COLOR_ACCENT_ORANGE;
+    colors[ImGuiCol_ResizeGrip] = COLOR_RESIZE_GRIP; // Manquait
+    colors[ImGuiCol_ResizeGripHovered] = COLOR_SCROLLBAR;
+    colors[ImGuiCol_ResizeGripActive] = COLOR_SCROLLBAR;
 
-    // Plots
-    colors[ImGuiCol_PlotLines] = COLOR_MUTED_GREEN;
-    colors[ImGuiCol_PlotLinesHovered] = COLOR_ALERT_RED;
-    colors[ImGuiCol_PlotHistogram] = COLOR_SLATE_MUTED;
-    colors[ImGuiCol_PlotHistogramHovered] = COLOR_ACCENT_ORANGE;
+    // Tables : manquaient
+    colors[ImGuiCol_TableHeaderBg] = COLOR_TABLE_HEADER_BG;
+    colors[ImGuiCol_TableBorderStrong] = COLOR_TABLE_BORDER_STRONG;
+    colors[ImGuiCol_TableBorderLight] = COLOR_TABLE_BORDER_LIGHT;
+    colors[ImGuiCol_TableRowBg] = COLOR_TABLE_ROW_BG;
+    colors[ImGuiCol_TableRowBgAlt] = COLOR_TABLE_ROW_BG_ALT;
+
+    // Plots : manquaient
+    colors[ImGuiCol_PlotLines] = COLOR_PLOT_LINE;
+    colors[ImGuiCol_PlotLinesHovered] = COLOR_PLOT_LINE_HOVERED;
+    colors[ImGuiCol_PlotHistogram] = COLOR_PLOT_HISTOGRAM;
+    colors[ImGuiCol_PlotHistogramHovered] = COLOR_PLOT_HISTOGRAM_HOVERED;
+
+    // Docking : DockingPreview est un bleu vif par défaut
+    colors[ImGuiCol_DockingPreview] = COLOR_DOCKING_PREVIEW;
+    colors[ImGuiCol_DockingEmptyBg] = COLOR_DOCKING_EMPTY_BG;
 
     // Misc
-    colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.000f, 0.000f, 0.000f, 0.35f);
-    colors[ImGuiCol_InputTextCursor] = COLOR_INDICATOR_CYAN;
-    colors[ImGuiCol_CheckboxSelectedBg] = COLOR_PORCELAIN_WHITE;
+    colors[ImGuiCol_NavWindowingHighlight] = COLOR_NAV_WINDOWING_HIGHLIGHT; // Manquait
+    colors[ImGuiCol_NavWindowingDimBg] = COLOR_NAV_WINDOWING_DIM_BG;        // Manquait
+    colors[ImGuiCol_DragDropTarget] = COLOR_DRAG_DROP_TARGET;               // Manquait
+    colors[ImGuiCol_ModalWindowDimBg] = COLOR_MODAL_DIM_BG;
+    colors[ImGuiCol_InputTextCursor] = COLOR_TEXT_SELECTED;
+    colors[ImGuiCol_CheckboxSelectedBg] = COLOR_INPUT_FIELD_DEFAULT;
 
-    colors[ImGuiCol_MenuBarBg] = COLOR_COOL_WHITE;
+    colors[ImGuiCol_MenuBarBg] = COLOR_MENU_BAR;
 }
 
 } // namespace Oven

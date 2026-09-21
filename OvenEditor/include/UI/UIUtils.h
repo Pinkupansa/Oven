@@ -64,79 +64,103 @@ public:
         }
     }
 
-    // Common core rendering pipeline for all tactile buttons
+    static ImVec4 Shade(const ImVec4& c, float amount)
+    { return ImVec4(ImSaturate(c.x + amount), ImSaturate(c.y + amount), ImSaturate(c.z + amount), c.w); }
+
+    // Trait horizontal de 1 px à l'intérieur du cadre, utilisé pour le biseau.
+    static void AddInnerEdge(ImDrawList* drawList, float x0, float x1, float y, ImU32 col, float rounding)
+    { drawList->AddLine(ImVec2(x0 + rounding, y), ImVec2(x1 - rounding, y), col, BEVEL_THICKNESS); }
+
     template <typename RenderContentFunc>
     static bool
     TactileButtonCore(const char* str_id, const ImVec2& size_arg, float rounding, RenderContentFunc&& renderContent)
     {
         const float frameHeight = ImGui::GetFrameHeight();
 
-        // Default to standard ImGui frame height if no explicit size is supplied
         ImVec2 size = size_arg;
         if (size.x <= 0.0f)
             size.x = frameHeight;
         if (size.y <= 0.0f)
             size.y = frameHeight;
 
-        // Vertically center button in current line height
         const float offsetY = (frameHeight - size.y) * 0.5f;
         if (offsetY > 0.0f)
-        {
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() + offsetY);
-        }
 
         const ImVec2 pos = ImGui::GetCursorScreenPos();
         const bool pressed = ImGui::InvisibleButton(str_id, size);
         const bool hovered = ImGui::IsItemHovered();
         const bool held = ImGui::IsItemActive();
 
+        // IsItemActive reste vrai si l'on maintient le clic en sortant du bouton,
+        // alors que le relâchement ne déclenchera rien.
+        const bool sunken = held && hovered;
+
         ImDrawList* drawList = ImGui::GetWindowDrawList();
         const ImVec2 maxPos = ImVec2(pos.x + size.x, pos.y + size.y);
 
-        // State colors
-        ImU32 colTop, colBottom, colContent, colBorder;
+        // ------------------------------------------------------------------
+        // Couleurs d'état. Le survol reste le seul changement franc ; le clic
+        // se contente de retirer un peu de luminosité.
+        // ------------------------------------------------------------------
+        const ImVec4 base = COLOR_BUTTON_DEFAULT;
 
-        if (held)
+        float lift = 0.0f;
+        ImVec4 borderCol = COLOR_BORDER_DEFAULT;
+
+        if (hovered)
         {
-            colTop = ToImU32(COLOR_COOL_WHITE);
-            colBottom = ToImU32(COLOR_COOL_WHITE);
-            colContent = ToImU32(COLOR_CHARCOAL_DARK);
-            colBorder = ToImU32(COLOR_SLATE_TRIM);
-        }
-        else if (hovered)
-        {
-            colTop = ToImU32(COLOR_PORCELAIN_WHITE);
-            colBottom = ToImU32(COLOR_COOL_WHITE);
-            colContent = ToImU32(COLOR_CHARCOAL_DARK);
-            colBorder = ToImU32(COLOR_SLATE_TRIM);
-        }
-        else
-        {
-            colTop = ToImU32(COLOR_PORCELAIN_WHITE);
-            colBottom = ToImU32(COLOR_PORCELAIN_WHITE);
-            colContent = ToImU32(COLOR_CHARCOAL_DARK);
-            colBorder = ToImU32(COLOR_SLATE_MUTED);
+            lift = 0.045f;
+            borderCol = COLOR_HOVERED_DEFAULT;
         }
 
-        // 1. Inset background bounds by half the border thickness to keep fill strictly inside stroke
+        // Amplitude du dégradé conservée dans tous les états, sinon le bouton
+        // s'aplatit au survol.
+        constexpr float GRADIENT_SPREAD = 0.045f;
+        const ImU32 colTop = ToImU32(Shade(base, lift + GRADIENT_SPREAD));
+        const ImU32 colBottom = ToImU32(Shade(base, lift - GRADIENT_SPREAD));
+        const ImU32 colContent = ToImU32(COLOR_TEXT_DEFAULT); // Ne change pas d'état en état
+        const ImU32 colBorder = ToImU32(borderCol);
+
+        // ------------------------------------------------------------------
+        // 1. Fond, rentré d'un demi-contour pour rester à l'intérieur du trait
+        // ------------------------------------------------------------------
         const float halfBorder = BORDER_THICKNESS * 0.5f;
         const ImVec2 bgMin = ImVec2(pos.x + halfBorder, pos.y + halfBorder);
         const ImVec2 bgMax = ImVec2(maxPos.x - halfBorder, maxPos.y - halfBorder);
         const float bgRounding = ImMax(0.0f, rounding - halfBorder);
 
-        // 2. Rounded Vertical Gradient Background
-        AddRectFilledGradientRounded(drawList, bgMin, bgMax, colTop, colBottom, rounding);
+        AddRectFilledGradientRounded(drawList, bgMin, bgMax, colTop, colBottom, bgRounding);
 
-        // 3. Outer Border (Drawn over exact exterior bounds)
+        // ------------------------------------------------------------------
+        // 2. Ombre portée interne basse, identique dans tous les états
+        // ------------------------------------------------------------------
+        const float shadowH = ImMax(1.0f, size.y * SHADOW_HEIGHT_RATIO);
+        const ImU32 shadowCol = ToImU32(ImVec4(0.0f, 0.0f, 0.0f, 0.28f));
+        drawList->AddRectFilled(
+            ImVec2(bgMin.x, bgMax.y - shadowH), bgMax, shadowCol, bgRounding, ImDrawFlags_RoundCornersBottom
+        );
+
+        // ------------------------------------------------------------------
+        // 3. Biseau clair sur l'arête haute, identique dans tous les états
+        // ------------------------------------------------------------------
+        const ImU32 bevelCol = ToImU32(Shade(base, 0.16f));
+        AddInnerEdge(drawList, bgMin.x, bgMax.x, bgMin.y + BEVEL_THICKNESS * 0.5f, bevelCol, bgRounding);
+
+        // ------------------------------------------------------------------
+        // 4. Contour extérieur
+        // ------------------------------------------------------------------
         drawList->AddRect(pos, maxPos, colBorder, rounding, 0, BORDER_THICKNESS);
 
-        // 4. Draw Content (Text or Burger Lines)
-        const ImVec2 contentCenter = ImVec2(pos.x + size.x * 0.5f, pos.y + size.y * 0.5f);
+        // ------------------------------------------------------------------
+        // 5. Contenu. PRESS_Y_OFFSET à 0 laisse le contenu parfaitement fixe.
+        // ------------------------------------------------------------------
+        ImVec2 contentCenter = ImVec2(pos.x + size.x * 0.5f, pos.y + size.y * 0.5f);
+
         renderContent(drawList, contentCenter, size, colContent);
 
         return pressed;
     }
-
     // Text Gradient Button
     static bool
     TactileGradientButton(const char* label, const ImVec2& size_arg = ImVec2(0, 0), float rounding = DEFAULT_ROUNDING)
