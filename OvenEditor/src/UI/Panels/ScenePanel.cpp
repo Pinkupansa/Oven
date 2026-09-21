@@ -50,6 +50,7 @@ void ScenePanel::OnEvent(Event& e)
     {
         EventDispatcher dispatcher(e);
         dispatcher.Dispatch<MouseButtonPressedEvent>(OVEN_BIND_EVENT_FN(ScenePanel::OnMouseButtonPressed));
+        dispatcher.Dispatch<MouseButtonReleasedEvent>(OVEN_BIND_EVENT_FN(ScenePanel::OnMouseButtonReleased));
         m_EditorCamera.OnEvent(e);
     }
 }
@@ -74,31 +75,43 @@ void ScenePanel::OnNewSelectedEntity()
 
 bool ScenePanel::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 {
-    if (e.GetMouseButton() == OvenMouseButton::Right || e.GetMouseButton() == OvenMouseButton::Middle)
+
+    m_MousePosOnLastLeftClick = Input::GetMousePositionGLM();
+
+    return false;
+}
+
+bool ScenePanel::OnMouseButtonReleased(MouseButtonReleasedEvent& e)
+{
+    if (Entity out; (Input::GetMousePositionGLM() == m_MousePosOnLastLeftClick) && (MouseRaycast(out)))
     {
-        ImGui::SetWindowFocus(m_PanelName.c_str());
+        m_Context->SelectEntity(out);
         return true;
     }
-    if (e.GetMouseButton() == OvenMouseButton::Left)
+    return false;
+}
+
+bool ScenePanel::MouseRaycast(Entity& out)
+{
+
+    auto [mx, my] = ImGui::GetMousePos();
+    mx -= m_ViewportScreenSpaceBounds[0].x;
+    my -= m_ViewportScreenSpaceBounds[0].y;
+    my = m_ViewportSize.y - my;
+
+    int mouseX = (int)mx;
+    int mouseY = (int)my;
+
+    if (mx > 0 && my >= 0 && mx <= m_ViewportSize.x && my <= m_ViewportSize.y)
     {
-        auto [mx, my] = ImGui::GetMousePos();
-        mx -= m_ViewportScreenSpaceBounds[0].x;
-        my -= m_ViewportScreenSpaceBounds[0].y;
-        my = m_ViewportSize.y - my;
-
-        int mouseX = (int)mx;
-        int mouseY = (int)my;
-
-        if (mx > 0 && my >= 0 && mx <= m_ViewportSize.x && my <= m_ViewportSize.y)
-        {
-            m_Framebuffer->Bind();
-            int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
-            if (pixelData >= 0)
-
-                m_Context->SelectEntity({(entt::entity)pixelData, m_Context->GetActiveScene().get()});
-            m_Framebuffer->Unbind();
-        }
+        m_Framebuffer->Bind();
+        int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+        if (pixelData >= 0)
+            out = {(entt::entity)pixelData, m_Context->GetActiveScene().get()};
+        m_Framebuffer->Unbind();
+        return true;
     }
+
     return false;
 }
 

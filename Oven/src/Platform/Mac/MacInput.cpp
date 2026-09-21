@@ -43,4 +43,11 @@ std::pair<float, float> Input::GetMousePosition()
     glfwGetCursorPos(window, &xpos, &ypos);
     return {(float)xpos, (float)ypos};
 }
+glm::vec2 Input::GetMousePositionGLM()
+{
+    auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    return glm::vec2(xpos, ypos);
+}
 } // namespace Oven

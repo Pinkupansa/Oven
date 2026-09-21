@@ -19,6 +19,9 @@ private:
     void OnViewportResize();
     void OnNewSelectedEntity();
     bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
+    bool OnMouseButtonReleased(MouseButtonReleasedEvent& e);
+
+    bool MouseRaycast(Entity& out);
 
 private:
     glm::vec2 m_ViewportSize = {1.0f, 1.0f};
@@ -30,6 +33,8 @@ private:
     uint32_t m_ScenePanelID;
     std::string m_PanelName;
     uint32_t m_DrawCount;
+
+    glm::vec2 m_MousePosOnLastLeftClick;
     static uint32_t s_ScenePanelCount;
     static uint32_t s_LastFocusedScenePanelID;
 };
