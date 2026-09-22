@@ -4,8 +4,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
 #include "Oven/Debug/Instrumentor.h"
+#include "EditorEvent.h"
 namespace Oven
 {
+
 uint32_t ScenePanel::s_ScenePanelCount = 0;
 uint32_t ScenePanel::s_LastFocusedScenePanelID = 0;
 void ScenePanel::OnAttach()
@@ -75,9 +77,13 @@ void ScenePanel::OnNewSelectedEntity()
 
 bool ScenePanel::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 {
+    if (e.GetMouseButton() == OvenMouseButton::Right)
+        ImGui::SetWindowFocus(m_PanelName.c_str());
 
-    m_MousePosOnLastLeftClick = Input::GetMousePositionGLM();
-
+    if (e.GetMouseButton() == OvenMouseButton::Left)
+    {
+        m_MousePosOnLastLeftClick = Input::GetMousePositionGLM();
+    }
     return false;
 }
 
@@ -144,8 +150,23 @@ void ScenePanel::OnImGuiRender()
     m_ViewportScreenSpaceBounds[0] = {screenSpaceMin.x, screenSpaceMin.y};
     m_ViewportScreenSpaceBounds[1] = {screenSpaceMin.x + m_ViewportSize.x, screenSpaceMin.y + m_ViewportSize.y};
 
-    ImGui::Image((void*)textureID, ImVec2{m_ViewportSize.x, m_ViewportSize.y}, ImVec2(0, 1), ImVec2(1, 0));
-
+    ImGui::Image(
+        (ImTextureID)(uintptr_t)textureID, ImVec2{m_ViewportSize.x, m_ViewportSize.y}, ImVec2(0, 1), ImVec2(1, 0)
+    );
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+        {
+            const auto* path = payload->Data;
+            std::filesystem::path scenePath = (const std::filesystem::path::value_type*)path;
+            if (scenePath.extension() == ".oven" && m_EventCallback)
+            {
+                SceneOpenRequestedEvent event(scenePath);
+                m_EventCallback(event); // Emission de l'événement
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
     Entity selectedEntity = m_Context->GetSelectedEntity();
     if (selectedEntity != m_LastSelectedEntity)
     {

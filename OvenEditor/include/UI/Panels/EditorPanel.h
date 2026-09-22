@@ -4,11 +4,9 @@
 #include "Oven/Events/Event.h"
 namespace Oven
 {
+
 class EditorPanel
 {
-protected:
-    EditorPanel() = default;
-    EditorContext* m_Context;
 
 public:
     virtual ~EditorPanel() = default;
@@ -20,6 +18,9 @@ public:
 
     void SetContext(EditorContext* context) { m_Context = context; };
 
+    using EventCallbackFn = std::function<void(Event&)>;
+    void SetEventCallback(const EventCallbackFn& callback) { m_EventCallback = callback; }
+
     template <typename T>
         requires std::is_base_of_v<EditorPanel, T>
     static Scope<T> CreatePanel(EditorContext* context)
@@ -29,6 +30,11 @@ public:
         panel->OnAttach();
         return panel;
     }
+
+protected:
+    EditorPanel() = default;
+    EditorContext* m_Context;
+    EventCallbackFn m_EventCallback;
 };
 
 } // namespace Oven

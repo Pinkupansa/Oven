@@ -3,7 +3,8 @@
 #include <unordered_map>
 #include "UI/Panels/EditorPanel.h"
 #include "EditorContext.h"
-
+#include <filesystem>
+#include "EditorEvent.h"
 namespace Oven
 {
 class EditorLayer : public Layer
@@ -18,12 +19,14 @@ public:
     void OnEvent(Event& e) override;
 
 private:
+    friend class ScenePanel;
     void SetDefaultTheme();
     bool OnKeyTyped(KeyPressedEvent& e);
-
+    bool OnSceneOpenRequested(SceneOpenRequestedEvent& e);
     void NewScene();
     void OpenSceneDialog();
     void OpenScene(std::string& filepath);
+    void OpenScene(const std::filesystem::path& filepath);
     void SaveSceneAsDialog();
     void OnSceneChange();
 
@@ -31,7 +34,6 @@ private:
     Ref<Shader> m_FlatColorShader;
     Ref<VertexArray> m_SquareVA;
     glm::vec4 m_SquareColor = {0.2, 0.9, 0.1, 1};
-
     Ref<Texture2D> m_SandTexture;
     Ref<Texture2D> m_CheckerboardTexture;
     Ref<Texture2D> m_SpriteSheet;

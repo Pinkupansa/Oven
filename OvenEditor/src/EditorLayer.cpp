@@ -16,7 +16,7 @@
 #include "Oven/Scene/SceneSerializer.h"
 #include "Oven/Utils/PlatformUtils.h"
 #include "misc/freetype/imgui_freetype.h"
-
+#include <filesystem>
 namespace Oven
 {
 
@@ -95,7 +95,9 @@ void EditorLayer::OnAttach()
 
     m_Panels.push_back(EditorPanel::CreatePanel<SceneHierarchyPanel>(&m_Context));
     m_Panels.push_back(EditorPanel::CreatePanel<PropertiesPanel>(&m_Context));
+
     m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
+    m_Panels.back()->SetEventCallback(OVEN_BIND_EVENT_FN(EditorLayer::OnEvent));
     // m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
     // m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
     // m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
@@ -114,6 +116,8 @@ void EditorLayer::OnEvent(Event& e)
         panel->OnEvent(e);
     }
     EventDispatcher dispatcher(e);
+
+    dispatcher.Dispatch<SceneOpenRequestedEvent>(OVEN_BIND_EVENT_FN(EditorLayer::OnSceneOpenRequested));
     dispatcher.Dispatch<KeyPressedEvent>(OVEN_BIND_EVENT_FN(EditorLayer::OnKeyTyped));
 }
 
@@ -169,6 +173,12 @@ bool EditorLayer::OnKeyTyped(KeyPressedEvent& e)
     return true;
 }
 
+bool EditorLayer::OnSceneOpenRequested(SceneOpenRequestedEvent& e)
+{
+    OpenScene(e.GetPath());
+    return true; // Événement consommé
+}
+
 void EditorLayer::NewScene()
 {
     m_Context.SetActiveScene(CreateRef<Scene>());
@@ -189,6 +199,17 @@ void EditorLayer::OpenScene(std::string& filepath)
         m_Context.SetActiveScene(CreateRef<Scene>());
         SceneSerializer serializer(m_Context.GetActiveScene());
         serializer.Deserialize(filepath);
+        OnSceneChange();
+    }
+}
+
+void EditorLayer::OpenScene(const std::filesystem::path& filepath)
+{
+    if (!filepath.empty())
+    {
+        m_Context.SetActiveScene(CreateRef<Scene>());
+        SceneSerializer serializer(m_Context.GetActiveScene());
+        serializer.Deserialize(filepath.string());
         OnSceneChange();
     }
 }

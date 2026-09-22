@@ -29,6 +29,7 @@ void ContentBrowserPanel::OnImGuiRender()
     for (auto& p : std::filesystem::directory_iterator(m_CurrentDirectory))
     {
 
+        auto relativePath = std::filesystem::relative(p, s_AssetsPath);
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
         ImGui::ImageButton(
@@ -38,7 +39,19 @@ void ContentBrowserPanel::OnImGuiRender()
             {0, 1},
             {1, 0}
         );
+        if (ImGui::BeginDragDropSource())
+        {
+            // 1. Get the native path pointer directly from std::filesystem::path
+            const auto* itemPath = p.path().c_str();
+
+            // 2. Calculate full byte size including the null terminator
+            size_t sizeInBytes = (p.path().native().size() + 1) * sizeof(std::filesystem::path::value_type);
+
+            ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath, sizeInBytes, ImGuiCond_Once);
+            ImGui::EndDragDropSource();
+        }
         ImGui::PopStyleColor(2);
+
         if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {}
         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
         {
@@ -50,7 +63,7 @@ void ContentBrowserPanel::OnImGuiRender()
             {
             }
         }
-        ImGui::TextWrapped(p.path().filename().c_str());
+        ImGui::TextWrapped("%s", p.path().filename().c_str());
         ImGui::NextColumn();
     }
     ImGui::Columns(1);
