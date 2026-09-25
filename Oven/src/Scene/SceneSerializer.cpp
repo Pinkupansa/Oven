@@ -100,8 +100,9 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec4& v)
 }
 static void SerializeEntity(YAML::Emitter& out, Entity entity)
 {
+    OVEN_CORE_ASSERT(entity.HasComponent<IDComponent>(), "Entity does not have UUID !");
     out << YAML::BeginMap;
-    out << YAML::Key << "Entity" << YAML::Value << 12356789;
+    out << YAML::Key << "Entity" << YAML::Value << entity.GetUUID();
 
     if (entity.HasComponent<NameComponent>())
     {
@@ -203,14 +204,14 @@ bool SceneSerializer::Deserialize(const std::string& filepath)
     {
         for (auto entity : entities)
         {
-            // uuID = entities["Entity"].as<uint64_t>();
+            uint64_t uuid = entity["Entity"].as<uint64_t>();
 
             std::string name;
             auto nameComponent = entity["NameComponent"];
             if (nameComponent)
                 name = nameComponent["Name"].as<std::string>();
             OVEN_CORE_TRACE(name);
-            Entity deserializedEntity = m_Scene->CreateEntity(name);
+            Entity deserializedEntity = m_Scene->CreateEntityWithUUID(uuid, name);
             auto transformComponent = entity["TransformComponent"];
             if (transformComponent)
             {

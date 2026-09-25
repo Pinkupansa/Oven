@@ -2,7 +2,7 @@
 
 #include "Oven/Scene/Scene.h"
 #include "entt.hpp"
-
+#include "Oven/Scene/IDComponent.h"
 namespace Oven
 {
 class Entity
@@ -33,6 +33,7 @@ public:
         m_Scene->m_Registry.remove<T>(m_EntityHandle);
     }
 
+    UUID GetUUID() { return GetComponent<IDComponent>().ID; }
     operator bool() const { return m_EntityHandle != entt::null; }
 
     operator std::uint32_t() const { return (uint32_t)m_EntityHandle; }

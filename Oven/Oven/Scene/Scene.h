@@ -4,6 +4,7 @@
 
 #include "Oven/Core/Time.h"
 #include "Oven/Renderer/Renderer2D.h"
+#include "Oven/Core/UUID.h"
 namespace Oven
 {
 class Entity;
@@ -15,6 +16,7 @@ public:
     ~Scene();
 
     Entity CreateEntity(const std::string& name = "");
+    Entity CreateEntityWithUUID(UUID uuid, const std::string& name = "");
     void DestroyEntity(Entity entity);
     void OnUpdateRuntime();
     void OnUpdateEditor(Renderer2D::CameraRenderData camera);

@@ -2,6 +2,7 @@
 #include "Oven/Scene/Scene.h"
 #include "Oven/Scene/Components.h"
 #include "Oven/Scene/Entity.h"
+#include "Oven/Scene/NativeScript.h"
 #include <glm/glm.hpp>
 namespace Oven
 {
@@ -9,10 +10,13 @@ Scene::Scene() {}
 
 Scene::~Scene() {}
 
-Entity Scene::CreateEntity(const std::string& name)
+Entity Scene::CreateEntity(const std::string& name) { return CreateEntityWithUUID(UUID(), name); }
+
+Entity Scene::CreateEntityWithUUID(UUID uuid, const std::string& name)
 {
     Entity e = {m_Registry.create(), this};
     e.AddComponent<TransformComponent>();
+    e.AddComponent<IDComponent>(uuid);
     auto& nameComp = e.AddComponent<NameComponent>();
     nameComp.Name = name.empty() ? "Entity" : name;
     return e;
@@ -113,7 +117,7 @@ Entity Scene::GetMainCamera()
     return {};
 }
 template <typename T> inline void Scene::OnComponentAdded(Entity entity) { static_assert(false); }
-
+template <> inline void Scene::OnComponentAdded<IDComponent>(Entity entity) {}
 template <> void Scene::OnComponentAdded<TransformComponent>(Entity entity) {}
 template <> void Scene::OnComponentAdded<CameraComponent>(Entity entity)
 { entity.GetComponent<CameraComponent>().Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight); }

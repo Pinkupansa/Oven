@@ -1,8 +1,7 @@
 #pragma once
-#include "Oven/Scene/NativeScript.h"
 namespace Oven
 {
-
+class NativeScript;
 struct NativeScriptComponent
 {
     NativeScript* Instance = nullptr;
