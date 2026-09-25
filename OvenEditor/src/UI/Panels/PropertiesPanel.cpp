@@ -3,6 +3,7 @@
 #include <cstring> // En C++
 #include <glm/gtc/type_ptr.hpp>
 #include "UI/UIUtils.h"
+#include <filesystem>
 
 namespace Oven
 {
@@ -122,6 +123,21 @@ void PropertiesPanel::DrawSelectionComponents()
 
         UIUtils::DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component) {
             ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
+            ImGui::Button("Texture", ImVec2(100.0f, 0.0f));
+            if (ImGui::BeginDragDropTarget())
+            {
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+                {
+                    std::filesystem::path path = (const std::filesystem::path::value_type*)payload->Data;
+                    if (path.extension() == ".jpg" || path.extension() == ".png" || path.extension() == ".jpeg")
+                    {
+                        component.Texture = Texture2D::Create(path.string());
+                    }
+                }
+                ImGui::EndDragDropTarget();
+            }
+
+            UIUtils::DrawVec2Control("Tiling Factor", component.TilingFactor, 1.0f);
         });
     }
 }

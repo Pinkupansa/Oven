@@ -48,7 +48,7 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : m_Path(path)
 
     // 3. Configurer les paramètres de filtrage (on utilise glTexParameter au lieu de glTextureParameter)
     GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-    GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+    GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 
     GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
     GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
@@ -78,7 +78,7 @@ OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height) : m_Width(widt
 
     // 3. Configurer les paramètres de filtrage (on utilise glTexParameter au lieu de glTextureParameter)
     GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-    GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+    GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 
     GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
     GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
@@ -109,7 +109,8 @@ void OpenGLTexture2D::SetData(void* data, uint32_t size)
     OVEN_CORE_ASSERT(size == m_Width * m_Height * bytesPerChannel, "Size mismatch between texture and data !")
     GL_CALL(glBindTexture(GL_TEXTURE_2D, m_RendererID));
     GL_CALL(
-        glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data));
+        glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data)
+    );
     GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 }
 } // namespace Oven

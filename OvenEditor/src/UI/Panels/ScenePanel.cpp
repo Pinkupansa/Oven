@@ -39,8 +39,21 @@ void ScenePanel::OnUpdate()
     RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
     RenderCommand::Clear();
     m_Framebuffer->ClearColorAttachment(1, -1);
-    m_EditorCamera.OnUpdate();
-    m_Context->GetActiveScene()->OnUpdateEditor({m_EditorCamera.GetProjection(), m_EditorCamera.GetViewMatrix()});
+
+    switch (m_Context->GetSceneState())
+    {
+        case SceneState::Edit: {
+            m_EditorCamera.OnUpdate();
+            m_Context->GetActiveScene()->OnUpdateEditor(
+                {m_EditorCamera.GetProjection(), m_EditorCamera.GetViewMatrix()}
+            );
+            break;
+        }
+        case SceneState::Play: {
+            m_Context->GetActiveScene()->OnUpdateRuntime();
+            break;
+        }
+    }
 
     m_Framebuffer->Unbind();
     if (m_DrawCount < 30)

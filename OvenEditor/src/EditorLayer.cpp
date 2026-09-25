@@ -12,6 +12,7 @@
 #include "UI/Panels/PropertiesPanel.h"
 #include "UI/Panels/ScenePanel.h"
 #include "UI/Panels/ContentBrowserPanel.h"
+#include "UI/Panels/Toolbar.h"
 #include "UI/EditorColors.h"
 #include "Oven/Scene/SceneSerializer.h"
 #include "Oven/Utils/PlatformUtils.h"
@@ -102,6 +103,7 @@ void EditorLayer::OnAttach()
     // m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
     // m_Panels.push_back(EditorPanel::CreatePanel<ScenePanel>(&m_Context));
     m_Panels.push_back(EditorPanel::CreatePanel<ContentBrowserPanel>(&m_Context));
+    m_Panels.push_back(EditorPanel::CreatePanel<Toolbar>(&m_Context));
     std::string sceneFilePath = "OvenEditor/assets/scenes/SuperCube.oven";
     OpenScene(sceneFilePath);
 }

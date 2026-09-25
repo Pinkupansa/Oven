@@ -2,6 +2,7 @@
 #include "Oven.h"
 namespace Oven
 {
+enum class SceneState { Edit = 0, Play = 1 };
 enum TransformOperation { TRANSLATE = 7, ROTATE = 120, SCALE = 896, NONE = -1 };
 enum TransformOperationMode { LOCAL = 0, WORLD };
 struct EditorContext
@@ -12,6 +13,7 @@ private:
     TransformOperation m_CurrentTransformOperation = TransformOperation::TRANSLATE;
     TransformOperationMode m_CurrentTransformOpMode;
     bool m_IsManipulatingEntity;
+    SceneState m_SceneState;
 
 public:
     EditorContext() = default;
@@ -34,6 +36,9 @@ public:
 
     TransformOperationMode GetCurrentTransformOperationMode() { return m_CurrentTransformOpMode; }
     void SetTransformOperationMode(TransformOperationMode mode) { m_CurrentTransformOpMode = mode; }
+
+    SceneState GetSceneState() { return m_SceneState; }
+    void SetSceneState(SceneState state) { m_SceneState = state; }
 
     bool IsManipulatingEntity() { return m_IsManipulatingEntity; }
     void SetIsManipulatingEntity(bool isManipulating) { m_IsManipulatingEntity = isManipulating; }
